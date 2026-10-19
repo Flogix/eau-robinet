@@ -42,12 +42,6 @@ T = {
         "en": "Heatmap: one row per column of the file, one column per year; the darker the cell, the more empty values.",
         "fr": "Carte de chaleur : une ligne par colonne du fichier, une colonne par année ; plus la case est foncée, plus "
               "il y a de valeurs vides."},
-    "dq.missing.take": {
-        "en": "Most columns are complete every year. The dark rows are expected: a column that is fully empty is not "
-              "used, and an empty limit or reference simply means that the parameter has no threshold.",
-        "fr": "La plupart des colonnes sont complètes chaque année. Les lignes foncées sont attendues : une colonne "
-              "entièrement vide n'est pas utilisée, et une limite ou une référence vide veut simplement dire que le "
-              "paramètre n'a pas de seuil."},
 
     "dq.status.kicker": {"en": "What a result looks like", "fr": "À quoi ressemble un résultat"},
     "dq.status.headline": {
@@ -63,11 +57,6 @@ T = {
               "the laboratory measurement being kept when a field measurement also exists.",
         "fr": "Barres empilées : nombre de résultats par année, selon le type de valeur brute ; une ligne par prélèvement "
               "et par paramètre, la mesure de laboratoire étant gardée quand une mesure de terrain existe aussi."},
-    "dq.status.take": {
-        "en": "Quantified values, the ones that carry a real number, are a minority. This is normal for clean water, and "
-              "it is also why the app never reads \"not quantified\" as \"absent\".",
-        "fr": "Les valeurs quantifiées, celles qui portent un vrai nombre, sont minoritaires. C'est normal pour une eau "
-              "propre, et c'est aussi pourquoi l'application ne lit jamais « non quantifié » comme « absent »."},
     "st.not_quantified": {"en": "Below the quantification limit", "fr": "Sous la limite de quantification"},
     "st.quantified": {"en": "Quantified value", "fr": "Valeur quantifiée"},
     "st.qualitative": {"en": "Qualitative (odour, taste…)", "fr": "Qualitatif (odeur, saveur…)"},
@@ -99,23 +88,6 @@ T = {
         "fr": "Courbes : prélèvements déclarés non conformes par les agences de santé (trait plein) et prélèvements où nous "
               "trouvons une valeur au-dessus de la limite écrite à côté (pointillé), pour les bactéries (brique) et la "
               "chimie (bleu)."},
-    "dq.verdict.take": {
-        "en": "The bacterial lines are on top of each other, which validates the way we read the data. The chemical gap "
-              "has three explanations. Since 2023, most samples above a limit but officially compliant are covered by a "
-              "temporary exemption granted by the prefect. Until 2022, selenium and antimony were judged against their "
-              "former limits of 10 and 5 µg/L, while the published rows show today's 20 and 10 µg/L, in force since "
-              "1 January 2023. And for chlorites, 95% of the gap is under 0.7 mg/L, the limit the data gives when the "
-              "treatment can produce them. This is why the app uses the official verdict for history and indicators, "
-              "and our recomputation only for the score, whose windows start in September 2023, where both agree.",
-        "fr": "Les courbes bactériologiques se superposent, ce qui valide notre lecture des données. L'écart chimique a "
-              "trois explications. Depuis 2023, la plupart des prélèvements au-dessus d'une limite mais officiellement "
-              "conformes sont couverts par une dérogation temporaire accordée par le préfet. Jusqu'en 2022, le sélénium "
-              "et l'antimoine étaient jugés avec leurs anciennes limites de 10 et 5 µg/L, alors que les lignes publiées "
-              "montrent celles d'aujourd'hui, 20 et 10 µg/L, en vigueur depuis le 1er janvier 2023. Et pour les "
-              "chlorites, 95 % de l'écart est sous 0,7 mg/L, la limite que donnent les données quand le traitement peut "
-              "en produire. C'est pourquoi l'application utilise le verdict officiel pour l'historique et les "
-              "indicateurs, et notre recalcul seulement pour le score, dont les fenêtres commencent en septembre 2023, là "
-              "où les deux concordent."},
     "dq.verdict.sources": {"en": "Selenium and antimony limits: directives 98/83/EC and (EU) 2020/2184, order of "
                                  "30 December 2022 (docs/sources.md, sources 8 to 10).",
                            "fr": "Limites du sélénium et de l'antimoine : directives 98/83/CE et (UE) 2020/2184, arrêté du "
@@ -128,20 +100,11 @@ T = {
     "dq.cov.title": {"en": "How many samples each network gets in a year", "fr": "Combien de prélèvements chaque réseau reçoit dans l'année"},
     "dq.cov.x": {"en": "Samples per network in {y} (logarithmic scale)", "fr": "Prélèvements par réseau en {y} (échelle logarithmique)"},
     "dq.cov.y": {"en": "Number of networks", "fr": "Nombre de réseaux"},
-    "dq.cov.hover": {"en": "about %{x} samples: %{y:,} networks", "fr": "environ %{x} prélèvements : %{y:,} réseaux"},
     "dq.cov.caption": {
         "en": "Histogram on a logarithmic axis, where each step multiplies by ten (1, 10, 100, 1,000 samples): number of "
               "networks according to how many samples they got in the year.",
         "fr": "Histogramme sur un axe logarithmique, où chaque graduation multiplie par dix (1, 10, 100, 1 000 "
               "prélèvements) : nombre de réseaux selon le nombre de prélèvements reçus dans l'année."},
-    "dq.cov.take": {
-        "en": "The gap is huge: a city network is tested hundreds of times more than a village network. A rate computed "
-              "on five samples is far more uncertain than one computed on five hundred, which is why every score comes "
-              "with a confidence level and why rankings leave out the least tested networks.",
-        "fr": "L'écart est énorme : le réseau d'une ville est contrôlé des centaines de fois plus que celui d'un village. "
-              "Un taux calculé sur cinq prélèvements est bien plus incertain qu'un taux calculé sur cinq cents, c'est "
-              "pourquoi chaque score s'accompagne d'un niveau de confiance et pourquoi les classements écartent les "
-              "réseaux les moins contrôlés."},
     "dq.checks.title": {"en": "All {n} automatic checks", "fr": "Les {n} contrôles automatiques"},
     "dq.checks.pass": {"en": "pass", "fr": "réussi"},
     "dq.checks.fail": {"en": "fail", "fr": "échec"},

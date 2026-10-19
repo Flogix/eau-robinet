@@ -257,4 +257,28 @@ journal dans `data/interim/logs/`).
 
 ## Session identité, écriture, accueil, ergonomie (19/10/2026, en cours)
 - Fait : règles d'écriture dans CLAUDE.md ; direction visuelle A « Au robinet » (papier et encre, Fraunces + IBM Plex, palette validée daltonisme en clair et en sombre) ; module de traduction `utils/i18n.py` + `utils/texts/` (EN officiel, FR via le sélecteur, 559 clés, tests de complétude) ; accueil refait (OMS, Santé publique France, absence de chiffre officiel de décès dite honnêtement, méthode, H1 à H4, indicateurs expliqués) ; pages renommées ; recherche de commune en une seule liste (exemples Paris, Lyon, Marseille, Bordeaux, Lille) ; filtres grisés hors de leurs pages ; rapport « pourquoi » traduit avec étiquettes au lieu d'emojis ; pied de page et page À propos ; `docs/sources.md` renuméroté (sources 1 à 17), sans tiret cadratin ; H1 et H2 testées sur la carte. 167 tests verts avant les derniers ajustements.
-- Reste : relire chaque page en FR et EN dans le navigateur, retirer les tirets cadratins restants dans README et docs internes, vérifier l'app en ligne après le push.
+- Terminé le 20/10 : 18 pages ouvertes (9 en anglais, 9 en français) sans erreur ; niveaux de densité INSEE 3 et 4 inversés corrigés ;
+  accord du singulier dans les rapports (« 1 mesure sur 1 a dépassé ») ; tirets cadratins retirés du README, des docs et du code ;
+  correctif `app.py` : les modules du projet modifiés depuis leur chargement sont rechargés (une `ImportError` apparaissait en ligne
+  après un push, le serveur gardant l'ancienne version de `utils/i18n.py`).
+
+## Session 2 : rendre l'app compréhensible (20/10/2026)
+- **Lire une analyse d'eau** : moteur de recherche sur les 1 789 paramètres (liste unique filtrée pendant la frappe) ; **20 fiches**
+  sourcées (ce que c'est, d'où ça vient, effets possibles sur la santé, seuil et pourquoi, en cas de dépassement), chacune avec
+  « ce que disent les données » calculé ; pour les autres paramètres, les données brutes du catalogue et une phrase honnête.
+  22 sources officielles ajoutées et vérifiées sur les pages primaires (`docs/sources.md`, sources 18 à 39 : Anses, OMS, ARS).
+  Non trouvé et dit tel quel : valeur sanitaire récente de l'atrazine déséthyl ; conduite à tenir en France pour l'arsenic.
+  Graphe des dépassements et tableau des seuils introduits et commentés.
+- **L'eau de ma commune** : réseaux de distribution expliqués (pourquoi plusieurs, pourquoi ces noms) ; lecture de la jauge et des
+  barres (ce qui doit inquiéter ou non) ; **6 formules en LaTeX**, chacune suivie d'une phrase ; texte généré « pourquoi ce score »
+  (points perdus par famille et paramètre en cause) avec comparaison aux médianes nationale et départementale.
+- **Carte** : la vue se choisit sur la page (score global, bactéries, chimie, confort, ou une famille sur la période) ; le filtre
+  « famille » quitte la barre latérale ; texte calculé « ce que dit la carte » (départements et régions extrêmes, corrélation avec la
+  part de petits réseaux) et hypothèses prudentes sourcées par vue.
+- **Comparer** : texte généré qui explique l'écart entre la meilleure et la moins bonne commune (famille, paramètres en cause).
+- **Plongées et Qualité des données** : sous chacun des 12 graphes, interprétation en trois temps (ce qu'on observe, pourquoi
+  probablement avec sources, limites).
+- **Conclusions** : chaque hypothèse rappelée, chiffrée, avec verdict et conclusion ; H3 chiffré avec et sans les trois familles de
+  métabolites (6 177 → 7 592 dépassements sans elles, 6 676 → 20 769 au pic avec elles) ; implications pour un habitant et pour les
+  collectivités (sources 11, 26, 33).
+- Tests : **168 verts** (dont complétude des fiches et des traductions).

@@ -126,4 +126,111 @@ T = {
     "town.kind.limit": {"en": "limit", "fr": "limite"},
     "town.kind.reference": {"en": "reference", "fr": "référence"},
     "town.kind.indicative": {"en": "indicative value", "fr": "valeur indicative"},
+
+    # networks explained
+    "town.nets.text": {
+        "en": "Tap water does not belong to a town: it flows through **distribution networks**. A network is a set of pipes, "
+              "fed by the same source or plant, inside which the water has the same quality. Health agencies test networks, "
+              "not towns. A large town is often served by several networks, one per district or per source, and a small "
+              "village can share its network with its neighbours. That is why the names below rarely look like the name of "
+              "the town: they are the names chosen by the operator, often a water syndicate, a plant or the area served.",
+        "fr": "L'eau du robinet n'appartient pas à une commune : elle circule dans des **réseaux de distribution**. Un réseau "
+              "est un ensemble de canalisations alimenté par la même ressource ou la même usine, dans lequel l'eau a la même "
+              "qualité. Les agences de santé contrôlent des réseaux, pas des communes. Une grande ville est souvent desservie "
+              "par plusieurs réseaux, un par quartier ou par ressource, et un petit village peut partager son réseau avec ses "
+              "voisins. C'est pourquoi les noms ci-dessous ressemblent rarement au nom de la commune : ce sont les noms "
+              "choisis par l'exploitant, souvent un syndicat des eaux, une usine ou le secteur desservi."},
+
+    # how to read the gauge and the bars
+    "town.read.title": {"en": "How to read these two charts", "fr": "Comment lire ces deux graphiques"},
+    "town.read.text": {
+        "en": "The **gauge** places the score of the town on the scale from 0 to 100, with the five grade bands in the "
+              "background: the needle tells the overall verdict at a glance. The **bars** open the box: they give the three "
+              "marks the score is made of. A low mark in bacteria or in health chemistry is the one that deserves attention, "
+              "because it means that a health limit was crossed or approached. A low mark in comfort means cloudy, coloured "
+              "or unusually mineral water, which is unpleasant but is not a health limit. Finally, look at the confidence: "
+              "when it is low, the score rests on few samples and can move after a single incident.",
+        "fr": "La **jauge** place le score de la commune sur l'échelle de 0 à 100, avec les cinq bandes des notes en fond : "
+              "l'aiguille donne le verdict d'ensemble d'un coup d'œil. Les **barres** ouvrent la boîte : elles donnent les "
+              "trois notes qui composent le score. Une note basse en bactéries ou en chimie sanitaire est celle qui mérite "
+              "l'attention, car elle veut dire qu'une limite sanitaire a été franchie ou approchée. Une note basse en confort "
+              "veut dire une eau trouble, colorée ou inhabituellement minéralisée, désagréable mais sans limite sanitaire. "
+              "Enfin, regardez la confiance : quand elle est faible, le score repose sur peu de prélèvements et peut bouger "
+              "après un seul incident."},
+
+    # generated explanation
+    "town.why.gen.title": {"en": "In short: why this score", "fr": "En bref : pourquoi ce score"},
+    "town.why.gen.perfect": {"en": "{town} gets the maximum: every measured family scores 100, nothing pulls the score down.",
+                             "fr": "{town} obtient le maximum : chaque famille mesurée a 100, rien ne fait baisser le score."},
+    "town.why.gen.loss": {"en": "{town} loses {loss} points out of 100. ", "fr": "{town} perd {loss} points sur 100. "},
+    "town.why.gen.fam": {"en": "{fam} costs {pts} points (mark {mark}/100)", "fr": "{fam} coûte {pts} points (note {mark}/100)"},
+    "town.why.gen.fam.one": {"en": "{fam} costs {pts} points (mark {mark}/100)", "fr": "{fam} coûte {pts} point (note {mark}/100)"},
+    "town.why.gen.colon": {"en": ": ", "fr": " : "},
+    "town.why.gen.cause.micro": {"en": "{nc} of the {n} bacterial samples of the last twelve months failed",
+                                 "fr": "{nc} des {n} prélèvements bactériologiques des douze derniers mois ont échoué"},
+    "town.why.gen.cause.micro.one": {"en": "{nc} of the {n} bacterial samples of the last twelve months failed",
+                                     "fr": "{nc} des {n} prélèvements bactériologiques des douze derniers mois a échoué"},
+    "town.why.gen.cause.chem": {"en": "mainly {param}", "fr": "surtout à cause de : {param}"},
+    "town.why.gen.cause.comfort": {"en": "mainly {param}", "fr": "surtout à cause de : {param}"},
+    "town.why.gen.join": {"en": "; ", "fr": " ; "},
+    "town.why.gen.medians": {
+        "en": "Half of the French towns score {nat} or more; in {dep}, half score {depm} or more. {town} is {pos_nat} the "
+              "national middle and {pos_dep} the middle of its department.",
+        "fr": "La moitié des communes françaises a {nat} ou plus ; dans le département {dep}, la moitié a {depm} ou plus. "
+              "{town} est {pos_nat} du milieu national et {pos_dep} du milieu de son département."},
+    "town.pos.above": {"en": "{d} points above", "fr": "{d} points au-dessus"},
+    "town.pos.below": {"en": "{d} points below", "fr": "{d} points en dessous"},
+    "town.pos.at": {"en": "right at", "fr": "pile au niveau"},
+
+    # formulas
+    "town.formula.kicker": {"en": "The method", "fr": "La méthode"},
+    "town.formula.title": {"en": "The formulas behind the score", "fr": "Les formules derrière le score"},
+    "town.formula.intro": {
+        "en": "The score follows six simple rules, the same for every network in France. Each formula is followed by what "
+              "it means in words.",
+        "fr": "Le score suit six règles simples, les mêmes pour tous les réseaux de France. Chaque formule est suivie de ce "
+              "qu'elle veut dire en mots."},
+    "town.formula.micro": {
+        "en": "The bacteria mark starts at 100 and drops with the share t of samples officially non-compliant over twelve "
+              "months: 1 failed sample out of 100 gives 95, 5 out of 100 give 77.",
+        "fr": "La note bactéries part de 100 et baisse avec la part t de prélèvements officiellement non conformes sur douze "
+              "mois : 1 échec sur 100 donne 95, 5 sur 100 donnent 77."},
+    "town.formula.ratio": {
+        "en": "For each substance, r compares the measured value with its threshold: r = 1 means exactly at the limit. With "
+              "ten measurements or more we take the 95th percentile, the value that only 5% of the measurements exceed, so "
+              "that a single peak does not decide everything; any measured exceedance still counts at least as r = 1.",
+        "fr": "Pour chaque substance, r compare la valeur mesurée à son seuil : r = 1 veut dire exactement à la limite. Avec "
+              "dix mesures ou plus, on prend le 95e centile, la valeur que seules 5 % des mesures dépassent, pour qu'un pic "
+              "isolé ne décide pas de tout ; un dépassement mesuré compte quand même au moins comme r = 1."},
+    "town.formula.penalty": {
+        "en": "The penalty is zero up to half of the threshold, reaches 20 points at the threshold, 80 at twice the "
+              "threshold, and stops there.",
+        "fr": "La pénalité est nulle jusqu'à la moitié du seuil, atteint 20 points au seuil, 80 au double du seuil, et "
+              "s'arrête là."},
+    "town.formula.chem": {
+        "en": "The worst substance counts in full, the others for a quarter, so that many small problems still add up "
+              "without drowning the main one. The comfort mark follows the same rule with penalties capped at 50.",
+        "fr": "La pire substance compte entièrement, les autres pour un quart, pour que plusieurs petits problèmes "
+              "s'additionnent sans noyer le principal. La note confort suit la même règle avec des pénalités plafonnées à 50."},
+    "town.formula.score": {
+        "en": "The score is the weighted mean of the marks that were actually measured: a family that was not measured is "
+              "left out, never counted as perfect.",
+        "fr": "Le score est la moyenne pondérée des notes réellement mesurées : une famille non mesurée est écartée, jamais "
+              "comptée comme parfaite."},
+    "town.formula.town": {
+        "en": "A town gets the mean of the scores of its networks, and the grade follows the rounded score.",
+        "fr": "Une commune reçoit la moyenne des scores de ses réseaux, et la note suit le score arrondi."},
+    # words inside the formulas
+    "town.tex.nc": {"en": "non-compliant samples", "fr": "prélèvements non conformes"},
+    "town.tex.samples": {"en": "samples", "fr": "prélèvements"},
+    "town.tex.value": {"en": "value (maximum, or 95th percentile if 10 measurements or more)",
+                       "fr": "valeur (maximum, ou 95e centile si 10 mesures ou plus)"},
+    "town.tex.thr": {"en": "threshold", "fr": "seuil"},
+    "town.tex.measured": {"en": "measured", "fr": "mesurée"},
+    "town.tex.others": {"en": "others", "fr": "autres"},
+    "town.tex.town": {"en": "town", "fr": "commune"},
+    "town.tex.network": {"en": "network", "fr": "réseau"},
+    "town.tex.bact": {"en": "bact", "fr": "bact"},
+    "town.tex.chem": {"en": "chem", "fr": "chim"},
+    "town.tex.comfort": {"en": "comfort", "fr": "confort"},
 }

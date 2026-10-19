@@ -8,8 +8,8 @@ from utils import score as S
 from utils.filters import get_filters
 from utils.i18n import lang, months, num, pct, t
 from utils.io import departments, dep_of_network, load_table
-from utils.viz import (BLUE, BRICK, LIGHT_NEUTRAL, NEUTRAL, OCHRE, PLUM, TEAL, chart, event, headline, kicker,
-                       layout, lede, threshold)
+from utils.viz import (BLUE, BRICK, LIGHT_NEUTRAL, NEUTRAL, OCHRE, PLUM, TEAL, analysis, chart, event, headline,
+                       kicker, layout, lede, threshold)
 
 f = get_filters()
 kicker(t("mon.kicker"))
@@ -51,7 +51,8 @@ for s_, name, color, sym in ((n_par, t("mon.s1.all"), TEAL, "circle"), (n_pest, 
 layout(fig, t("common.year"), t("mon.s1.y"), height=340)
 fig.update_yaxes(rangemode="tozero")
 fig.update_xaxes(dtick=1)
-chart(fig, t("mon.s1.chart"), t("mon.s1.caption"), t("mon.s1.take"))
+chart(fig, t("mon.s1.chart"), t("mon.s1.caption"))
+analysis(t("an.mon.s1.seen", a=num(n_par.loc[2016]), b=num(n_par.loc[2025])), t("an.mon.s1.why"), t("an.mon.s1.lim"))
 
 # --- Clue 2 ------------------------------------------------------------------------------------------------------
 kicker(t("mon.s2.kicker"))
@@ -74,7 +75,8 @@ fig.add_vrect(x0=config.PARTIAL_YEAR - 0.5, x1=config.PARTIAL_YEAR + 0.5, fillco
 fig.update_layout(barmode="stack")
 layout(fig, t("mon.s2.x"), t("mon.s2.y"), height=540)
 fig.update_xaxes(dtick=1)
-chart(fig, t("mon.s2.chart"), t("mon.s2.caption"), t("mon.s2.take"))
+chart(fig, t("mon.s2.chart"), t("mon.s2.caption"))
+analysis(t("an.mon.s2.seen"), t("an.mon.s2.why"), t("an.mon.s2.lim"))
 
 # --- Clue 3 ------------------------------------------------------------------------------------------------------
 kicker(t("mon.s3.kicker"))
@@ -97,8 +99,9 @@ event(fig, 2022.75 if code == "MTCESA" else 2024.33, t("mon.s3.ev"), 0.99)
 layout(fig, t("common.year"), t("mon.s3.y"), height=380)
 fig.update_xaxes(dtick=1)
 det2025 = mm.loc[mm["annee"] == 2025, "n_detected"]
-chart(fig, t("mon.s3.chart", mol=mols[code]), t("mon.s3.caption"),
-      t("mon.s3.take", n=num(det2025.iloc[0]) if len(det2025) else "?"))
+chart(fig, t("mon.s3.chart", mol=mols[code]), t("mon.s3.caption"))
+analysis(t("an.mon.s3.seen", n=num(det2025.iloc[0]) if len(det2025) else "?"), t("an.mon.s3.why"),
+         t("an.mon.s3.lim"))
 st.caption(t("mon.sources"))
 st.success(t("mon.verdict"))
 
@@ -115,7 +118,9 @@ with t_no3:
                                  hovertemplate=t("mon.no3.hover") + "<extra></extra>"))
     threshold(fig, 50, t("mon.no3.thr"), axis="x")
     layout(fig, t("mon.no3.x"), t("mon.no3.y"), height=360, legend=False)
-    chart(fig, t("mon.no3.chart"), t("mon.no3.caption"), t("mon.no3.take"))
+    chart(fig, t("mon.no3.chart"), t("mon.no3.caption"))
+    analysis(t("an.mon.no3.seen", low=pct((no3["max_value"] <= 25).mean(), 0), above=pct((no3["max_value"] > 50).mean())),
+             t("an.mon.no3.why"), t("an.mon.no3.lim"))
 with t_pfas:
     pf = py[py["code"] == "SPFAS"].set_index("annee")[["n_samples", "n_exceed_limit"]]
     headline(t("mon.pfas.headline", a=num(pf["n_samples"].get(2022, 0)), b=num(pf["n_samples"].get(2025, 0)),
@@ -130,7 +135,9 @@ with t_pfas:
     event(fig, 2025.55, t("mon.ev.pfas"), 0.95)
     layout(fig, t("mon.s2.x"), t("mon.pfas.y"), height=360)
     fig.update_xaxes(dtick=1)
-    chart(fig, t("mon.pfas.chart"), t("mon.pfas.caption"), t("mon.pfas.take"))
+    chart(fig, t("mon.pfas.chart"), t("mon.pfas.caption"))
+    analysis(t("an.mon.pfas.seen", a=num(pf["n_samples"].get(2022, 0)), b=num(pf["n_samples"].get(2025, 0)),
+               c=num(pf["n_exceed_limit"].get(2025, 0))), t("an.mon.pfas.why"), t("an.mon.pfas.lim"))
 with t_season:
     c_last = config.COMPLETE_YEARS[-1]
     m0, m1 = min(f.years[0], c_last), min(f.years[1], c_last)   # seasons need the twelve months
@@ -150,8 +157,9 @@ with t_season:
     layout(fig, t("mon.season.x"), t("mon.season.y"), height=360, legend=False)
     fig.update_yaxes(range=[0, 100 * mo["rate"].max() * 1.2])
     ratio = mo.loc[hi_m, "rate"] / mo.loc[lo_m, "rate"]
-    chart(fig, t("mon.season.chart"), t("mon.season.caption"),
-          t("mon.season.take", ratio=f"{ratio:.1f}".replace(".", ",") if lang() == "fr" else f"{ratio:.1f}"))
+    chart(fig, t("mon.season.chart"), t("mon.season.caption"))
+    analysis(t("an.mon.season.seen", ratio=f"{ratio:.1f}".replace(".", ",") if lang() == "fr" else f"{ratio:.1f}",
+               hi=names_m[hi_m - 1], lo=names_m[lo_m - 1]), t("an.mon.season.why"), t("an.mon.season.lim"))
 with t_hard:
     th = win[win["code"] == "TH"][["cdreseau", "mean"]].copy()
     th["dep"] = dep_of_network(th["cdreseau"].astype(str))
@@ -165,7 +173,9 @@ with t_hard:
         fig.add_trace(go.Box(x=th.loc[th["reg_nom"] == reg, "mean"], name=reg, orientation="h", boxpoints=False,
                              marker_color=OCHRE, hoverinfo="x+name"))
     layout(fig, t("mon.hard.x"), None, height=580, legend=False)
-    chart(fig, t("mon.hard.chart"), t("mon.hard.caption"), t("mon.hard.take"))
+    chart(fig, t("mon.hard.chart"), t("mon.hard.caption"))
+    analysis(t("an.mon.hard.seen", lo_v=f"{med.iloc[0]:.0f}", lo=med.index[0], hi_v=f"{med.iloc[-1]:.0f}",
+               hi=med.index[-1]), t("an.mon.hard.why"), t("an.mon.hard.lim"))
 
 # --- What if ---------------------------------------------------------------------------------------------------------
 kicker(t("mon.whatif.kicker"))
@@ -198,7 +208,9 @@ else:
                              text=[pct(v, 0) for v in dist[col]], textposition="outside",
                              hovertemplate="%{x}: %{y:.1f}%<extra>" + name + "</extra>"))
     layout(fig, t("mon.whatif.x"), t("mon.whatif.y"), height=340)
-    chart(fig, t("mon.whatif.chart"), t("mon.whatif.caption"), t("mon.whatif.take"))
+    chart(fig, t("mon.whatif.chart"), t("mon.whatif.caption"))
+    analysis(t("an.mon.whatif.seen", changed=pct(changed, 0), rho=rho_txt), t("an.mon.whatif.why"),
+             t("an.mon.whatif.lim"))
 with st.expander(t("mon.sens.title")):
     sens = load_table("score_sensitivity")
     tbl = sens[["variant", "spearman_networks", "spearman_communes", "share_grade_changed", "bottom10_overlap",

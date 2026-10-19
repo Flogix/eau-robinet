@@ -145,3 +145,17 @@ def render_kpis(f: Filters, explain: bool = True) -> None:
     msg = t("kpi.trend.better_bact" if b1 < b0 else "kpi.trend.worse_bact", a=pct(b0, 2), b=pct(b1, 2), y0=y0, y1=y1)
     msg += " " + t("kpi.trend.chem_up" if c1_ > c0 else "kpi.trend.chem_down", a=pct(c0, 2), b=pct(c1_, 2), y0=y0)
     st.markdown(msg)
+
+
+def town_causes(insee: str) -> dict:
+    """What pulls the score of a town down, family by family, from its networks (current windows):
+    {"micro": (n_nc, n), "chem": code or None, "comfort": code or None}."""
+    from utils.io import commune_network_links
+    links = commune_network_links()
+    nets = links.loc[links["insee"] == insee, "cdreseau"]
+    u = load_table("udi_scores").set_index("cdreseau").reindex(nets).dropna(subset=["score"])
+    out = {"micro": (int(u["n_bact_nc"].sum()), int(u["n_bact"].sum()))}
+    for k in ("chem", "comfort"):
+        w = u[u[f"worst_{k}_penalty"] > 0].sort_values(f"worst_{k}_penalty", ascending=False)
+        out[k] = w[f"worst_{k}_code"].iloc[0] if len(w) else None
+    return out

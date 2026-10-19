@@ -10,13 +10,6 @@ T = {
               "période et une région : la carte, les classements et la tendance suivent."},
     "map.kpi.note": {"en": "These four numbers are explained in detail on the home page.",
                      "fr": "Ces quatre chiffres sont expliqués en détail sur la page d'accueil."},
-    "map.mode": {"en": "The map shows", "fr": "La carte montre"},
-    "map.mode.var": {"en": "{var}, {period}", "fr": "{var}, {period}"},
-    "map.mode.score": {"en": "Today's score of the towns", "fr": "Le score actuel des communes"},
-    "map.mode.help": {"en": "Change the family and the period in the sidebar. The score of the towns always uses the "
-                            "latest months.",
-                      "fr": "Changez la famille et la période dans la barre latérale. Le score des communes utilise "
-                            "toujours les derniers mois."},
     "map.headline.score": {"en": "The median score of the towns ranges from {lo_v}/100 in {lo} to {hi_v}/100 in {hi}.",
                            "fr": "Le score médian des communes va de {lo_v}/100 en {lo} à {hi_v}/100 en {hi}."},
     "map.headline.var": {
@@ -187,4 +180,106 @@ T = {
     "map.col.grade": {"en": "Grade", "fr": "Note"},
     "map.col.worst": {"en": "Main chemical issue", "fr": "Principal souci chimique"},
     "map.col.nbact": {"en": "Bacterial samples", "fr": "Prélèvements bactério"},
+
+    # choice of the view, on the page
+    "map.view": {"en": "What the map shows", "fr": "Ce que montre la carte"},
+    "map.view.help": {
+        "en": "The four score views describe today's water (last 12 months for bacteria, 36 for chemistry). The other views "
+              "count, over the period chosen in the sidebar, the networks with at least one problem of one family.",
+        "fr": "Les quatre vues de score décrivent l'eau d'aujourd'hui (12 derniers mois pour les bactéries, 36 pour la "
+              "chimie). Les autres vues comptent, sur la période choisie dans la barre latérale, les réseaux avec au moins un "
+              "problème d'une famille."},
+    "map.view.score_all": {"en": "Score of the towns, overall", "fr": "Score des communes, global"},
+    "map.view.score_micro": {"en": "Score of the towns, bacteria", "fr": "Score des communes, bactéries"},
+    "map.view.score_chem": {"en": "Score of the towns, health chemistry", "fr": "Score des communes, chimie sanitaire"},
+    "map.view.score_comfort": {"en": "Score of the towns, comfort", "fr": "Score des communes, confort"},
+    "map.view.group.score": {"en": "Today", "fr": "Aujourd'hui"},
+    "map.title.subscore": {"en": "{view}: median of the towns, department by department",
+                           "fr": "{view} : médiane des communes, département par département"},
+    "map.value.subscore": {"en": "Median mark of the towns (out of 100)", "fr": "Note médiane des communes (sur 100)"},
+
+    # what we see
+    "map.see.title": {"en": "What the map says", "fr": "Ce que dit la carte"},
+    "map.see.score": {
+        "en": "The lowest medians are in {worst}; the highest in {best}. At the scale of regions, {reg_lo} has the lowest "
+              "average of its departments ({reg_lo_v}) and {reg_hi} the highest ({reg_hi_v}).",
+        "fr": "Les médianes les plus basses sont dans : {worst} ; les plus hautes dans : {best}. À l'échelle des régions, "
+              "{reg_lo} a la moyenne de ses départements la plus basse ({reg_lo_v}) et {reg_hi} la plus haute ({reg_hi_v})."},
+    "map.see.var": {
+        "en": "The departments most affected are {worst}; the least affected are {best}. At the scale of regions, {reg_hi} "
+              "has the highest average of its departments ({reg_hi_v}) and {reg_lo} the lowest ({reg_lo_v}).",
+        "fr": "Les départements les plus touchés sont : {worst} ; les moins touchés : {best}. À l'échelle des régions, "
+              "{reg_hi} a la moyenne de ses départements la plus haute ({reg_hi_v}) et {reg_lo} la plus basse ({reg_lo_v})."},
+    "map.see.small": {
+        "en": "One factor can be measured right away: the share of small networks, those tested fewer than twelve times a "
+              "year. Across departments, its rank correlation with what the map shows is ρ = {rho} ({strength}).",
+        "fr": "Un facteur se mesure tout de suite : la part de petits réseaux, ceux contrôlés moins de douze fois par an. "
+              "Entre départements, sa corrélation de rang avec ce que montre la carte est ρ = {rho} ({strength})."},
+    "map.strength.strong": {"en": "a clear link", "fr": "un lien net"},
+    "map.strength.moderate": {"en": "a moderate link", "fr": "un lien modéré"},
+    "map.strength.weak": {"en": "almost no link", "fr": "presque aucun lien"},
+    "map.hyp.title": {"en": "Careful hypotheses", "fr": "Hypothèses prudentes"},
+    "map.hyp.score_all": {
+        "en": "The overall score mixes three families, so its map is the sum of several stories: small networks for "
+              "bacteria, farming areas for pesticides, soft or mineral water for comfort. The views by family tell them "
+              "apart.",
+        "fr": "Le score global mélange trois familles : sa carte est la somme de plusieurs histoires, les petits réseaux pour "
+              "les bactéries, les zones agricoles pour les pesticides, l'eau douce ou minérale pour le confort. Les vues par "
+              "famille permettent de les distinguer."},
+    "map.hyp.micro": {
+        "en": "Bacterial problems concentrate in small networks (hypothesis H1, confirmed on this page): where they are "
+              "numerous, the map should be darker, and the correlation above measures it. Health agencies list as causes poorly protected catchments, "
+              "missing or inadequate disinfection and bad weather (ARS Occitanie). The map shows where problems were found, "
+              "not why: these causes are not in the data.",
+        "fr": "Les problèmes bactériologiques se concentrent dans les petits réseaux (hypothèse H1, confirmée sur cette page) : là où ils "
+              "sont nombreux, la carte devrait être plus foncée, et la corrélation ci-dessus le mesure. Les agences de santé citent comme causes des "
+              "captages mal protégés, une désinfection absente ou inadaptée et les intempéries (ARS Occitanie). La carte "
+              "montre où des problèmes ont été trouvés, pas pourquoi : ces causes ne sont pas dans les données."},
+    "map.hyp.chem": {
+        "en": "Chemical failures are dominated by pesticide residues. The most frequent ones come from herbicides used on "
+              "sugar beet (chloridazon) and maize (S-metolachlor), according to the health agencies, which would point to "
+              "areas of field crops. This app has no data on crops, so this remains a hypothesis; and part of the map "
+              "reflects which molecules each region chose to search.",
+        "fr": "Les échecs chimiques sont dominés par les résidus de pesticides. Les plus fréquents viennent d'herbicides "
+              "utilisés sur la betterave (chloridazone) et le maïs (S-métolachlore), selon les agences de santé, ce qui "
+              "orienterait vers les zones de grandes cultures. Cette application n'a pas de données sur les cultures : cela "
+              "reste une hypothèse ; et une partie de la carte reflète les molécules que chaque région a choisi de chercher."},
+    "map.hyp.nitrates": {
+        "en": "According to the World Health Organization, nitrates come mostly from agriculture (fertilisers and manure) "
+              "and from wastewater. The departments that stand out may be those where intensive farming meets vulnerable "
+              "aquifers, but the data does not contain farming practices: this is a hypothesis to check with other sources.",
+        "fr": "Selon l'Organisation mondiale de la santé, les nitrates viennent surtout de l'agriculture (engrais et fumier) "
+              "et des eaux usées. Les départements qui ressortent pourraient être ceux où une agriculture intensive "
+              "rencontre des nappes vulnérables, mais les données ne contiennent pas les pratiques agricoles : c'est une "
+              "hypothèse à vérifier avec d'autres sources."},
+    "map.hyp.pfas": {
+        "en": "PFAS were rarely measured before 2025, so this map shows first where they were searched. Where they were "
+              "found above the limit, health agencies have traced some cases to industrial sites. Read it as a map of "
+              "monitoring as much as a map of pollution.",
+        "fr": "Les PFAS étaient rarement mesurés avant 2025 : cette carte montre d'abord où ils ont été cherchés. Là où ils "
+              "ont été trouvés au-dessus de la limite, les agences de santé ont relié certains cas à des sites industriels. "
+              "À lire comme une carte du contrôle autant que de la pollution."},
+    "map.hyp.metals": {
+        "en": "Two very different stories hide behind metals: lead comes from old pipes inside buildings (ARS Pays de la "
+              "Loire), arsenic from the natural geology of some aquifers (WHO). A department can stand out for either.",
+        "fr": "Deux histoires très différentes se cachent derrière les métaux : le plomb vient des vieilles canalisations des "
+              "immeubles (ARS Pays de la Loire), l'arsenic de la géologie naturelle de certaines nappes (OMS). Un "
+              "département peut ressortir pour l'une ou l'autre."},
+    "map.hyp.dbp": {
+        "en": "By-products of disinfection form when chlorine meets organic matter (Anses). Departments that rely on surface "
+              "water, richer in organic matter, could be more exposed; the data does not say which resource each network "
+              "uses, so this stays a hypothesis.",
+        "fr": "Les sous-produits de désinfection se forment quand le chlore rencontre de la matière organique (Anses). Les "
+              "départements qui dépendent d'eaux de surface, plus riches en matière organique, pourraient être plus "
+              "exposés ; les données ne disent pas quelle ressource utilise chaque réseau : cela reste une hypothèse."},
+    "map.hyp.comfort": {
+        "en": "Comfort indicators are warning lights for operators, not health limits. Soft mountain water, low in minerals, "
+              "can fall outside the expected range of conductivity, as in Chamonix, which is why mountain departments can stand out "
+              "here without any health concern.",
+        "fr": "Les indicateurs de confort sont des voyants pour les exploitants, pas des limites sanitaires. L'eau douce de "
+              "montagne, peu minéralisée, peut sortir de la plage attendue de conductivité, comme à Chamonix : c'est pourquoi des "
+              "départements de montagne peuvent ressortir ici sans aucun enjeu sanitaire."},
+    "map.hyp.caution": {
+        "en": "Everything on this page is a correlation between places: it says where, not why.",
+        "fr": "Tout ce qui figure sur cette page est une corrélation entre des lieux : elle dit où, pas pourquoi."},
 }

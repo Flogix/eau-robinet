@@ -105,3 +105,77 @@ La date de consultation est indiquée entre crochets. Les numéros sont cités d
 
 17. **Polices** de l'interface : Fraunces, IBM Plex Sans et IBM Plex Mono, servies par Google Fonts sous licence SIL Open Font License 1.1.
     https://fonts.google.com/specimen/Fraunces ; https://fonts.google.com/specimen/IBM+Plex+Sans [19/10/2026]
+
+## H. Fiches des paramètres (page « Lire une analyse d'eau »), vérifiées le 20/10/2026
+
+18. **Anses**, « Pesticides dans l'eau du robinet », 22/05/2024. La limite de 0,1 µg/L est « un indicateur de qualité » qui « ne constitue en
+    aucun cas un seuil de risque pour la santé », car elle « n'est pas élaborée sur la base de la toxicité des substances » ; total des
+    pesticides et métabolites pertinents limité à 0,5 µg/L ; valeurs sanitaires maximales (Vmax) établies par l'Anses ; 0,9 µg/L pour les
+    métabolites non pertinents. https://www.anses.fr/fr/content/pesticides-dans-eau-du-robinet [20/10/2026]
+19. **ARS Hauts-de-France**, « Métabolites de la chloridazone dans l'eau du robinet : les réponses aux questions les plus fréquentes », 03/06/2026.
+    Herbicide utilisé principalement sur la betterave, interdit depuis fin 2020 ; métabolites classés pertinents par défaut en avril 2020 faute
+    d'études suffisantes ; Vmax fixées par l'Anses en juillet 2024 : 11 µg/L (desphényl) et 110 µg/L (méthyl desphényl) ; 0,1 µg/L est une
+    limite environnementale, pas sanitaire.
+    https://www.hauts-de-france.ars.sante.fr/metabolites-de-la-chloridazone-dans-leau-du-robinet-les-reponses-aux-questions-les-plus-frequentes [20/10/2026]
+20. **ARS Grand Est**, « Eaux potables & pesticides : foire aux questions ». S-métolachlore : « herbicide encore autorisé, notamment utilisé pour
+    le maïs » ; chloridazone : herbicide interdit depuis 2020, utilisé pour la betterave ; définition d'un métabolite pertinent selon la
+    directive 2020/2184. https://www.grand-est.ars.sante.fr/media/97663/download [20/10/2026]
+21. **Anses**, « Emerging pollutants in drinking water: review of the main findings of the latest national campaign », 06/04/2023. Chlorothalonil
+    R471811 trouvé dans plus de la moitié des prélèvements, au-dessus de 0,1 µg/L dans plus d'un sur trois ; ESA-métolachlore mesuré dans plus
+    de la moitié, moins de 2 % au-dessus de 0,9 µg/L.
+    https://www.anses.fr/en/content/emerging-pollutants-drinking-water-review-main-findings-latest-national-campaign [20/10/2026]
+22. **ARS Centre-Val de Loire**, « La qualité de l'eau potable en 2024 » : métabolites de l'atrazine (« herbicide interdit d'usage depuis 2003 »)
+    et de la chloridazone (interdite en 2020) ; R471811 responsable de 87,5 % des dépassements récurrents de la région en 2024.
+    https://centre-val-de-loire.ars.sante.fr/media/146900/download [20/10/2026]
+23. **OMS**, « Nitrate and Nitrite in Drinking-water », document de référence des lignes directrices, WHO/FWC/WSH/16.52, 2016. Valeur guide de
+    50 mg/L, protectrice des nourrissons nourris au biberon, fondée sur l'absence de méthémoglobinémie et d'effets thyroïdiens sous 50 mg/L dans
+    les études épidémiologiques ; sources : activités agricoles (engrais, fumier), traitement des eaux usées, rejets industriels.
+    https://cdn.who.int/media/docs/default-source/wash-documents/wash-chemicals/nitrate-nitrite-background-jan17.pdf [20/10/2026]
+24. **ARS Normandie et préfet de l'Eure**, communiqué du 25/07/2024 : limite de 50 mg/L « fondée sur une recommandation de l'Organisation
+    Mondiale de la Santé » ; au-dessus, l'eau ne doit pas être consommée par les femmes enceintes et les nourrissons, les autres peuvent la boire.
+    https://www.normandie.ars.sante.fr/media/127448/download [20/10/2026]
+25. **OMS**, fiche « Lead poisoning », 10/06/2026 : aucun niveau d'exposition connu sans effet nocif ; atteinte possible et durable du
+    développement cérébral des enfants ; contamination de l'eau par les canalisations, soudures et raccords en plomb.
+    https://www.who.int/news-room/fact-sheets/detail/lead-poisoning-and-health [20/10/2026]
+26. **ARS Pays de la Loire**, « L'eau et le plomb dans des logements anciens / dégradés », 06/05/2026 : plomb venant surtout des branchements et
+    réseaux intérieurs des immeubles ; limite de 10 µg/L au robinet, 5 µg/L à partir de janvier 2036 ; laisser couler l'eau froide 1 à 2 minutes,
+    eau froide seulement pour l'alimentation, eau en bouteille préférable pour nourrissons et femmes enceintes.
+    https://www.pays-de-la-loire.ars.sante.fr/eau-plomb-dans-logements-anciens-degrades [20/10/2026]
+27. **OMS**, fiche « Arsenic », 07/12/2022 : présent naturellement à des niveaux élevés dans les eaux souterraines de certains pays ; lésions et
+    cancers de la peau, cancers de la vessie et du poumon en exposition prolongée ; valeur guide de 10 µg/L, provisoire à cause des difficultés
+    pratiques d'élimination. https://www.who.int/news-room/fact-sheets/detail/arsenic [20/10/2026]
+28. **ARS Occitanie sur Santé.fr**, « Le chlorure de vinyle monomère (CVM) », 09/01/2024 : produit de synthèse servant à fabriquer le PVC ;
+    dégradation lente des canalisations en PVC fabriquées avant 1980 ; limite de 0,5 µg/L ; purges en urgence, remplacement des conduites,
+    consignes aux consommateurs. https://www.sante.fr/node/7609835 [20/10/2026]
+29. **ARS Nouvelle-Aquitaine**, « Guide méthodologique : chlorure de vinyle monomère (CVM) dans les eaux destinées à la consommation humaine »,
+    avril 2021 : cancérogène certain pour l'homme selon le CIRC depuis 1987, sur la base d'expositions professionnelles par inhalation à fortes
+    doses ; cancers du foie. https://www.nouvelle-aquitaine.ars.sante.fr/media/133978/download [20/10/2026]
+30. **OMS**, fiche chimique « Trihalomethanes », chemical fact sheets 2022 : le CIRC classe le chloroforme cancérogène possible (groupe 2B).
+    https://cdn.who.int/media/docs/default-source/wash-documents/water-safety-and-quality/chemical-fact-sheets-2022/trihalomethanes-fact-sheet-2022.pdf [20/10/2026]
+31. **Afssa (devenue Anses)**, avis 2004-SA-0070 sur les trihalométhanes : formation par réaction du chlore avec la matière organique naturelle ;
+    associations épidémiologiques avec le cancer de la vessie dès 50 µg/L, sans causalité démontrée ; limite de 100 µg/L pour le total.
+    https://www.anses.fr/fr/system/files/RCCP2004sa0070.pdf [20/10/2026]
+32. **ARS Guadeloupe**, « Présence de bromates dans l'eau potable à Saint-Barthélemy : questions / réponses », 21/08/2018 : formés par oxydation
+    des bromures pendant la désinfection ou venant d'impuretés du désinfectant chloré ; tumeurs chez le rat ; bromate de potassium classé
+    cancérogène probable par l'Union européenne et l'OMS ; limite de 10 µg/L.
+    https://www.guadeloupe.ars.sante.fr/system/files/2018-08/1808_QR_bromates%20V5%20stabilis%C3%A9.pdf [20/10/2026]
+33. **ARS Occitanie**, « La bactériologie », 04/02/2026 : E. coli et entérocoques, témoins d'une contamination fécale ; absence exigée dans
+    100 mL ; symptômes le plus souvent de type gastro-entérite ; coliformes et germes aérobies non dangereux en eux-mêmes, témoins de l'entretien
+    et de la désinfection ; interdiction de consommer en cas de risque. https://www.occitanie.ars.sante.fr/la-bacteriologie [20/10/2026]
+34. **ARS Normandie**, « Le contrôle de la qualité de l'eau », 12/10/2026 : limites (effets possibles sur la santé) et références (« sans
+    incidence directe sur la santé », par exemple couleur ou fer) ; turbidité : 1 NFU en sortie de traitement pour les eaux superficielles,
+    2 NFU au robinet ; coliformes et bactéries sulfito-réductrices en références.
+    https://www.normandie.ars.sante.fr/le-controle-de-la-qualite-de-leau [20/10/2026]
+35. **Afssa (devenue Anses)**, fiche « Aluminium », janvier 2005 : référence de qualité de 200 µg/L, indicateur d'efficacité du traitement ;
+    origine naturelle ou sels d'aluminium utilisés pour la coagulation. https://www.anses.fr/fr/system/files/EAUX-Fi-AluminiumJanvier05.pdf [20/10/2026]
+36. **Anses**, avis du 20/04/2018 (saisine 2016-SA-0203) relatif à une valeur sanitaire maximale pour le manganèse : référence de 50 µg/L « pour
+    des raisons organoleptiques et esthétiques » ; perceptible par le consommateur au-delà de 20 µg/L ; effets neurotoxiques étudiés.
+    https://www.anses.fr/en/system/files/EAUX2016SA0203.pdf [20/10/2026]
+37. **ARS Île-de-France**, « Alimentation en eau potable : l'information sur la qualité de l'eau du robinet », 18/12/2025 : « Une eau calcaire
+    n'a aucune incidence pour la santé » ; nitrates entre 50 et 100 mg/L : consommation restreinte pour femmes enceintes et nourrissons.
+    https://www.iledefrance.ars.sante.fr/alimentation-en-eau-potable-linformation-sur-la-qualite-de-leau-du-robinet [20/10/2026]
+38. **ARS Hauts-de-France**, « Les PFAS en 3 questions clés », 07/02/2025 : utilisés depuis les années 1950 ; « polluants éternels » car ils se
+    dégradent très peu ; quatre effets fréquemment cités : moindre réponse immunitaire aux vaccins, cholestérol ou triglycérides élevés, baisse
+    du poids de naissance, risque accru de cancer du rein. https://www.hauts-de-france.ars.sante.fr/les-pfas-en-3-questions-cles [20/10/2026]
+39. **ARS Hauts-de-France**, « PFAS : contrôle de l'eau potable », 28/04/2026 : en cas de dépassement, mesures correctives, information des
+    usagers, du maire, du préfet et de l'ARS, nouvelles analyses. https://www.hauts-de-france.ars.sante.fr/pfas-controle-de-leau-potable [20/10/2026]

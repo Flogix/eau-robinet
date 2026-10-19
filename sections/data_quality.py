@@ -7,7 +7,7 @@ import config
 from utils.filters import get_filters
 from utils.i18n import num, pct, t
 from utils.io import load_table
-from utils.viz import BLUE, BRICK, NEUTRAL, SERIES, chart, headline, kicker, layout, lede
+from utils.viz import BLUE, BRICK, NEUTRAL, SERIES, analysis, chart, headline, kicker, layout, lede
 
 f = get_filters()
 kicker(t("dq.kicker"))
@@ -31,7 +31,8 @@ fig = go.Figure(go.Heatmap(z=100 * m.values, x=m.columns, y=m.index, zmin=0, zma
                            colorbar=dict(title=t("dq.missing.cb")), hovertemplate=t("dq.missing.hover") + "<extra></extra>"))
 layout(fig, t("dq.missing.x"), None, height=max(320, 22 * len(m)), legend=False)
 fig.update_xaxes(dtick=1)
-chart(fig, t("dq.missing.title", file=table), t("dq.missing.caption"), t("dq.missing.take"))
+chart(fig, t("dq.missing.title", file=table), t("dq.missing.caption"))
+analysis(t("an.dq.missing.seen"), t("an.dq.missing.why"), t("an.dq.missing.lim"))
 
 # --- Kinds of results ---------------------------------------------------------------------------------------
 kicker(t("dq.status.kicker"))
@@ -49,7 +50,9 @@ for i, s in enumerate(order[:6]):
 fig.update_layout(barmode="stack")
 layout(fig, t("mon.s2.x"), t("dq.status.y"), height=380)
 fig.update_xaxes(dtick=1)
-chart(fig, t("dq.status.title"), t("dq.status.caption"), t("dq.status.take"))
+chart(fig, t("dq.status.title"), t("dq.status.caption"))
+analysis(t("an.dq.status.seen", share=pct(r["not_quantified"].sum() / r.values.sum(), 0)), t("an.dq.status.why"),
+         t("an.dq.status.lim"))
 
 # --- Official vs recomputed ---------------------------------------------------------------------------------
 kicker(t("dq.verdict.kicker"))
@@ -64,7 +67,8 @@ for col, key, color, dash in (("chem_nc_official", "chem_off", BLUE, "solid"), (
                              hovertemplate="%{x}: %{y:,}<extra>" + name + "</extra>"))
 layout(fig, t("mon.s2.x"), t("dq.verdict.y"), height=380)
 fig.update_xaxes(dtick=1)
-chart(fig, t("dq.verdict.title"), t("dq.verdict.caption"), t("dq.verdict.take"))
+chart(fig, t("dq.verdict.title"), t("dq.verdict.caption"))
+analysis(t("an.dq.verdict.seen"), t("an.dq.verdict.why"), t("an.dq.verdict.lim"))
 st.caption(t("dq.verdict.sources"))
 with st.expander(t("dq.gap.title")):
     st.dataframe(load_table("dq_chem_gap").sort_values(["annee", "n_samples"], ascending=[True, False]), hide_index=True)
@@ -80,7 +84,9 @@ fig = go.Figure(go.Histogram(x=np.log10(u["n_samples"].astype(float)), nbinsx=40
                              hovertemplate="10^%{x:.1f}: %{y:,}<extra></extra>"))
 fig.update_xaxes(tickvals=[0, 1, 2, 3], ticktext=["1", "10", "100", num(1000)])
 layout(fig, t("dq.cov.x", y=yr), t("dq.cov.y"), height=340, legend=False)
-chart(fig, t("dq.cov.title"), t("dq.cov.caption"), t("dq.cov.take"))
+chart(fig, t("dq.cov.title"), t("dq.cov.caption"))
+analysis(t("an.dq.cov.seen", med=f"{u['n_samples'].median():.0f}", y=yr, max=num(u["n_samples"].max())),
+         t("an.dq.cov.why"), t("an.dq.cov.lim"))
 
 with st.expander(t("dq.checks.title", n=len(checks))):
     st.dataframe(checks.assign(ok=checks["ok"].map({True: t("dq.checks.pass"), False: t("dq.checks.fail")})),

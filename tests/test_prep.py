@@ -162,3 +162,14 @@ def test_every_text_key_used_in_code_exists():
     for f in files:
         used |= set(re.findall(r"""\b(?:t|_tr)\(\s*["']([a-zA-Z0-9_.]+)["']""", f.read_text(encoding="utf-8")))
     assert not {k for k in used if k not in TEXTS and not k.endswith(".")}
+
+
+def test_fact_sheets_complete_sourced_and_clean():
+    from utils.texts.factsheets import FACTS, FIELDS, SOURCES
+    assert len(FACTS) >= 20
+    for code, sheet in FACTS.items():
+        assert sheet["sources"] and all(s in SOURCES for s in sheet["sources"]), code
+        for field in FIELDS:
+            assert set(sheet[field]) == {"en", "fr"}, (code, field)
+            assert all(sheet[field][lg].strip() for lg in ("en", "fr")), (code, field)
+            assert chr(0x2014) not in sheet[field]["en"] + sheet[field]["fr"], (code, field)

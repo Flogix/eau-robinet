@@ -117,4 +117,85 @@ T = {
     "read.col.thr": {"en": "Threshold", "fr": "Seuil"},
     "read.col.kind": {"en": "Kind", "fr": "Type"},
     "read.col.unit": {"en": "Unit", "fr": "Unité"},
+
+    # search engine of parameters
+    "read.search.kicker": {"en": "Search the water", "fr": "Chercher dans l'eau"},
+    "read.search.title": {"en": "Look up a substance or a parameter", "fr": "Chercher une substance ou un paramètre"},
+    "read.search.text": {
+        "en": "Type a name in the box: the list holds the {n} parameters of the dataset, with the twenty that matter most for "
+              "the story at the top. Each of these twenty has a fact sheet written from official sources (Anses, World "
+              "Health Organization, regional health agencies); for the others, the app shows what the data contains.",
+        "fr": "Tapez un nom dans le champ : la liste contient les {n} paramètres du jeu de données, avec en tête les vingt "
+              "qui comptent le plus pour le récit. Chacun de ces vingt a une fiche rédigée à partir de sources officielles "
+              "(Anses, Organisation mondiale de la santé, agences régionales de santé) ; pour les autres, l'application "
+              "montre ce que contiennent les données."},
+    "read.search.box": {"en": "Substance or parameter", "fr": "Substance ou paramètre"},
+    "read.search.help": {"en": "The list filters as you type. The code in brackets is the one used by the Ministry of Health.",
+                         "fr": "La liste se filtre pendant la frappe. Le code entre parenthèses est celui du ministère de la "
+                               "Santé."},
+    "read.fs.what": {"en": "What it is", "fr": "Ce que c'est"},
+    "read.fs.origin": {"en": "Where it comes from", "fr": "D'où ça vient"},
+    "read.fs.health": {"en": "Possible effects on health", "fr": "Effets possibles sur la santé"},
+    "read.fs.threshold": {"en": "Its threshold, and why", "fr": "Son seuil, et pourquoi"},
+    "read.fs.exceed": {"en": "When it is exceeded", "fr": "En cas de dépassement"},
+    "read.fs.data": {"en": "What the data says", "fr": "Ce que disent les données"},
+    "read.fs.sources": {"en": "Official sources", "fr": "Sources officielles"},
+    "read.fs.family": {"en": "Family: {fam}", "fr": "Famille : {fam}"},
+    "read.fs.datatext": {
+        "en": "Measured in {n} samples between 2016 and {last}, first in {first}. In {last}, {k} of {m} samples were above "
+              "the threshold of {thr} ({share}), and the highest value was {max} {unit}.",
+        "fr": "Mesuré dans {n} prélèvements entre 2016 et {last}, pour la première fois en {first}. En {last}, {k} des {m} "
+              "prélèvements étaient au-dessus du seuil de {thr} ({share}), et la valeur la plus haute était de {max} {unit}."},
+    "read.fs.datatext.nothr": {
+        "en": "Measured in {n} samples between 2016 and {last}, first in {first}. In {last}, it was quantified in {d} of {m} "
+              "samples, and the highest value was {max} {unit}.",
+        "fr": "Mesuré dans {n} prélèvements entre 2016 et {last}, pour la première fois en {first}. En {last}, il a été "
+              "quantifié dans {d} des {m} prélèvements, et la valeur la plus haute était de {max} {unit}."},
+    "read.fs.notlast": {"en": "Measured in {n} samples between 2016 and 2026, first in {first}, but not in {last}.",
+                        "fr": "Mesuré dans {n} prélèvements entre 2016 et 2026, pour la première fois en {first}, mais pas "
+                              "en {last}."},
+    "read.fs.none": {
+        "en": "There is no fact sheet for this parameter: this app wrote sheets only for the twenty parameters that matter "
+              "most for its story, from official sources. Here is what the data itself contains.",
+        "fr": "Il n'y a pas de fiche pour ce paramètre : cette application n'a rédigé de fiches que pour les vingt paramètres "
+              "qui comptent le plus pour son récit, à partir de sources officielles. Voici ce que contiennent les données "
+              "elles-mêmes."},
+    "read.fs.meta": {
+        "en": "Label in the data: {label}. Family in this app: {fam}. Unit: {unit}. Threshold written in the data: {thr}. "
+              "Results in the data: {n}, of which {d} quantified (a real number above the quantification limit). Years "
+              "measured: {y0} to {y1}.",
+        "fr": "Libellé dans les données : {label}. Famille dans cette application : {fam}. Unité : {unit}. Seuil écrit dans "
+              "les données : {thr}. Résultats dans les données : {n}, dont {d} quantifiés (un vrai nombre au-dessus de la "
+              "limite de quantification). Années mesurées : {y0} à {y1}."},
+    "read.fs.nothr": {"en": "none", "fr": "aucun"},
+    "fam.info": {"en": "Information", "fr": "Information"},
+
+    "read.chart.intro": {
+        "en": "Now that each substance has a name and a threshold, how often are those thresholds crossed in France? This "
+              "chart puts the key parameters side by side for one year. Each bar is the share of the samples where the "
+              "parameter was searched and found above its threshold: the longer the bar, the more frequent the problem. "
+              "The colour gives the family, so that health limits and comfort references are not confused.",
+        "fr": "Maintenant que chaque substance a un nom et un seuil, à quelle fréquence ces seuils sont-ils franchis en "
+              "France ? Ce graphique met côte à côte les paramètres clés pour une année. Chaque barre est la part des "
+              "prélèvements où le paramètre a été cherché et trouvé au-dessus de son seuil : plus la barre est longue, plus "
+              "le problème est fréquent. La couleur donne la famille, pour ne pas confondre limites sanitaires et "
+              "références de confort."},
+    "read.table.intro": {
+        "en": "The table below gives the threshold used for each of these parameters, exactly as it is written next to each "
+              "result in the data. Read the kind column first: a limit protects health, a reference is a warning light, and "
+              "an indicative value applies to the pesticide residues judged non-relevant.",
+        "fr": "Le tableau ci-dessous donne le seuil utilisé pour chacun de ces paramètres, tel qu'il est écrit à côté de "
+              "chaque résultat dans les données. Lisez d'abord la colonne du type : une limite protège la santé, une "
+              "référence est un voyant, et une valeur indicative s'applique aux résidus de pesticides jugés non pertinents."},
+    "read.table.take": {
+        "en": "Two things stand out. Thresholds span more than five orders of magnitude, from 0.1 µg/L for a pesticide to "
+              "50 mg/L for nitrates, because they answer different questions: a quality indicator not built on toxicity for "
+              "pesticides, a dose studied by "
+              "the WHO for nitrates. And several thresholds are not health thresholds at all, which is why a single number "
+              "above its threshold does not always mean the water is unsafe.",
+        "fr": "Deux choses ressortent. Les seuils couvrent plus de cinq ordres de grandeur, de 0,1 µg/L pour un pesticide à "
+              "50 mg/L pour les nitrates, parce qu'ils répondent à des questions différentes : un indicateur de qualité non fondé sur la "
+              "toxicité pour les "
+              "pesticides, une dose étudiée par l'OMS pour les nitrates. Et plusieurs seuils ne sont pas du tout sanitaires : "
+              "c'est pourquoi un chiffre au-dessus de son seuil ne veut pas toujours dire que l'eau est dangereuse."},
 }

@@ -2,7 +2,7 @@
 from importlib import import_module
 
 MODULES = ["common", "report", "home", "reading", "town", "compare", "mapview", "monitor", "quality",
-           "conclusions", "about"]
+           "conclusions", "about", "analyses"]
 
 TEXTS: dict[str, dict[str, str]] = {}
 for _name in MODULES:

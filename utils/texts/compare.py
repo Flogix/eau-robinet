@@ -93,4 +93,31 @@ T = {
               "de montagne est souvent très peu minéralisée, et le groupe méditerranéen est une approximation."},
     "cmp.box.y": {"en": "Town score (out of 100)", "fr": "Score de la commune (sur 100)"},
     "cmp.box.n": {"en": "{n} towns", "fr": "{n} communes"},
+
+    # why one town does better than another
+    "cmp.why.title": {"en": "Why one town does better than the other", "fr": "Pourquoi une commune fait mieux que l'autre"},
+    "cmp.why.lead": {
+        "en": "{best} ({bs}/100) does better than {worst} ({ws}/100). The gap comes mostly from {fam}: {vb} against {vw}.",
+        "fr": "{best} ({bs}/100) fait mieux que {worst} ({ws}/100). L'écart vient surtout de la famille {fam} : {vb} contre "
+              "{vw}."},
+    "cmp.why.same": {
+        "en": "{best} and {worst} are almost level ({bs} and {ws} out of 100): their differences are too small to mean much.",
+        "fr": "{best} et {worst} sont presque à égalité ({bs} et {ws} sur 100) : leurs différences sont trop faibles pour "
+              "vouloir dire grand-chose."},
+    "cmp.why.town": {"en": "In {town}: {causes}.", "fr": "À {town} : {causes}."},
+    "cmp.why.clean": {"en": "In {town}, no family loses points that matter.",
+                      "fr": "À {town}, aucune famille ne perd de points qui comptent."},
+    "cmp.cause.micro": {"en": "{k} of {n} bacterial samples failed in twelve months",
+                        "fr": "{k} prélèvements bactériologiques sur {n} ont échoué en douze mois"},
+    "cmp.cause.micro.one": {"en": "{k} of {n} bacterial samples failed in twelve months",
+                            "fr": "{k} prélèvement bactériologique sur {n} a échoué en douze mois"},
+    "cmp.cause.chem": {"en": "{param} came close to or above its health limit",
+                       "fr": "{param} s'est approché de sa limite sanitaire ou l'a dépassée"},
+    "cmp.cause.comfort": {"en": "{param} came close to or above its comfort reference",
+                          "fr": "{param} s'est approché de sa référence de confort ou l'a dépassée"},
+    "cmp.why.end": {
+        "en": "The other towns of the comparison sit between these two; the report of each one, on the page The water of my "
+              "town, gives the details.",
+        "fr": "Les autres communes de la comparaison se situent entre ces deux-là ; le rapport de chacune, sur la page L'eau "
+              "de ma commune, donne le détail."},
 }

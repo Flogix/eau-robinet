@@ -22,19 +22,32 @@ st.caption(t("map.kpi.note"))
 fmt1 = (lambda v: f"{v:.1f}".replace(".", ",")) if lang() == "fr" else (lambda v: f"{v:.1f}")
 
 # --- Map ------------------------------------------------------------------------------------------------
-modes = {"var": t("map.mode.var", var=f.variable_label, period=f.period_label), "score": t("map.mode.score")}
-mode = st.segmented_control(t("map.mode"), list(modes), format_func=modes.get, default="var", key="map_mode",
-                            help=t("map.mode.help")) or "var"
-by_score = mode == "score"
+SCORE_VIEWS = ["score_all", "score_micro", "score_chem", "score_comfort"]
+PERIOD_VIEWS = ["bact_official", "chem_official", "pesticides", "nitrates", "pfas", "metals", "disinfection_byproducts",
+                "comfort"]
+HYP = {"score_all": "score_all", "score_micro": "micro", "bact_official": "micro", "score_chem": "chem",
+       "chem_official": "chem", "pesticides": "chem", "nitrates": "nitrates", "pfas": "pfas", "metals": "metals",
+       "disinfection_byproducts": "dbp", "score_comfort": "comfort", "comfort": "comfort"}
+TREND_VAR = {"score_all": "chem_official", "score_micro": "bact_official", "score_chem": "chem_official",
+             "score_comfort": "comfort"}
+view_labels = {**{v: t(f"map.view.{v}") for v in SCORE_VIEWS},
+               **{v: f"{t('var.' + v)}, {f.period_label}" for v in PERIOD_VIEWS}}
+view = st.selectbox(t("map.view"), SCORE_VIEWS + PERIOD_VIEWS, format_func=view_labels.get, key="map_view",
+                    help=t("map.view.help"))
+by_score = view in SCORE_VIEWS
+variable = TREND_VAR.get(view, view)
 if by_score:
-    d = metrics.dept_scores(f)
-    d = d[d["n_communes"] >= 5].copy()
-    d["value"], d["n"] = d["median_score"], d["n_communes"]
+    col = {"score_all": "score", "score_micro": "micro", "score_chem": "chem", "score_comfort": "comfort"}[view]
+    sc_all = metrics.scored_communes(f)
+    d = (sc_all.groupby("dep").agg(value=(col, "median"), n=("insee", "size")).reset_index()
+         .merge(departments(), on="dep", how="left"))
+    d = d[d["n"] >= 5].copy()
     hover = [t("map.hover.score", dep=f"{nm} ({c})", v=fmt1(v), n=num(n))
              for nm, c, v, n in zip(d["dep_nom"], d["dep"], d["value"], d["n"])]
-    value_label, scale = t("map.value.score"), [[0, "#E8E2D4"], [1, "#0E5A61"]]
+    value_label = t("map.value.score") if view == "score_all" else t("map.value.subscore")
+    scale = [[0, "#E8E2D4"], [1, "#0E5A61"]]
 else:
-    d = metrics.dept_variable(f)
+    d = metrics.dept_variable(f, variable)
     d = d[d["n_networks"] >= 10].copy()
     d["value"], d["n"] = 100 * d["share"], d["n_networks"]
     hover = [t("map.hover.var", dep=f"{nm} ({c})", v=pct(v / 100), n=num(n))
@@ -43,6 +56,7 @@ else:
 d["hover"] = hover
 metro = d[~d["dep"].str.startswith("97")]
 overseas = d[d["dep"].str.startswith("97")]
+fmt_v = (lambda v: fmt1(v)) if by_score else (lambda v: pct(v / 100))
 
 if not metro.empty:
     hi, lo = metro.loc[metro["value"].idxmax()], metro.loc[metro["value"].idxmin()]
@@ -50,7 +64,7 @@ if not metro.empty:
         headline(t("map.headline.score", lo=lo["dep_nom"], lo_v=f"{lo['value']:.0f}", hi=hi["dep_nom"],
                    hi_v=f"{hi['value']:.0f}"))
     else:
-        headline(t("map.headline.var", var=f.variable_label, lo=lo["dep_nom"], lo_v=pct(lo["value"] / 100),
+        headline(t("map.headline.var", var=t("var." + view), lo=lo["dep_nom"], lo_v=pct(lo["value"] / 100),
                    hi=hi["dep_nom"], hi_v=pct(hi["value"] / 100), period=f.period_label))
     fig = go.Figure(go.Choropleth(
         geojson=departments_geojson(), featureidkey="properties.code", locations=metro["dep"], z=metro["value"],
@@ -59,15 +73,37 @@ if not metro.empty:
         colorbar=dict(title=dict(text=value_label.replace(" (", "<br>("), side="right"), thickness=12)))
     fig.update_geos(fitbounds="locations", visible=False, bgcolor="rgba(0,0,0,0)")
     fig.update_layout(height=580, margin=dict(l=0, r=0, t=10, b=0), font=dict(family="IBM Plex Sans"))
-    take = (t("map.take.score", k=int((metro["value"] >= 75).sum()), n=len(metro)) if by_score
-            else t("map.take.var"))
-    chart(fig, t("map.title.score") if by_score else t("map.title.var", var=f.variable_label, period=f.period_label),
-          t("map.caption", dir=t("map.dir.score") if by_score else t("map.dir.var")), take)
+    take = (t("map.take.score", k=int((metro["value"] >= 75).sum()), n=len(metro)) if view == "score_all"
+            else None if by_score else t("map.take.var"))
+    title = (t("map.title.score") if view == "score_all" else
+             t("map.title.subscore", view=view_labels[view]) if by_score else
+             t("map.title.var", var=t("var." + view), period=f.period_label))
+    chart(fig, title, t("map.caption", dir=t("map.dir.score") if by_score else t("map.dir.var")), take)
     if not overseas.empty:
-        st.caption(t("map.overseas", list=" · ".join(
-            f"{r['dep_nom']} {fmt1(r['value']) if by_score else pct(r['value'] / 100)}" for _, r in overseas.iterrows())))
-    if not by_score and f.variable not in OFFICIAL:
+        st.caption(t("map.overseas", list=" · ".join(f"{r['dep_nom']} {fmt_v(r['value'])}" for _, r in overseas.iterrows())))
+    if not by_score and view not in OFFICIAL:
         st.caption(t("map.recomputed"))
+
+    # --- What the map says, and careful hypotheses ----------------------------------------------------------
+    st.markdown(f'<div class="ar-chart-title">{t("map.see.title")}</div>', unsafe_allow_html=True)
+    ordered = metro.sort_values("value", ascending=by_score)   # worst first
+    worst = ", ".join(f"{r['dep_nom']} ({fmt_v(r['value'])})" for _, r in ordered.head(5).iterrows())
+    best = ", ".join(f"{r['dep_nom']} ({fmt_v(r['value'])})" for _, r in ordered.tail(3).iloc[::-1].iterrows())
+    reg = metro.groupby("reg_nom")["value"].mean().dropna()
+    see = t("map.see.score" if by_score else "map.see.var", worst=worst, best=best, reg_lo=reg.idxmin(),
+            reg_lo_v=fmt_v(reg.min()), reg_hi=reg.idxmax(), reg_hi_v=fmt_v(reg.max()))
+    uy_ = load_table("udi_year")
+    uy_ = uy_[uy_["annee"].between(*f.years) & (uy_["n_bact"] > 0)]
+    small_share = (uy_.assign(dep=dep_of_network(uy_["cdreseau"].astype(str)), small=uy_["n_bact"] < 12)
+                   .groupby("dep")["small"].mean())
+    both = metro.set_index("dep")["value"].to_frame().join(small_share, how="inner")
+    if len(both) >= 10:
+        rho_s = both["value"].rank().corr(both["small"].rank())
+        strength = "strong" if abs(rho_s) >= 0.5 else "moderate" if abs(rho_s) >= 0.25 else "weak"
+        rho_txt = f"{rho_s:.2f}".replace(".", ",") if lang() == "fr" else f"{rho_s:.2f}"
+        see += " " + t("map.see.small", rho=rho_txt, strength=t(f"map.strength.{strength}"))
+    st.markdown(see)
+    st.markdown(f"**{t('map.hyp.title')}.** {t('map.hyp.' + HYP[view])} {t('map.hyp.caution')}")
 
     # --- Rankings ---------------------------------------------------------------------------------------
     kicker(t("map.rank.kicker"))
@@ -159,7 +195,7 @@ if len(sc):
 
 # --- Trend ---------------------------------------------------------------------------------------------------------
 kicker(t("map.trend.kicker"))
-tr = metrics.national_variable_by_year(f)
+tr = metrics.national_variable_by_year(f, variable)
 tr = tr[tr["annee"].between(*f.years)]
 tr["scope"] = tr["scope"].replace({"France": t("map.trend.france")})
 if len(tr):
@@ -180,7 +216,7 @@ if len(tr):
     layout(fig, t("common.year"), t("map.trend.y"), height=360)
     fig.update_yaxes(rangemode="tozero")
     fig.update_xaxes(dtick=1)
-    chart(fig, t("map.trend.title", var=f.variable_label),
+    chart(fig, t("map.trend.title", var=t("var." + variable)),
           t("map.trend.caption", region=f" / {f.region_name}" if f.region else ""), t("map.trend.take"))
 
 # --- Lowest networks -----------------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ PAGE_FILTERS = {
     "reading": {"years"},
     "town": set(),
     "compare": {"region"},
-    "map": {"years", "region", "variable", "ctype"},
+    "map": {"years", "region", "ctype"},
     "monitor": {"years"},
     "quality": {"years"},
     "conclusions": set(),
@@ -77,7 +77,6 @@ def sidebar(page: str) -> Filters:
     names = dict(zip(reg["reg"], reg["reg_nom"]))
     # labels computed once per run (a format_func must not depend on state read later)
     reg_labels = {None: t("side.region.all"), **names}
-    var_labels = {v: t(f"var.{v}") for v in VARIABLES}
     type_labels = {c: t(f"ctype.{c}") for c in COMMUNE_TYPES}
     with st.sidebar:
         st.markdown(f"**{t('side.filters')}**")
@@ -88,8 +87,7 @@ def sidebar(page: str) -> Filters:
         region = st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
                               format_func=reg_labels.get,
                               disabled="region" not in active)
-        variable = st.selectbox(t("side.variable"), VARIABLES, format_func=var_labels.get, key="f_variable",
-                                help=t("side.variable.help"), disabled="variable" not in active)
+        variable = "bact_official"   # the family is chosen on the map page itself
         ctype = st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
                              help=t("side.ctype.help"), disabled="ctype" not in active)
         st.divider()

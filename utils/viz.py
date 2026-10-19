@@ -156,3 +156,9 @@ def chart(fig: go.Figure, title: str, caption: str, take: str | None = None, key
     st.caption(f"{caption} {t('common.source_short')}")
     if take:
         takeaway(take)
+
+
+def analysis(seen: str, why: str, limits: str) -> None:
+    """Interpretation under a chart: what we observe, why it is probably so (with sources), and the limits."""
+    from utils.i18n import t as _t
+    takeaway(f"**{_t('an.seen')}** {seen}<br><br>**{_t('an.why')}** {why}<br><br>**{_t('an.limits')}** {limits}")

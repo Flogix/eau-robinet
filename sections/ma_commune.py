@@ -8,7 +8,7 @@ from utils import score as S
 from utils.i18n import lang, num, t, tn
 from utils.io import commune_network_links, communes, load_table, network_history, town_options
 from utils.viz import (BRICK, FAMILY_COLORS, GRADE_COLORS, SERIES, badge, chart, headline, kicker, layout, lede,
-                       partial_year, threshold)
+                       partial_year, takeaway, threshold)
 
 kicker(t("town.kicker"))
 st.title(t("town.title"))
@@ -88,9 +88,56 @@ with right:
             t("town.subs.take", fam=t(f"fam.{weakest}").lower(), v=f"{measured[weakest]:.0f}", town=town))
     chart(fig, t("town.subs.title"), t("town.subs.caption"), take)
 
+st.markdown(f'<div class="ar-chart-title">{t("town.read.title")}</div>', unsafe_allow_html=True)
+st.markdown(t("town.read.text"))
+
+# --- Generated explanation: what pulls the score down, and the town against the medians ---------------------------
+st.markdown(f'<div class="ar-chart-title">{t("town.why.gen.title")}</div>', unsafe_allow_html=True)
+cat_all = load_table("params_catalog")
+lab_all = dict(zip(cat_all["code"], cat_all["label"]))
+u_rows = udi.reindex(nets["cdreseau"]).dropna(subset=["score"])
+w_measured = {k: config.WEIGHTS[k] for k, v in zip(fams, vals) if pd.notna(v)}
+norm = sum(w_measured.values())
+losses = {k: w_measured[k] * (100 - float(c[k])) / norm for k in w_measured}
+parts = []
+for k, pts in sorted(losses.items(), key=lambda kv: -kv[1]):
+    if pts < 0.5:
+        continue
+    fam_name = t(f"fam.{k}") if not parts else t(f"fam.{k}").lower()
+    piece = tn("town.why.gen.fam", 1 if (lang() == "fr" and pts < 2) else 2, fam=fam_name, pts=fmt1(pts),
+               mark=f"{float(c[k]):.0f}")
+    if k == "micro":
+        nc_, n_ = int(u_rows["n_bact_nc"].sum()), int(u_rows["n_bact"].sum())
+        if nc_:
+            piece += t("town.why.gen.colon") + tn("town.why.gen.cause.micro", nc_, nc=num(nc_), n=num(n_))
+    else:
+        col_code, col_pen = f"worst_{k}_code", f"worst_{k}_penalty"
+        worst = u_rows.sort_values(col_pen, ascending=False)
+        if len(worst) and isinstance(worst[col_code].iloc[0], str):
+            piece += ", " + t(f"town.why.gen.cause.{k}", param=S.label(worst[col_code].iloc[0], lab_all))
+    parts.append(piece)
+loss = 100 - score
+if loss < 0.05 or not parts:
+    gen = t("town.why.gen.perfect", town=town)
+else:
+    gen = t("town.why.gen.loss", town=town, loss=fmt1(loss)) + t("town.why.gen.join").join(parts) + "."
+dep_med = communes().loc[lambda d: d["dep"] == c["dep"], "score"].median()
+
+
+def _pos(diff: float) -> str:
+    if abs(diff) < 0.05:
+        return t("town.pos.at")
+    return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
+
+
+gen += " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})", depm=fmt1(dep_med),
+               town=town, pos_nat=_pos(score - median), pos_dep=_pos(score - dep_med))
+takeaway(gen)
+
 # --- Report per network ---------------------------------------------------------------------------------
 kicker(t("town.why.kicker"))
 st.header(t("town.why.title"))
+st.markdown(t("town.nets.text"))
 n = nets.merge(udi.reset_index(), on="cdreseau", how="left")
 n["name"] = n["cdreseau"].map(names).fillna(n["cdreseau"])
 if len(n) > 1:
@@ -127,6 +174,31 @@ for tab, (_, r) in zip(tabs, ordered.iterrows()):
         if isinstance(r.get("districts"), str):
             st.caption(t("town.districts", d=r["districts"]))
 st.caption(t("town.legend"))
+
+# --- Formulas ------------------------------------------------------------------------------------------------------
+kicker(t("town.formula.kicker"))
+st.header(t("town.formula.title"))
+st.markdown(t("town.formula.intro"))
+TX = {k: t(f"town.tex.{k}") for k in ("nc", "samples", "value", "thr", "measured", "others", "town", "network", "bact",
+                                        "chem", "comfort")}
+st.latex(r"S_{\text{" + TX["bact"] + r"}} = 100 \times (1 - t)^{5}, \qquad t = \frac{\text{" + TX["nc"] + r"}}{\text{"
+         + TX["samples"] + r"}}")
+st.markdown(t("town.formula.micro"))
+st.latex(r"r = \frac{\text{" + TX["value"] + r"}}{\text{" + TX["thr"] + r"}}")
+st.markdown(t("town.formula.ratio"))
+st.latex(r"g(r) = \begin{cases} 0 & r \leq 0.5 \\ 40\,(r - 0.5) & 0.5 < r \leq 1 \\ 20 + 60\,(r - 1) & 1 < r \leq 2 "
+         r"\\ 80 & r > 2 \end{cases}")
+st.markdown(t("town.formula.penalty"))
+st.latex(r"S_{\text{" + TX["chem"] + r"}} = \max\Big(0,\; 100 - g_{\max} - 0.25 \sum_{\text{" + TX["others"]
+         + r"}} g\Big)")
+st.markdown(t("town.formula.chem"))
+st.latex(r"\text{Score} = \frac{\sum_{f\ \text{" + TX["measured"] + r"}} w_f\, S_f}{\sum_{f\ \text{" + TX["measured"]
+         + r"}} w_f}, \qquad w_{\text{" + TX["bact"] + r"}} = 0.4,\; w_{\text{" + TX["chem"] + r"}} = 0.4,\; w_{\text{"
+         + TX["comfort"] + r"}} = 0.2")
+st.markdown(t("town.formula.score"))
+st.latex(r"\text{Score}_{\text{" + TX["town"] + r"}} = \frac{1}{N} \sum_{i=1}^{N} \text{Score}_{\text{" + TX["network"]
+         + r" } i}")
+st.markdown(t("town.formula.town"))
 
 # --- History ----------------------------------------------------------------------------------------------
 kicker(t("town.hist.kicker"))

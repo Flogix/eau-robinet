@@ -21,10 +21,10 @@ T = {
     "side.lang": {"en": "Language", "fr": "Langue"},
     "side.filters": {"en": "Filters", "fr": "Filtres"},
     "side.intro": {
-        "en": "These filters narrow the national figures to a period, a region, a family of substances or a kind of town. "
+        "en": "These filters narrow the national figures to a period, a region or a kind of town. "
               "They act on the home page, the map, the comparison of groups and the data checks; the ones that do "
               "nothing on the page you are reading are greyed out.",
-        "fr": "Ces filtres restreignent les chiffres nationaux à une période, une région, une famille de substances ou un "
+        "fr": "Ces filtres restreignent les chiffres nationaux à une période, une région ou un "
               "type de commune. Ils agissent sur l'accueil, la carte, la comparaison des groupes et les contrôles des "
               "données ; ceux qui ne changent rien à la page ouverte sont grisés."},
     "side.none": {
@@ -114,4 +114,8 @@ T = {
               "Le code et les données traitées sont publics sur [GitHub](https://github.com/Flogix/eau-robinet) : chacun "
               "peut les télécharger, les réutiliser et refaire l'analyse. Données : ministère de la Santé, Licence Ouverte "
               "2.0 ; toutes les autres sources sont listées dans [sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md)."},
+    # interpretation under a chart
+    "an.seen": {"en": "What we see.", "fr": "Ce qu'on observe."},
+    "an.why": {"en": "Why, probably.", "fr": "Pourquoi, probablement."},
+    "an.limits": {"en": "Limits.", "fr": "Limites."},
 }

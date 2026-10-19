@@ -35,11 +35,6 @@ T = {
         "en": "Two lines: all parameters (teal) and pesticides with their metabolites that carry a limit (ochre), per year.",
         "fr": "Deux courbes : tous les paramètres (bleu-vert) et les pesticides avec leurs métabolites qui ont une limite "
               "(ocre), par année."},
-    "mon.s1.take": {
-        "en": "The growth is steady rather than sudden, so it cannot by itself explain a jump in 2021. The next clue is "
-              "which molecules entered the list, and when.",
-        "fr": "La hausse est régulière plutôt que brutale : elle ne peut pas expliquer à elle seule un saut en 2021. "
-              "L'indice suivant, c'est quelles molécules sont entrées dans la liste, et quand."},
 
     "mon.s2.kicker": {"en": "Clue 2", "fr": "Indice 2"},
     "mon.s2.title": {"en": "Three molecules make the curve", "fr": "Trois molécules font la courbe"},
@@ -71,14 +66,6 @@ T = {
               "par groupe ; la ligne gris foncé à losanges est le nombre de prélèvements officiellement déclarés non "
               "conformes. Les lignes verticales en pointillé marquent les changements dans ce qui était cherché et dans "
               "la façon de le classer."},
-    "mon.s2.take": {
-        "en": "The official line follows the coloured blocks. It rises when the chloridazon metabolites enter the "
-              "monitoring and falls when ESA-metolachlor, then chlorothalonil, stop counting as exceedances. The water "
-              "did not change overnight; what changed is what was searched and the threshold used to judge it.",
-        "fr": "La ligne officielle suit les blocs colorés. Elle monte quand les métabolites de la chloridazone entrent "
-              "dans le contrôle et redescend quand l'ESA-métolachlore, puis le chlorothalonil, cessent de compter comme "
-              "dépassements. L'eau n'a pas changé du jour au lendemain ; ce qui a changé, c'est ce qu'on cherchait et le "
-              "seuil utilisé pour le juger."},
 
     "mon.s3.kicker": {"en": "Clue 3", "fr": "Indice 3"},
     "mon.s3.title": {"en": "Same molecule, new threshold", "fr": "Même molécule, nouveau seuil"},
@@ -99,13 +86,6 @@ T = {
         "fr": "Barres brique : prélèvements au-dessus de la limite de 0,1 µg/L ; barres bleu-vert hachurées : au-dessus "
               "de la valeur indicative de 0,9 µg/L ; ligne pointillée : prélèvements où la molécule a été trouvée, quel "
               "que soit le niveau."},
-    "mon.s3.take": {
-        "en": "The dotted line does not collapse after the reclassification: in 2025 the molecule was still found in {n} "
-              "samples. Only the verdict changed. A drop in non-compliance can therefore come from a new rule rather than "
-              "from cleaner water, and a rise can come from a new search rather than from dirtier water.",
-        "fr": "La ligne pointillée ne s'effondre pas après le reclassement : en 2025, la molécule était encore trouvée dans "
-              "{n} prélèvements. Seul le verdict a changé. Une baisse des non-conformités peut donc venir d'une nouvelle "
-              "règle plutôt que d'une eau plus propre, et une hausse d'une nouvelle recherche plutôt que d'une eau plus sale."},
     "mon.sources": {
         "en": "Sources of the dates and thresholds: Anses opinions of 30/09/2022 and the 0.9 µg/L indicative value, "
               "Assemblée nationale written question 2237 (answer of 28/03/2023); chlorothalonil R471811, ARS "
@@ -151,9 +131,6 @@ T = {
         "fr": "Histogramme : nombre de réseaux par tranche de 2,5 mg/L de leur valeur de nitrates la plus haute, avec la "
               "limite de 50 mg/L en tirets brique. Les réseaux où les nitrates n'ont jamais été quantifiés ne sont pas "
               "montrés."},
-    "mon.no3.take": {
-        "en": 'The bulk of networks sit far from the nitrate limit. The few that cross it form a thin tail on the right of the chart, and their report says so.',
-        "fr": "L'essentiel des réseaux est loin de la limite des nitrates. Les quelques réseaux qui la franchissent forment une fine traîne à droite du graphique, et leur rapport le dit."},
     "mon.pfas.headline": {
         "en": "Samples analysed for the sum of twenty PFAS: {a} in 2022, {b} in 2025; {c} of them were above 0.1 µg/L in "
               "2025.",
@@ -169,9 +146,6 @@ T = {
               "hatched), values written on top.",
         "fr": "Barres par année : prélèvements analysés pour la somme de 20 PFAS (bleu-vert) et prélèvements au-dessus de "
               "la limite de 0,1 µg/L (brique, hachurés), valeurs écrites au-dessus."},
-    "mon.pfas.take": {
-        "en": 'PFAS, called forever chemicals by the health agencies, were almost never measured before 2025. The lesson of the pesticides applies here too: the first wave of results will look like a sudden problem, while it is mostly a new search. An absence of measurement was never an absence of PFAS.',
-        "fr": "Les PFAS, appelés polluants éternels par les agences de santé, n'étaient presque jamais mesurés avant 2025. La leçon des pesticides vaut ici aussi : la première vague de résultats ressemblera à un problème soudain, alors qu'il s'agit surtout d'une nouvelle recherche. Une absence de mesure n'a jamais été une absence de PFAS."},
     "mon.season.note": {"en": "Complete years only: {a} to {b} (2026 lacks September to December).",
                         "fr": "Années complètes seulement : {a} à {b} (il manque septembre à décembre 2026)."},
     "mon.season.headline": {
@@ -187,11 +161,6 @@ T = {
               "chosen period; the value is written on each bar.",
         "fr": "Barres, une par mois : part des prélèvements bactériologiques officiellement non conformes, sur les années "
               "complètes de la période choisie ; la valeur est écrite sur chaque barre."},
-    "mon.season.take": {
-        "en": "Failures are about {ratio} times more frequent in the worst month than in the best one. This seasonal "
-              "pattern is a correlation: the data does not say what causes it, only when to be more careful.",
-        "fr": "Les échecs sont environ {ratio} fois plus fréquents le pire mois que le meilleur. Ce rythme saisonnier est "
-              "une corrélation : les données ne disent pas ce qui le cause, seulement quand être plus vigilant."},
     "mon.hard.headline": {
         "en": "The median hardness of networks ranges from {lo_v} °f in {lo} to {hi_v} °f in {hi}. H4 is confirmed: "
               "limescale varies a lot, without any health limit.",
@@ -210,12 +179,6 @@ T = {
               "the middle half of the networks.",
         "fr": "Boîtes à moustaches, une par région, triées par médiane : le trait dans chaque boîte est le réseau médian, "
               "la boîte contient la moitié centrale des réseaux."},
-    "mon.hard.take": {
-        "en": "This is the difference people notice most in their daily life, and it is the one that matters least for "
-              "health. That is why hardness is shown in the reports as information and never lowers the score.",
-        "fr": "C'est la différence que l'on remarque le plus au quotidien, et c'est celle qui compte le moins pour la "
-              "santé. C'est pourquoi la dureté apparaît dans les rapports comme une information et ne fait jamais "
-              "baisser le score."},
 
     "mon.whatif.kicker": {"en": "What if", "fr": "Et si"},
     "mon.whatif.title": {"en": "What if the score weighted things differently?", "fr": "Et si le score pesait les choses autrement ?"},
@@ -246,11 +209,6 @@ T = {
               "(blue), values written on top.",
         "fr": "Barres groupées : part des réseaux dans chaque note avec les poids par défaut (gris, hachuré) et avec les "
               "vôtres (bleu), valeurs écrites au-dessus."},
-    "mon.whatif.take": {
-        "en": "Grades move, but the order of the networks hardly does: the networks at the bottom stay at the bottom. "
-              "That is what makes the score usable despite its arbitrary weights.",
-        "fr": "Les notes bougent, mais l'ordre des réseaux presque pas : les réseaux du bas restent en bas. C'est ce qui "
-              "rend le score utilisable malgré des poids arbitraires."},
     "mon.sens.title": {"en": "Sensitivity analysis: fourteen variants of the method",
                        "fr": "Analyse de sensibilité : quatorze variantes de la méthode"},
     "mon.sens.caption": {

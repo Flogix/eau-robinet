@@ -6,10 +6,13 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+import config
+from utils import metrics
+from utils import score as S
 from utils.filters import commune_mask, get_filters
-from utils.i18n import lang, num, pct, t
+from utils.i18n import lang, num, pct, t, tn
 from utils.io import EXAMPLE_TOWNS, commune_network_links, communes, load_table, town_options
-from utils.viz import SERIES, chart, headline, kicker, layout, lede
+from utils.viz import SERIES, chart, headline, kicker, layout, lede, takeaway
 
 f = get_filters()
 kicker(t("cmp.kicker"))
@@ -53,6 +56,32 @@ else:
     chart(fig, t("cmp.bars.title"), t("cmp.bars.caption"),
           t("cmp.bars.take", fam=t(f"fam.{fam_gap}").lower(), hi=hi["nom"], vhi=f"{hi[fam_gap]:.0f}", lo=lo["nom"],
             vlo=f"{lo[fam_gap]:.0f}"))
+
+    # --- Why the best town does better than the worst one --------------------------------------------------------
+    st.markdown(f'<div class="ar-chart-title">{t("cmp.why.title")}</div>', unsafe_allow_html=True)
+    cat = load_table("params_catalog")
+    cat_labels = dict(zip(cat["code"], cat["label"]))
+    if best["score"] - worst["score"] < 1:
+        why = t("cmp.why.same", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]))
+    else:
+        gaps = {k: (best[k] - worst[k]) * config.WEIGHTS[k] for k in fams if pd.notna(best[k]) and pd.notna(worst[k])}
+        fam_w = max(gaps, key=gaps.get) if gaps else "micro"
+        why = t("cmp.why.lead", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]),
+                fam=t(f"fam.{fam_w}").lower(), vb=f"{best[fam_w]:.0f}", vw=f"{worst[fam_w]:.0f}")
+    for town_row in (worst, best):
+        causes = metrics.town_causes(town_row["insee"])
+        items = []
+        k_nc, n_b = causes["micro"]
+        if k_nc:
+            items.append(tn("cmp.cause.micro", k_nc, k=num(k_nc), n=num(n_b)))
+        for k in ("chem", "comfort"):
+            if causes[k]:
+                items.append(t(f"cmp.cause.{k}", param=S.label(causes[k], cat_labels)))
+        why += " " + (t("cmp.why.town", town=town_row["nom"], causes=t("town.why.gen.join").join(items)) if items
+                      else t("cmp.why.clean", town=town_row["nom"]))
+    if len(sel) > 2:
+        why += " " + t("cmp.why.end")
+    takeaway(why)
 
     links = commune_network_links()
     w = load_table("udi_param_window")

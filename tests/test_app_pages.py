@@ -43,9 +43,10 @@ def test_pages_with_extreme_filters(region, variable, ctype, years):
     at = run_app()
     at.switch_page("sections/overview.py").run()   # the map page enables every filter
     at.selectbox(key="f_region_code").set_value(region)
-    at.selectbox(key="f_variable").set_value(variable)
     at.selectbox(key="f_ctype").set_value(ctype)
     at.slider(key="f_years").set_value(years)
+    at.run()
+    at.selectbox(key="map_view").set_value(variable)
     at.run()
     assert not at.exception, at.exception
     for page in PAGES:

@@ -1,4 +1,5 @@
-"""What it all means: the four hypotheses answered with computed numbers, one summary chart, implications, limits."""
+"""What it all means: each hypothesis restated, with the numbers, the verdict and what we conclude; one summary chart;
+implications for a resident and for local authorities; limits."""
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -12,6 +13,7 @@ from utils.viz import TEAL, chart, kicker, layout, lede
 last = config.COMPLETE_YEARS[-1]
 Y = (config.YEARS[0], last)
 ny = load_table("national_year").set_index("annee")
+dec = (lambda v, k=2: f"{v:.{k}f}".replace(".", ",")) if lang() == "fr" else (lambda v, k=2: f"{v:.{k}f}")
 
 kicker(t("con.kicker"))
 st.title(t("con.title"))
@@ -34,33 +36,40 @@ d["b"], d["c"] = d["n_bact_nc"] / d["n_bact"], d["n_chem_nc"] / d["n_chem"]
 rho = d["b"].rank().corr(d["c"].rank())
 names = departments().set_index("dep")["dep_nom"]
 
-# H3 and H4
+# H3: exceedances with and without the three metabolite families
 nc = ny["n_chem_nc"]
-th = load_table("udi_param_window")
-th = th.loc[th["code"] == "TH", "mean"]
-sens = load_table("score_sensitivity")
-sens = sens[sens["variant"] != "default"]
-dec = (lambda v, k=2: f"{v:.{k}f}".replace(".", ",")) if lang() == "fr" else (lambda v, k=2: f"{v:.{k}f}")
-
-kicker(t("con.found.kicker"))
-st.header(t("con.found.title"))
-st.markdown(t("con.h1", share_nc=pct(small["nc"].sum() / h1["nc"].sum(), 0),
-              share_s=pct(small["samples"].sum() / h1["samples"].sum(), 0), a=pct(h1.loc["s", "rate"]),
-              b=pct(h1.loc["xl", "rate"], 2)))
-st.markdown(t("con.h2", rho=dec(rho), top_b=", ".join(names.get(x, x) for x in d["b"].nlargest(3).index),
-              top_c=", ".join(names.get(x, x) for x in d["c"].nlargest(3).index)))
-st.markdown(t("con.h3", before=num(nc.loc[2016:2020].mean()), during=num(nc.loc[2021:2024].mean()),
-              y2025=num(nc.loc[2025])))
-st.markdown(t("con.h4", lo=f"{th.quantile(0.05):.0f}", hi=f"{th.quantile(0.95):.0f}"))
-st.markdown(t("con.score", k=int((sens["spearman_networks"] >= 0.95).sum()), n=len(sens)))
-
-# summary chart: exceedances with and without the three metabolite families
 py = load_table("param_year")
 META = {"CLDZ_D", "CLDZ_MD", "MTCESA", "MTCNOA", "471811R", "CLTHALS"}
 rows = py[(py["family"] == "chem") | py["code"].isin(["ESAMTC", "NOAMTC", "R471811", "471811R", "MTCESA", "MTCNOA"])]
 rows = rows[rows["annee"] <= last]
 allx = rows.groupby("annee")["n_exceed_limit"].sum()
 without = rows[~rows["code_merged"].isin(META)].groupby("annee")["n_exceed_limit"].sum()
+
+# H4: hardness, and the robustness of the score
+th = load_table("udi_param_window")
+th = th.loc[th["code"] == "TH", "mean"]
+sens = load_table("score_sensitivity")
+sens = sens[sens["variant"] != "default"]
+
+kicker(t("con.found.kicker"))
+st.header(t("con.found.title"))
+blocks = {
+    "h1": dict(share_nc=pct(small["nc"].sum() / h1["nc"].sum(), 0), share_s=pct(small["samples"].sum() / h1["samples"].sum(), 0),
+               a=pct(h1.loc["s", "rate"]), b=pct(h1.loc["xl", "rate"], 2), y0=Y[0], y1=Y[1]),
+    "h2": dict(rho=dec(rho), top_b=", ".join(names.get(x, x) for x in d["b"].nlargest(3).index),
+               top_c=", ".join(names.get(x, x) for x in d["c"].nlargest(3).index)),
+    "h3": dict(before=num(nc.loc[2016:2020].mean()), during=num(nc.loc[2021:2024].mean()), y2025=num(nc.loc[2025]),
+               w0=num(without.loc[2016]), w1=num(without.loc[last]), a0=num(allx.loc[2016]), a1=num(allx.loc[last])),
+    "h4": dict(lo=f"{th.quantile(0.05):.0f}", hi=f"{th.quantile(0.95):.0f}"),
+}
+for h, kw in blocks.items():
+    with st.container(border=True):
+        st.subheader(t(f"con.{h}.title"))
+        st.markdown(f"**{t('con.lab.hyp')}** {t(f'con.{h}.hyp')}")
+        st.markdown(f"**{t('con.lab.data')}** {t(f'con.{h}.data', **kw)}")
+        st.markdown(f"**{t('con.lab.verdict')}** {t(f'con.{h}.verdict')}")
+st.markdown(t("con.score", k=int((sens["spearman_networks"] >= 0.95).sum()), n=len(sens)))
+
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=allx.index, y=allx.values, name=t("con.chart.with"), mode="lines+markers",
                          line=dict(color="#5E5A50", width=2.6), marker=dict(size=8),
@@ -71,11 +80,13 @@ fig.add_trace(go.Scatter(x=without.index, y=without.values, name=t("con.chart.wi
 layout(fig, t("common.year"), t("con.chart.y"), height=380)
 fig.update_yaxes(rangemode="tozero")
 fig.update_xaxes(dtick=1)
-chart(fig, t("con.chart.title"), t("con.chart.caption"), t("con.chart.take"))
+chart(fig, t("con.chart.title"), t("con.chart.caption"),
+      t("con.chart.take", a0=num(allx.loc[2016]), apeak=num(allx.max()), w0=num(without.loc[2016]),
+        w1=num(without.loc[last])))
 
 kicker(t("con.means.kicker"))
 st.header(t("con.means.title"))
 st.markdown(t("con.resident"))
-st.markdown(t("con.decider"))
+st.markdown(t("con.authorities"))
 kicker(t("con.limits.kicker"))
 st.markdown(t("con.limits"))
