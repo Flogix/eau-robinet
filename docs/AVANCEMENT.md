@@ -38,7 +38,7 @@ journal dans `data/interim/logs/`).
 - Thème : l'app suit le réglage clair/sombre du lecteur ; vérifié en sombre → corrigés : ligne noire invisible (devenue gris moyen),
   fond blanc de la carte (transparent), aiguille de la jauge, ordre des sous-scores, « None » dans les quartiers.
 - Robustesse : tests des 8 pages avec des filtres extrêmes (Mayotte + PFAS + 2026 seule, Corse 2016, Guyane…) et recherche
-  d'homonymes ; un plantage trouvé et corrigé (saisonnalité sans année complète). **154 tests verts.**
+  d'homonymes ; un plantage trouvé et corrigé (saisonnalité sans année complète). **153 tests verts.**
 
 ## Phase 4 — App, version 1 (19/10/2026)
 
