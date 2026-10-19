@@ -23,6 +23,16 @@ st.markdown(
     f"**{n_results / 1e6:.1f} million analysis results**. **But what do they say about *your* water?**"
 )
 
+with st.expander("Who is this app for, and which questions does it answer?", expanded=True):
+    a, b = st.columns(2)
+    a.markdown("**For** a resident who wonders whether the water from their tap is good — and for elected officials, "
+               "journalists and teachers who want to see where the problems are in France.")
+    b.markdown("**Questions** — 1. Is my water good? *(My town)* · 2. What is measured, what is serious? "
+               "*(Understand your water)* · 3. Big city vs small town, mountain vs Mediterranean? *(Compare)* · "
+               "4. Where are the problems? *(France's water map)* · 5. Is it getting better since 2016? *(Deep dives)*")
+    st.caption("Reading path: the pages in the menu follow the story — hook, context, your town, comparisons, "
+               "the national picture, the main insight, data quality, conclusions.")
+
 # --- Hook: find your town ------------------------------------------------------------------------
 with st.container(border=True):
     st.markdown("**Find your town** — score /100, grade A–E and the report that explains it.")

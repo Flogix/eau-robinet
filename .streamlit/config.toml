@@ -6,4 +6,4 @@ headless = true
 
 [theme]
 # Light/dark follow the viewer's system setting; colours used in charts come from utils/viz.py.
-base = "light"
+# no "base": the app follows the light or dark setting of the viewer (charts use the Streamlit Plotly theme)

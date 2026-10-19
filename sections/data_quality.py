@@ -34,7 +34,7 @@ st.caption("Fully empty columns (e.g. `libwebparametre`) are not used. Empty val
            "that the parameter has no threshold.")
 
 # --- Results statuses ------------------------------------------------------------------------------------
-st.subheader("What the 133 million results look like")
+st.subheader(f"What the {rs['n'].sum() / 1e6:.0f} million results look like")
 labels = {"not_quantified": "Below the quantification limit (< LQ)", "quantified": "Quantified value",
           "qualitative": "Qualitative (e.g. odour)", "not_measured": "Not measured (excluded)",
           "missing": "Empty", "unreadable": "Unreadable", "above": "Above a measurement range (> x)",

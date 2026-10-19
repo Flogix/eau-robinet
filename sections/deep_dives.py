@@ -53,12 +53,12 @@ st.markdown(
 fig = go.Figure()
 cols = {"Chloridazone metabolites": PALETTE["vermillion"], "ESA-metolachlor": PALETTE["orange"],
         "Chlorothalonil metabolites": PALETTE["purple"], "Other pesticides": PALETTE["sky"],
-        "Nitrates": PALETTE["blue"], "Other chemistry": PALETTE["grey"]}
+        "Nitrates": PALETTE["blue"], "Other chemistry": "#C8C8C8"}
 for g in ORDER:
     fig.add_trace(go.Bar(x=by.index, y=by[g], name=g, marker_color=cols[g], marker_line_color="white",
                          marker_line_width=1, hovertemplate="%{x}: %{y:,} exceedances<extra>" + g + "</extra>"))
 fig.add_trace(go.Scatter(x=nc.index, y=nc.values, name="Officially non-compliant samples", mode="lines+markers",
-                         line=dict(color="#222222", width=2), marker=dict(size=8, symbol="diamond"),
+                         line=dict(color="#888888", width=2), marker=dict(size=8, symbol="diamond"),
                          hovertemplate="%{x}: %{y:,} non-compliant samples<extra></extra>"))
 event(fig, 2020.55, "2021: chloridazone<br>metabolites monitored", 0.99)
 event(fig, 2022.75, "30/09/2022: ESA-metolachlor<br>non-relevant (Anses)", 0.80)
@@ -99,7 +99,7 @@ with c2:
                          marker_color=PALETTE["sky"], marker_pattern_shape="/",
                          hovertemplate="%{x}: %{y:,} samples<extra></extra>"))
     fig.add_trace(go.Scatter(x=mm["annee"], y=mm["n_detected"], name="Detected (any level)", mode="lines+markers",
-                             line=dict(color="#222222", width=2, dash="dot"), marker=dict(size=8),
+                             line=dict(color="#888888", width=2, dash="dot"), marker=dict(size=8),
                              hovertemplate="%{x}: detected in %{y:,} samples<extra></extra>"))
     event(fig, 2022.75 if code == "MTCESA" else 2024.33, "reclassified non-relevant", 0.99)
     layout(fig, "Year", "Number of samples", height=360)
@@ -130,7 +130,7 @@ win = load_table("udi_param_window")
 with t_nit:
     no3 = win[win["code"] == "NO3"]
     above = (no3["max_value"] > 50).mean()
-    headline(f"{(no3['max_value'] <= 25).mean():.0%} of networks never exceeded 25 mg/L of nitrates in 36 months; "
+    headline(f"{(no3['max_value'] <= 25).mean():.0%} of networks stayed below half of the nitrate limit (25 mg/L) in 36 months; "
              f"{above:.1%} exceeded the 50 mg/L limit at least once.")
     fig = go.Figure(go.Histogram(x=no3["max_value"].clip(upper=100), xbins=dict(start=0, end=100.01, size=2.5),
                                  marker_color=PALETTE["blue"], marker_line_color="white", marker_line_width=1,

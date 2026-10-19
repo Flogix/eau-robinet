@@ -38,8 +38,8 @@ g["label"] = g.apply(lambda r: r["label"] if r["code_merged"] != "ADET" else "At
 g = g.sort_values("share")
 
 top = g.sort_values("share", ascending=False).iloc[0]
-headline(f"In {year}, no single parameter exceeded its threshold in more than {pct(top['share'])} of the samples "
-         f"where it was measured — the most frequent is {top['label']}.")
+headline(f"In {year}, the parameter most often above its threshold was {top['label']}: {pct(top['share'])} of the samples "
+         f"where it was measured; {(g['share'] < 0.01).sum()} of the {len(g)} key parameters stay below 1%.")
 
 fig = go.Figure()
 for fam in ("micro", "chem", "comfort"):

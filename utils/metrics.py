@@ -111,20 +111,21 @@ def render_kpis(f: Filters) -> None:
     headline(f"{pct(bact['rate'])} of bacteriological samples and {pct(chem['rate'])} of chemical samples complied "
              f"with the health limits ({f.scope_label}, {f.period_label}).")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Bacteriological samples compliant", pct(bact["rate"], 2), delta(bact), border=True,
+    c1.metric("Bacteria: samples OK", pct(bact["rate"], 2), delta(bact), border=True,
               help=f"Share of the {fmt_int(bact['n'])} samples that the ARS declared compliant with the bacteriological "
                    f"limits (E. coli, enterococci). Delta = {bact['last']} vs the year before, in percentage points. "
                    "Filters: period, region.")
-    c2.metric("Chemical samples compliant", pct(chem["rate"], 2), delta(chem), border=True,
+    c2.metric("Chemistry: samples OK", pct(chem["rate"], 2), delta(chem), border=True,
               help=f"Share of the {fmt_int(chem['n'])} samples declared compliant with the chemical limits (samples "
                    "under a temporary derogation count as compliant, as in the official conclusion). "
                    "Filters: period, region.")
-    c3.metric("Communes with ≥ 1 bacterial non-compliance", fmt_int(hit["n_hit"]),
+    c3.metric("Bacteria: communes hit", fmt_int(hit["n_hit"]),
               f"{pct(hit['share'])} of {fmt_int(hit['n_communes'])} communes", delta_color="off", border=True,
-              help=f"Communes served by a network where at least one sample was non-compliant over the period. They "
+              help=f"Communes served by a network where at least one bacteriological sample was non-compliant over the "
+                   f"period. They "
                    f"have {hit['pop_hit'] / 1e6:.1f} million inhabitants — an upper bound: a commune is counted whole "
                    "even if only one of its networks or districts was affected. Filters: period, region, type.")
-    c4.metric("Median score of communes (now)", f"{sc['score'].median():.0f}/100" if len(sc) else "—",
+    c4.metric("Median score (now)", f"{sc['score'].median():.0f}/100" if len(sc) else "—",
               f"{pct(sc['grade'].isin(['D', 'E']).mean())} graded D or E" if len(sc) else None, delta_color="off",
               border=True, help="Current score (last 12/36 months to 31/08/2026), whatever the period. "
                                 "Filters: region, type of commune.")

@@ -5,7 +5,9 @@
 A Streamlit app that tells the story of French tap-water quality from 2016 to 2026, built on the official results of the
 sanitary control carried out by the Regional Health Agencies (ARS): ~3 million water samples and 133 million analyses.
 
-> **Status: work in progress** (phase 3 — score). Sections marked *TODO* are filled in later phases.
+**▶ Live app: https://eau-robinet.streamlit.app/** · Code: https://github.com/Flogix/eau-robinet
+
+> **Status: work in progress** (phase 5 — polishing). Sections marked *TODO* are filled in later phases.
 
 ## Question and audience
 - **Main audience:** a resident who wonders whether the water from their tap is good.

@@ -66,7 +66,7 @@ def event(fig: go.Figure, x, text: str, y_pos: float = 1.0) -> go.Figure:
     """Vertical dotted line + label for a dated change (new monitoring rule, reclassification…)."""
     fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=1, yref="paper", line=dict(dash="dot", color=NEUTRAL, width=1))
     fig.add_annotation(x=x, y=y_pos, yref="paper", text=text, showarrow=False, xanchor="left", yanchor="top",
-                       font=dict(size=11), bgcolor="rgba(255,255,255,0.6)")
+                       font=dict(size=11), bgcolor="rgba(127,127,127,0.15)")
     return fig
 
 

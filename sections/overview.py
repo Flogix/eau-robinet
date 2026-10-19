@@ -54,7 +54,7 @@ else:
         colorscale=colorscale, reversescale=by_score, marker_line_color="white", marker_line_width=0.5,
         customdata=metro[["dep_nom", "n"]], hovertemplate=hover,
         colorbar=dict(title=dict(text=value_label.replace(" (", "<br>("), side="right"), thickness=12)))
-    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_geos(fitbounds="locations", visible=False, bgcolor="rgba(0,0,0,0)")
     fig.update_layout(height=560, margin=dict(l=0, r=0, t=10, b=0))
     show(fig, f"Choropleth map of mainland departments: {value_label.lower()}"
               f"{'' if by_score else ', ' + f.variable_label + ', ' + f.period_label}; darker = "

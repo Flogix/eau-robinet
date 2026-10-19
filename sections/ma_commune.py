@@ -65,10 +65,10 @@ with left:
         mode="gauge+number", value=round(float(c["score"]), 1), number=dict(suffix="/100", valueformat=".1f"),
         title=dict(text=f"Grade <b>{grade}</b>"),
         gauge=dict(axis=dict(range=[0, 100], tickvals=[0, 40, 60, 75, 90, 100]),
-                   bar=dict(color="#333333", thickness=0.25),
+                   bar=dict(color="#888888", thickness=0.3),
                    steps=[dict(range=[lo, hi], color=GRADE_COLORS[g]) for lo, hi, g in
                           ((0, 40, "E"), (40, 60, "D"), (60, 75, "C"), (75, 90, "B"), (90, 100, "A"))])))
-    fig.update_layout(height=260, margin=dict(l=20, r=20, t=50, b=10))
+    fig.update_layout(height=260, margin=dict(l=30, r=40, t=50, b=10))
     show(fig, f"Gauge: score {c['score']:.1f} out of 100, in the band of grade {grade} "
               "(E < 40 ≤ D < 60 ≤ C < 75 ≤ B < 90 ≤ A).", source="")
 with right:
@@ -81,7 +81,8 @@ with right:
                            text=[f"{v:.0f}" if pd.notna(v) else "not measured" for v in subs["value"]],
                            textposition="outside", hovertemplate="%{y}: %{x:.1f}/100<extra></extra>"))
     layout(fig, "Sub-score (/100)", None, height=260, legend=False)
-    fig.update_xaxes(range=[0, 110])
+    fig.update_xaxes(range=[0, 115])
+    fig.update_yaxes(autorange="reversed")
     show(fig, "Bars: the three sub-scores out of 100; the global score is their weighted mean over the measured "
               "families only.", source="")
 st.caption(f"**Confidence {c['confidence']}**: high = microbiology, chemistry and comfort measured, ≥ 12 "
@@ -94,6 +95,7 @@ n = nets.merge(udi.reset_index(), on="cdreseau", how="left")
 n["name"] = n["cdreseau"].map(names)
 if len(n) > 1:
     tbl = n[["name", "cdreseau", "score", "grade", "confidence", "n_bact", "districts"]].sort_values("score")
+    tbl["districts"] = tbl["districts"].fillna("")
     st.dataframe(tbl.rename(columns={"name": "Network", "cdreseau": "Code", "score": "Score", "grade": "Grade",
                                      "confidence": "Confidence", "n_bact": "Bacteriological samples (12 months)",
                                      "districts": "Districts served"}),
