@@ -1,4 +1,4 @@
-"""Phase 0 — 10 lignes d'exemple par type de fichier (2025, échantillon reproductible, graine 42),
+"""Phase 0, 10 lignes d'exemple par type de fichier (2025, échantillon reproductible, graine 42),
 au format CSV brut tel que lu, pour docs/data_dictionary.md.
 
 Usage : python -I scripts/explore/p0_samples.py <racine_projet> <fichier_sortie.md>

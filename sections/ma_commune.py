@@ -5,7 +5,7 @@ import streamlit as st
 
 import config
 from utils import score as S
-from utils.i18n import lang, num, t
+from utils.i18n import lang, num, t, tn
 from utils.io import commune_network_links, communes, load_table, network_history, town_options
 from utils.viz import (BRICK, FAMILY_COLORS, GRADE_COLORS, SERIES, badge, chart, headline, kicker, layout, lede,
                        partial_year, threshold)
@@ -42,7 +42,7 @@ names = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
 
 facts = [t("town.facts.pop", n=num(c["population"])) if pd.notna(c["population"]) else None,
          t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None, t("town.facts.mountain") if c.get("mountain") else None,
-         t("town.facts.med") if c.get("mediterranean_coast") else None, t("town.facts.nets", n=len(nets))]
+         t("town.facts.med") if c.get("mediterranean_coast") else None, tn("town.facts.nets", len(nets), n=len(nets))]
 st.caption(" · ".join(str(x) for x in facts if x))
 
 if pd.isna(c.get("score")):

@@ -1,4 +1,4 @@
-"""Phase 0 — reconnaissance (lecture seule de data/raw/).
+"""Phase 0, reconnaissance (lecture seule de data/raw/).
 
 Pour chaque année : extrait les 3 fichiers texte du zip dans data/interim/extract/<année>/,
 les relit avec DuckDB en texte brut (all_varchar, aucune conversion), écrit une copie Parquet

@@ -207,7 +207,7 @@ def test_why_report_mentions_strengths_issues_and_unmeasured():
     assert "Nitrates: highest value 38 mg/L" in text and "limit of 50 mg/L" in text
     assert any(k == "unknown" and "PFAS" in t for k, t in rep)
     assert all(k in S.REPORT_KINDS and t for k, t in rep)
-    assert "—" not in text   # no em dash in the generated sentences
+    assert chr(0x2014) not in text   # no em dash in the generated sentences
 
 
 def test_why_report_in_french(monkeypatch):

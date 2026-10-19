@@ -148,7 +148,7 @@ def test_translations_complete_and_clean():
     for key, v in TEXTS.items():
         assert set(v) == {"en", "fr"}, key
         assert set(re.findall(r"{(\w+)", v["en"])) == set(re.findall(r"{(\w+)", v["fr"])), key
-        assert "—" not in v["en"] + v["fr"], key
+        assert chr(0x2014) not in v["en"] + v["fr"], key
 
 
 def test_every_text_key_used_in_code_exists():

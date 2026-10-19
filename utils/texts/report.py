@@ -67,4 +67,29 @@ T = {
                           "courant que depuis le 1er janvier 2026."},
     "rep.no_comfort": {"en": "No comfort indicator was measured in the last twelve months.",
                        "fr": "Aucun indicateur de confort n'a été mesuré sur les douze derniers mois."},
+    # singular variants (count == 1), chosen by utils.i18n.tn
+    "rep.bact_ok.one": {"en": "The only bacteriological sample of the last twelve months was compliant.",
+                        "fr": "Le seul prélèvement bactériologique des douze derniers mois était conforme."},
+    "rep.bact_nc.one": {"en": "{nc} of the {n} bacteriological samples of the last twelve months was non-compliant "
+                              "({pct}), because of {which}.",
+                        "fr": "{nc} des {n} prélèvements bactériologiques des douze derniers mois était non conforme "
+                              "({pct}), à cause de : {which}."},
+    "rep.chem_exceed.one": {"en": "{lab}: {k} of {n} measurements went above the limit of {thr} {unit} in three years, "
+                                  "with a peak at {max} {unit}{date}.",
+                            "fr": "{lab} : {k} mesure sur {n} a dépassé la limite de {thr} {unit} en trois ans, "
+                                  "avec un pic à {max} {unit}{date}."},
+    "rep.comf_range.one": {"en": "{lab}: {k} of {n} measurements outside the expected range ({lo} to {hi} {unit}). "
+                                 "This is a comfort or treatment indicator, not a health limit.",
+                           "fr": "{lab} : {k} mesure sur {n} hors de la plage attendue ({lo} à {hi} {unit}). "
+                                 "C'est un indicateur de confort ou de traitement, pas une limite sanitaire."},
+    "rep.comf_exceed.one": {"en": "{lab}: {k} of {n} measurements above the {kind} of {thr} {unit}. "
+                                  "This is a comfort or treatment indicator, not a health limit.",
+                            "fr": "{lab} : {k} mesure sur {n} au-dessus de la {kind} de {thr} {unit}. "
+                                  "C'est un indicateur de confort ou de traitement, pas une limite sanitaire."},
+    "rep.indicative_exceed.one": {
+        "en": "{lab}: {k} of {n} measurements above the 0.9 µg/L indicative value. Health authorities consider that "
+              "this does not prevent drinking the water, but the water supplier must set up an action plan.",
+        "fr": "{lab} : {k} mesure sur {n} au-dessus de la valeur indicative de 0,9 µg/L. Selon les autorités "
+              "sanitaires, cela n'empêche pas de boire l'eau, mais le distributeur doit mettre en place un plan "
+              "d'actions."},
 }

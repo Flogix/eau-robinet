@@ -79,8 +79,8 @@ T = {
     # INSEE density grid, 7 levels
     "dens7.1": {"en": "large urban centre", "fr": "grand centre urbain"},
     "dens7.2": {"en": "intermediate urban centre", "fr": "centre urbain intermédiaire"},
-    "dens7.3": {"en": "urban belt", "fr": "ceinture urbaine"},
-    "dens7.4": {"en": "small town", "fr": "petite ville"},
+    "dens7.3": {"en": "small town", "fr": "petite ville"},
+    "dens7.4": {"en": "urban belt", "fr": "ceinture urbaine"},
     "dens7.5": {"en": "rural town", "fr": "bourg rural"},
     "dens7.6": {"en": "dispersed rural", "fr": "rural à habitat dispersé"},
     "dens7.7": {"en": "very dispersed rural", "fr": "rural à habitat très dispersé"},

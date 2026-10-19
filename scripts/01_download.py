@@ -1,4 +1,4 @@
-"""01 — Download the national yearly zips (dis-YYYY.zip) listed by the data.gouv.fr API, with cache.
+"""01: Download the national yearly zips (dis-YYYY.zip) listed by the data.gouv.fr API, with cache.
 
 Idempotent and safe for data/raw/ (read-only by project rule):
   * a missing file is downloaded (to a .part file, renamed when its size and SHA1 match the API);
@@ -49,7 +49,7 @@ def download(url: str, dest: Path, size: int, sha1: str) -> None:
             f.write(chunk)
             h.update(chunk)
     if part.stat().st_size != size or h.hexdigest() != sha1:
-        raise RuntimeError(f"{dest.name}: downloaded file does not match the API (size/SHA1) — kept as {part.name}")
+        raise RuntimeError(f"{dest.name}: downloaded file does not match the API (size/SHA1), kept as {part.name}")
     part.rename(dest)
 
 

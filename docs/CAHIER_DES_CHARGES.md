@@ -1,4 +1,4 @@
-# Cahier des charges — « Mon eau du robinet est-elle bonne ? »
+# Cahier des charges : « Mon eau du robinet est-elle bonne ? »
 
 Projet individuel EFREI 2026 (Streamlit Dashboard). Ce document traduit les consignes (`docs/consignes.pdf`)
 en plan concret. En cas de conflit, les consignes du prof priment.
@@ -106,7 +106,7 @@ chimie (les analyses complètes sont moins fréquentes dans les petites UDI) ; h
    - C. Indicateurs et confort (références) : turbidité, couleur/odeur/saveur, fer, manganèse, aluminium,
      conductivité, pH, ammonium, bactéries coliformes…
    - D. Information sans pénalité : dureté, calcium, magnésium, température…
-4. Sous-scores — proposition de départ, à ajuster et justifier en phase 3 :
+4. Sous-scores, proposition de départ, à ajuster et justifier en phase 3 :
    - Micro : `S = 100 × (1 − t)^k`, t = part des prélèvements non conformes aux limites bactériologiques, k = 10
      (0,5 % de non-conformes → ≈ 95 ; 5 % → ≈ 60).
    - Chimie : pour chaque paramètre, `r = max / limite` (ou P95 / limite si ≥ 10 mesures).
@@ -140,7 +140,7 @@ chimie (les analyses complètes sont moins fréquentes dans les petites UDI) ; h
 | E. coli, entérocoques | 0 / 100 mL |
 | Nitrates | 50 mg/L |
 | Pesticides | 0,1 µg/L par substance (0,03 µg/L pour quelques-unes), 0,5 µg/L pour le total |
-| Somme de 20 PFAS | 0,1 µg/L — contrôle obligatoire depuis le 01/01/2026 |
+| Somme de 20 PFAS | 0,1 µg/L, contrôle obligatoire depuis le 01/01/2026 |
 | Plomb | 10 µg/L |
 | Arsenic | 10 µg/L |
 
@@ -159,7 +159,7 @@ paramètres correspondants dans les données ; sinon le dire comme une limite, s
   Commencer par la dernière année complète pour tester, puis toutes les années.
 - `03_build_aggregates.py` : petites tables pour l'app dans `data/processed/`, par exemple :
   - `dim_communes` : code INSEE, nom, département, région, population, latitude/longitude, typologies
-  - `bridge_commune_udi` : année, INSEE, UDI, quartier — dédoublonné
+  - `bridge_commune_udi` : année, INSEE, UDI, quartier, dédoublonné
   - `params_catalog` : code, libellé, famille, unité, limite/référence, nombre de mesures, 1re année mesurée
   - `udi_family_year` et `udi_param_year` (~30 paramètres clés) : n, n quantifiés, moyenne, max, P95, n dépassements
   - `commune_scores` : commune × période → score, sous-scores, note, confiance, raisons
@@ -168,7 +168,7 @@ paramètres correspondants dans les données ; sinon le dire comme une limite, s
 - `04_referentiels.py` :
   - Communes (code, nom, département, région, population, centre) via l'API officielle Découpage administratif :
     `https://geo.api.gouv.fr/communes?fields=code,nom,codeDepartement,codeRegion,population,centre&format=json`
-    — vérifier le cas de Paris/Lyon/Marseille (arrondissements) face aux codes du dataset.
+    vérifier le cas de Paris/Lyon/Marseille (arrondissements) face aux codes du dataset.
   - Contours des départements en GeoJSON simplifié (source et licence à citer).
   - Typologies pour les comparaisons : zone de montagne (loi Montagne), communes littorales, grille de densité INSEE
     (urbain/rural), de préférence depuis l'Observatoire des territoires ou l'INSEE. Si une source n'est pas trouvable
@@ -203,7 +203,7 @@ paramètres correspondants dans les données ; sinon le dire comme une limite, s
   résidu sec, URL source, date du relevé. Source hors des portails approuvés → présenter clairement comme un bonus séparé.
 - Comparer uniquement la composition minérale : « à quelle eau en bouteille ressemble mon eau du robinet ? »
   (plus proche voisin sur un profil standardisé) ; appliquer les mentions d'étiquetage à l'eau du robinet
-  (ex. « pauvre en sodium » < 20 mg/L, « calcique » > 150 mg/L, « magnésienne » > 50 mg/L — à vérifier dans
+  (ex. « pauvre en sodium » < 20 mg/L, « calcique » > 150 mg/L, « magnésienne » > 50 mg/L, à vérifier dans
   la directive 2009/54/CE, annexe III).
 - Aucune conclusion sur la sécurité globale : les étiquettes n'indiquent ni pesticides ni PFAS.
 

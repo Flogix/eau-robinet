@@ -1,7 +1,7 @@
-# AVANCEMENT — « Is my tap water good? »
+# AVANCEMENT : « Is my tap water good? »
 
 Journal du projet (mémoire entre sessions). Le plus récent en haut de chaque section.
-Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
+Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 
 ## État actuel
 
@@ -14,7 +14,7 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
 | 5. Finitions | 🟡 première passe faite | 19/10 |
 | 6. Livraison | ⏳ | prévu 23/10 |
-| 7. Bonus bouteille | hors périmètre (accord de Florian requis) | — |
+| 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
 (voir « Reprise » ci-dessous). Traitements longs : `.\scripts\run_logged.ps1 <script>` (arrière-plan, priorité basse,
@@ -29,8 +29,8 @@ journal dans `data/interim/logs/`).
 - `C:\.git` supprimé par Florian le 19/10 ; le dépôt du projet est autonome (`git init` dans le dossier du projet).
 - Fichiers parasites de `data/raw/ref/` (`departements-100m.geojson`, `geo_arrondissements.json`) : **supprimés par Florian** (19/10).
 
-## Phase 5 — Finitions, première passe (19/10/2026)
-- App déployée par Florian sur Streamlit Community Cloud (Python 3.12) : https://eau-robinet.streamlit.app/ — les 8 pages
+## Phase 5 : Finitions, première passe (19/10/2026)
+- App déployée par Florian sur Streamlit Community Cloud (Python 3.12) : https://eau-robinet.streamlit.app/, les 8 pages
   s'ouvrent en ligne sans erreur, en 2,6 à 4,8 s (chargement complet).
 - Accueil : encadré « pour qui / quelles questions » avec la page qui répond à chacune (critère narratif du barème).
 - KPIs : étiquettes courtes (plus de troncature sur écran étroit), aides détaillées.
@@ -40,11 +40,11 @@ journal dans `data/interim/logs/`).
 - Robustesse : tests des 8 pages avec des filtres extrêmes (Mayotte + PFAS + 2026 seule, Corse 2016, Guyane…) et recherche
   d'homonymes ; un plantage trouvé et corrigé (saisonnalité sans année complète). **153 tests verts.**
 
-## Phase 4 — App, version 1 (19/10/2026)
+## Phase 4 : App, version 1 (19/10/2026)
 
 ### Fait
 - 8 pages en anglais dans l'ordre du storyboard ; sidebar globale (`utils/filters.py`) : période, région, famille de paramètres,
-  type de commune — chaque filtre a un `help=` qui dit ce qu'il change.
+  type de commune, chaque filtre a un `help=` qui dit ce qu'il change.
 - KPIs liés aux filtres (`utils/metrics.render_kpis`, accueil + carte) : % de prélèvements conformes bactério / chimie avec delta
   vs l'année précédente, communes avec ≥ 1 non-conformité (+ population, borne haute), score médian.
 - Graphes Plotly interactifs avec infobulles, texte alternatif (`alt=`) + `st.caption` sous chaque graphe, phrases-titres calculées.
@@ -63,7 +63,7 @@ journal dans `data/interim/logs/`).
   Chargement des pages : 2,8 à 4,6 s (rechargement complet du navigateur, en local).
 - Repo public créé : https://github.com/Flogix/eau-robinet (vérifié : rien de `data/raw`, `data/interim`, ni le PDF du prof).
 
-## Phase 3 — Score (19/10/2026)
+## Phase 3 : Score (19/10/2026)
 
 ### Fait
 - `utils/score.py` : formules (micro, pénalités chimie/confort, combinaison, note, confiance), score par UDI, score par commune
@@ -107,7 +107,7 @@ journal dans `data/interim/logs/`).
   chimie 19 contre 100 ; probabilités 0,91 et 0,88. Sensibilité : Spearman 0,95 à 0,998 (0,86 sans confort).
 - Témoins : Paris 84,1 B · Villejuif 81,1 B · Chamonix 83,1 B (Le Tour passe de D à C 70,5) · Sète 100 A · Fouchères 95,0 A.
 
-## Phase 2 — Pipeline (19/10/2026)
+## Phase 2 : Pipeline (19/10/2026)
 
 ### Fait
 - `scripts/01_download.py` : liste l'API data.gouv.fr, compare taille + SHA1 (cache des empreintes), télécharge seulement ce
@@ -151,7 +151,7 @@ journal dans `data/interim/logs/`).
 | Période | Officiel N sans dépassement recalculé | Dépassement recalculé, officiellement C ou D |
 |---|---|---|
 | 2016–2022 | 253 à 674 / an | 732 à 783 / an |
-| 2023–2026 | 2 à 12 / an | 452, 671, 869, 707 — dont 438, 669, 869, 707 sous **dérogation (D)** |
+| 2023–2026 | 2 à 12 / an | 452, 671, 869, 707, dont 438, 669, 869, 707 sous **dérogation (D)** |
 - **Dérogations** : « D » = conforme officiellement malgré un dépassement, sous dérogation préfectorale → explique presque tout depuis 2023.
 - **Chlorites (2016–2022)** : 3 893 prélèvements au-dessus de 0,25 mg/L (limite écrite sur la ligne) mais conformes ; 3 688 (95 %)
   sont ≤ 0,7 mg/L, la limite du code « chlorites en cas de traitement pouvant en générer » (`CLITE_T`). L'effet disparaît en 2023 (8 cas).
@@ -178,12 +178,12 @@ journal dans `data/interim/logs/`).
   restent 587 lignes R471811 avec limite après le 29/04/2024 (on garde la limite de la ligne, règle a) et 262 lignes 471811R sans limite
   avant cette date (valeur indicative appliquée).
 
-## Phase 1 — Setup (19/10/2026)
+## Phase 1 : Setup (19/10/2026)
 - `.gitignore` (data/raw, data/interim, .venv…) créé **avant** le `git init` ; `.gitattributes` (fins de ligne LF, sinon le Makefile casse sous Linux).
 - `requirements.txt` épinglé, `Makefile` + `make.ps1` (PowerShell sans make), `config.py`, `app.py` avec `st.navigation`,
   8 pages squelettes, `utils/` (io, prep, score, viz), tests, README squelette, `docs/sources.md`.
 
-## Phase 0 — Reconnaissance (19/10/2026)
+## Phase 0 : Reconnaissance (19/10/2026)
 
 ### Fait
 - Lecture complète de CLAUDE.md, du cahier des charges, des consignes et de la doc producteur (PDF v7, 16 p.).
@@ -226,18 +226,18 @@ journal dans `data/interim/logs/`).
 - ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
-- 19/10 — `docs/consignes.pdf` (sujet du prof, avec son e-mail) **retiré de l’historique git** avant la publication (choix de Florian),
+- 19/10, `docs/consignes.pdf` (sujet du prof, avec son e-mail) **retiré de l’historique git** avant la publication (choix de Florian),
   gardé sur le disque et ajouté au `.gitignore`. Les hash des commits ont changé (phase 1 = `0f7ab0b`).
-- 19/10 — **Phase 3 validée par Florian** : option k = 5 pour les petits réseaux, note sur score arrondi. Phases 4–5 enchaînées,
+- 19/10, **Phase 3 validée par Florian** : option k = 5 pour les petits réseaux, note sur score arrondi. Phases 4–5 enchaînées,
   repo GitHub public « eau-robinet » confirmé (création + push autorisés).
-- 19/10 — **Phase 2 validée par Florian.** Parasites de `data/raw/ref/` supprimés par lui. Littoral : repli « départements
+- 19/10, **Phase 2 validée par Florian.** Parasites de `data/raw/ref/` supprimés par lui. Littoral : repli « départements
   méditerranéens hors montagne » accepté, **à présenter clairement comme une approximation dans l'app**.
-- 19/10 — Sélénium/antimoine : piste de Florian vérifiée sur EUR-Lex et Légifrance → on peut en parler dans l'app (sources 10–12).
-- 19/10 — PFAS : « dans le contrôle de routine depuis le 01/01/2026 » sourcé (ARS Nouvelle-Aquitaine, décret 2025-1287 ; directive art. 25).
-- 19/10 — **Phase 0 validée par Florian.** Phases 1 et 2 enchaînées sans arrêt intermédiaire, sur toutes les années 2016–2026.
-- 19/10 — `C:\.git` supprimé par Florian ; vérifié : plus aucun dépôt parent détecté avant le `git init`.
-- 19/10 — Consignes renommées (pas copiées) en `docs/consignes.pdf`.
-- 19/10 — **Métabolites de pesticides** : on suit la limite inscrite sur chaque ligne (option a). En plus, les métabolites
+- 19/10, Sélénium/antimoine : piste de Florian vérifiée sur EUR-Lex et Légifrance → on peut en parler dans l'app (sources 10–12).
+- 19/10, PFAS : « dans le contrôle de routine depuis le 01/01/2026 » sourcé (ARS Nouvelle-Aquitaine, décret 2025-1287 ; directive art. 25).
+- 19/10, **Phase 0 validée par Florian.** Phases 1 et 2 enchaînées sans arrêt intermédiaire, sur toutes les années 2016–2026.
+- 19/10, `C:\.git` supprimé par Florian ; vérifié : plus aucun dépôt parent détecté avant le `git init`.
+- 19/10, Consignes renommées (pas copiées) en `docs/consignes.pdf`.
+- 19/10, **Métabolites de pesticides** : on suit la limite inscrite sur chaque ligne (option a). En plus, les métabolites
   classés **non pertinents** par l'Anses sont traités comme une **référence à 0,9 µg/L** (valeur indicative), famille
   confort/vigilance, pénalité légère. Rapport : « ⚠️ » au-dessus de 0,9 µg/L, « ℹ️ » si détecté en dessous.
   Métabolites concernés (sources dans `docs/sources.md`) : ESA-métolachlore et NOA-métolachlore (avis Anses du 30/09/2022),
@@ -245,15 +245,15 @@ journal dans `data/interim/logs/`).
   la règle est appliquée par nous. Règle de ligne : si la ligne porte une limite → la limite ; sinon, pour ces codes → référence 0,9 µg/L.
   Les autres métabolites sans limite dans les données (OXA-métolachlore, ESA/OXA-métazachlore, ESA-alachlore…) n'ont pas
   de source fournie → pas de pénalité, simple « ℹ️ » s'ils sont détectés.
-- 19/10 — 2026 : situation actuelle = fenêtres de 12 et 36 mois se terminant le 31/08/2026 ; évolutions sur 2016–2025 ;
+- 19/10, 2026 : situation actuelle = fenêtres de 12 et 36 mois se terminant le 31/08/2026 ; évolutions sur 2016–2025 ;
   2026 montrée à part et marquée partielle.
-- 19/10 — Paramètre mesuré deux fois dans un prélèvement : on garde la mesure de **laboratoire**.
-- 19/10 — Microbiologie du score : calculée à partir de la **conformité officielle** par prélèvement (`plvconformitebacterio`).
-- 19/10 — Repo GitHub : `eau-robinet`, public. **Confirmation de Florian requise avant le premier push.**
-- 19/10 — Après le gel de l'app : DuckDB 3 Go / 4 threads, une année à la fois, traitements longs en arrière-plan avec journal,
+- 19/10, Paramètre mesuré deux fois dans un prélèvement : on garde la mesure de **laboratoire**.
+- 19/10, Microbiologie du score : calculée à partir de la **conformité officielle** par prélèvement (`plvconformitebacterio`).
+- 19/10, Repo GitHub : `eau-robinet`, public. **Confirmation de Florian requise avant le premier push.**
+- 19/10, Après le gel de l'app : DuckDB 3 Go / 4 threads, une année à la fois, traitements longs en arrière-plan avec journal,
   reprise étape par étape (demande de Florian).
-- 19/10 — Toutes les années traitées (pas de plan B). Raison : volumétrie maîtrisée grâce à DuckDB + Parquet.
-- 19/10 — `.venv` en Python 3.12.9 (version stable déjà installée ; même version à choisir sur Streamlit Community Cloud, à confirmer au déploiement).
+- 19/10, Toutes les années traitées (pas de plan B). Raison : volumétrie maîtrisée grâce à DuckDB + Parquet.
+- 19/10, `.venv` en Python 3.12.9 (version stable déjà installée ; même version à choisir sur Streamlit Community Cloud, à confirmer au déploiement).
 
 ## Session identité, écriture, accueil, ergonomie (19/10/2026, en cours)
 - Fait : règles d'écriture dans CLAUDE.md ; direction visuelle A « Au robinet » (papier et encre, Fraunces + IBM Plex, palette validée daltonisme en clair et en sombre) ; module de traduction `utils/i18n.py` + `utils/texts/` (EN officiel, FR via le sélecteur, 559 clés, tests de complétude) ; accueil refait (OMS, Santé publique France, absence de chiffre officiel de décès dite honnêtement, méthode, H1 à H4, indicateurs expliqués) ; pages renommées ; recherche de commune en une seule liste (exemples Paris, Lyon, Marseille, Bordeaux, Lille) ; filtres grisés hors de leurs pages ; rapport « pourquoi » traduit avec étiquettes au lieu d'emojis ; pied de page et page À propos ; `docs/sources.md` renuméroté (sources 1 à 17), sans tiret cadratin ; H1 et H2 testées sur la carte. 167 tests verts avant les derniers ajustements.

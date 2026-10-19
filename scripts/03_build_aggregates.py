@@ -1,4 +1,4 @@
-"""03 — Small tables for the app (data/processed/) + automatic data-quality checks.
+"""03: Small tables for the app (data/processed/) + automatic data-quality checks.
 
 Steps
   1. parameter catalogue (labels, units, typical thresholds, family) -> params_catalog
@@ -261,7 +261,7 @@ def build_aggregates(con) -> None:
                max(value) AS max_value, mode(thr_max) AS typical_threshold, mode(thr_kind) AS typical_threshold_kind
         FROM {J} GROUP BY 1, 2""", "param_year", "annee, code")
 
-    # networks × family × year — two-stage aggregation (per sample, then per network) instead of DISTINCT
+    # networks × family × year, two-stage aggregation (per sample, then per network) instead of DISTINCT
     copy_by_year(con, """
         WITH a AS (
           SELECT annee, cdreseau, family, subfamily, referenceprel, count(*) AS n_res,
@@ -505,7 +505,7 @@ def main() -> int:
     build_data_quality(con)
     run_checks(con)
     failed = [c for c in CHECKS if not c["ok"]]
-    print(f"\n{len(CHECKS) - len(failed)}/{len(CHECKS)} checks OK — {time.time() - t0:.0f}s")
+    print(f"\n{len(CHECKS) - len(failed)}/{len(CHECKS)} checks OK, {time.time() - t0:.0f}s")
     return 1 if failed else 0
 
 

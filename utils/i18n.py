@@ -67,3 +67,9 @@ MONTHS = {"en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 
 
 def months() -> list[str]:
     return MONTHS[lang()]
+
+
+def tn(key: str, count, **kw) -> str:
+    """Like t(), but uses the singular variant `key.one` when count == 1 (French and English agreement)."""
+    one = f"{key}.one"
+    return t(one if int(count) == 1 and one in TEXTS else key, **kw)

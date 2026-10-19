@@ -68,7 +68,7 @@ TWIN_CODES = {"ESAMTC": "MTCESA", "NOAMTC": "MTCNOA", "R471811": "471811R", "OXA
 WEIGHTS = {"micro": 0.4, "chem": 0.4, "comfort": 0.2}
 MICRO_K = 5                       # S = 100 * (1 - t) ** k, t = share of non-compliant bacteriological samples
                                   # (k = 10 in the first proposal; 5 chosen at the phase-3 review so that 1 incident in 5 samples
-                                  # of a small network does not sink it to grade D — see docs/AVANCEMENT.md phase 3)
+                                  # of a small network does not sink it to grade D, see docs/AVANCEMENT.md phase 3)
 CHEM_PENALTY_POINTS = [(0.5, 0), (1.0, 20), (2.0, 80)]   # ratio value/threshold -> penalty, capped at 80
 CHEM_OTHER_PENALTY_FACTOR = 0.25  # S = 100 - worst penalty - 0.25 x sum of the other penalties
 COMFORT_PENALTY_CAP = 50

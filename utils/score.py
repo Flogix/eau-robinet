@@ -101,7 +101,7 @@ def combine_penalties(pen: pd.Series, other_factor: float) -> float:
 
 def grade(score: float | None) -> str | None:
     """Letter grade A–E from a score /100 (thresholds in config.GRADES), taken on the score rounded to one
-    decimal — the value displayed — so that a score shown as 60.0 is never graded D."""
+    decimal, the value displayed, so that a score shown as 60.0 is never graded D."""
     if score is None or (isinstance(score, float) and np.isnan(score)):
         return None
     score = round(float(score), 1)
@@ -118,7 +118,7 @@ def parameter_penalties(params: pd.DataFrame, p95: pd.DataFrame | None, s: Score
 
     params: udi_param_window rows (cdreseau, code, family, n, n_exceed, max_ratio, threshold, ...)
     p95:    udi_param_p95 rows (cdreseau, code, n_ratio, p95_ratio) or None
-    ranges: reference_ranges(params_catalog) — scored on the share of samples outside the range
+    ranges: reference_ranges(params_catalog), scored on the share of samples outside the range
     """
     d = params[params["family"].isin(["chem", "comfort"])].copy()
     if p95 is not None and len(p95):
@@ -263,6 +263,12 @@ def _tr(key: str, **kw) -> str:
     return t(key, **kw)
 
 
+def _trn(key: str, count, **kw) -> str:
+    """Translated sentence with singular agreement when count == 1."""
+    from utils.i18n import tn
+    return tn(key, count, **kw)
+
+
 def _lang() -> str:
     from utils.i18n import lang
     return lang()
@@ -311,11 +317,11 @@ def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95:
     if n == 0:
         out.append(("unknown", _tr("rep.bact_none")))
     elif nc == 0:
-        out.append(("ok", _tr("rep.bact_ok", n=n)))
+        out.append(("ok", _trn("rep.bact_ok", n, n=n)))
     else:
         bugs = p[(p["family"] == "micro") & (p["n_exceed"] > 0)]
         which = ", ".join(label(c, catalog_labels) for c in bugs["code"]) or _tr("rep.bacteria")
-        out.append(("limit", _tr("rep.bact_nc", nc=nc, n=n, pct=_pct1(nc / n), which=which)))
+        out.append(("limit", _trn("rep.bact_nc", nc, nc=nc, n=n, pct=_pct1(nc / n), which=which)))
 
     # health chemistry (36 months)
     chem = pen[pen["family"] == "chem"]
@@ -324,7 +330,7 @@ def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95:
         lab, unit = label(r["code"], catalog_labels), unit_of(r)
         date = _tr("rep.on_date", date=r["date_max"]) if pd.notna(r.get("date_max")) else ""
         if r["n_exceed"] > 0:
-            out.append(("limit", _tr("rep.chem_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]),
+            out.append(("limit", _trn("rep.chem_exceed", r["n_exceed"], lab=lab, k=int(r["n_exceed"]), n=int(r["n"]),
                                      thr=_fmt(r["threshold"]), unit=unit, max=_fmt(r["max_value"]), date=date)))
         else:
             key = "rep.chem_close_p95" if r["ratio_basis"] == "p95" else "rep.chem_close"
@@ -347,12 +353,12 @@ def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95:
         kind = _tr("rep.kind_indicative") if r["threshold_kind"] == "indicative" else _tr("rep.kind_reference")
         if r["code"] in (ranges or {}):
             lo, hi = ranges[r["code"]]
-            out.append(("watch", _tr("rep.comf_range", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), lo=_fmt(lo),
+            out.append(("watch", _trn("rep.comf_range", r["n_exceed"], lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), lo=_fmt(lo),
                                      hi=_fmt(hi), unit=unit)))
         elif r["n_exceed"] > 0 and r["threshold_kind"] == "indicative":
-            out.append(("watch", _tr("rep.indicative_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]))))
+            out.append(("watch", _trn("rep.indicative_exceed", r["n_exceed"], lab=lab, k=int(r["n_exceed"]), n=int(r["n"]))))
         elif r["n_exceed"] > 0:
-            out.append(("watch", _tr("rep.comf_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), kind=kind,
+            out.append(("watch", _trn("rep.comf_exceed", r["n_exceed"], lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), kind=kind,
                                      thr=_fmt(r["threshold"]), unit=unit)))
         else:
             out.append(("info", _tr("rep.comf_close", lab=lab, max=_fmt(r["max_value"]), unit=unit, kind=kind,

@@ -18,7 +18,8 @@ T = {
     "town.facts.mountain": {"en": "Mountain Act town", "fr": "commune de montagne (loi Montagne)"},
     "town.facts.med": {"en": "Mediterranean coastal department, outside mountain areas",
                        "fr": "département du littoral méditerranéen, hors montagne"},
-    "town.facts.nets": {"en": "served by {n} distribution network(s)", "fr": "desservie par {n} réseau(x) de distribution"},
+    "town.facts.nets": {"en": "served by {n} distribution networks", "fr": "desservie par {n} réseaux de distribution"},
+    "town.facts.nets.one": {"en": "served by one distribution network", "fr": "desservie par un seul réseau de distribution"},
     "town.noscore": {"en": "No score for this town: none of its networks has samples in the last twelve to thirty-six "
                            "months.",
                      "fr": "Pas de score pour cette commune : aucun de ses réseaux n'a de prélèvement sur les douze à "

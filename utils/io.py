@@ -90,7 +90,7 @@ load_table = cached_resource(_load)
 
 
 SOURCE_CAPTION = (
-    "Source: French Ministry of Health (SISE-Eaux) — « Résultats du contrôle sanitaire de l'eau distribuée "
+    "Source: French Ministry of Health (SISE-Eaux), « Résultats du contrôle sanitaire de l'eau distribuée "
     "commune par commune », data.gouv.fr, Licence Ouverte 2.0, updated 5 Oct 2026."
 )
 SOURCE_SHORT = "Source: Ministry of Health, data.gouv.fr (Licence Ouverte 2.0, updated 5 Oct 2026)."
@@ -173,7 +173,7 @@ def network_params(networks: tuple[str, ...]) -> pd.DataFrame:
 
 @cached_resource
 def commune_network_links() -> pd.DataFrame:
-    """Networks of each commune for its latest year (2026, else 2025) — computed once."""
+    """Networks of each commune for its latest year (2026, else 2025), computed once."""
     from utils.score import commune_links
     return commune_links(read_processed("bridge_commune_udi"))
 

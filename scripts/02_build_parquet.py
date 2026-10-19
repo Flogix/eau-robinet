@@ -1,4 +1,4 @@
-"""02 — From the yearly zips to clean, typed Parquet files (one year at a time).
+"""02: From the yearly zips to clean, typed Parquet files (one year at a time).
 
 For each year:
   1. extract the 3 text files to data/interim/extract/<year>/ (never inside data/raw/);
@@ -149,7 +149,7 @@ def main() -> int:
     for y in years:
         zp = config.RAW_DIS / f"dis-{y}.zip"
         if not zp.exists():
-            print(f"{y}: {zp.name} missing — run scripts/01_download.py first")
+            print(f"{y}: {zp.name} missing, run scripts/01_download.py first")
             return 1
         sig = zip_signature(zp)
         outputs = [config.CLEAN / d / f"{d}_{y}.parquet" for d in ("plv", "result", "com_udi")]

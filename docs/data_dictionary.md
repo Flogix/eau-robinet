@@ -1,4 +1,4 @@
-# Dictionnaire des données — contrôle sanitaire de l'eau distribuée (2016 → 2026)
+# Dictionnaire des données : contrôle sanitaire de l'eau distribuée (2016 → 2026)
 
 > Phase 0 (reconnaissance), 19/10/2026. Tous les chiffres ci-dessous sont **mesurés** sur les fichiers locaux
 > avec DuckDB 1.5.6. Requêtes reproductibles : `scripts/explore/sql/*.sql` exécutées par `scripts/explore/q.py`
@@ -66,7 +66,7 @@
 - Un même `referenceprel` n'apparaît jamais dans deux fichiers annuels.
 - Les 101 départements gestionnaires (`cddept`) sont présents chaque année, DROM compris (971, 972, 973, 974, 976).
 
-## 4. Fichier PLV — prélèvements (18 colonnes)
+## 4. Fichier PLV : prélèvements (18 colonnes)
 
 | Colonne | Description (doc) | % NULL (toutes années) | Format observé / remarques |
 |---|---|---:|---|
@@ -79,7 +79,7 @@
 | `pourcentdebit` | Part du débit de l'amont dans l'UDI | 56,7 | texte `"100 %"`, `"50 %"`… → à convertir en nombre |
 | `referenceprel` | Identifiant du prélèvement | 0 | 11 car. **Non unique dans PLV** (voir §7) |
 | `dateprel` | Date du prélèvement | 0 | `AAAA-MM-JJ`, 100 % parsable |
-| `heureprel` | Heure | 0,14 | `09h11` (quelques formats anormaux : `9:h54`, `h`) — peu utile |
+| `heureprel` | Heure | 0,14 | `09h11` (quelques formats anormaux : `9:h54`, `h`), peu utile |
 | `conclusionprel` | Conclusion sanitaire de l'ARS (texte libre) | 0 | ~131 000 textes distincts, parfois tabulation en tête |
 | `ugelib` / `distrlib` / `moalib` | Unité de gestion / exploitant / maître d'ouvrage | 0 | texte libre, à `trim()` |
 | `plvconformitebacterio` | Conformité bactério aux **limites** | 0 (58 lignes vides) | `C` conforme, `N` non conforme, `S` sans objet |
@@ -90,13 +90,13 @@
 Comptes toutes années (lignes PLV) : bactério C 3 892 002 · S 311 170 · N 59 399 ; chimique C 4 147 824 · N 107 726 · D 4 728 · S 2 293 ;
 réf. bactério N 163 310 ; réf. chimique N 708 003.
 
-## 5. Fichier RESULT — résultats d'analyse (17 colonnes)
+## 5. Fichier RESULT : résultats d'analyse (17 colonnes)
 
 | Colonne | Description (doc) | % NULL | Format observé / remarques |
 |---|---|---:|---|
 | `cddept` | Département gestionnaire | 0 | |
 | `referenceprel` | Prélèvement (clé vers PLV) | 0 | |
-| `cdparametresiseeaux` | Code SISE du paramètre | 0 | ex. `NO3`, `ECOLI`, `PESTOT`, `SPFAS` — **clé de paramètre retenue** |
+| `cdparametresiseeaux` | Code SISE du paramètre | 0 | ex. `NO3`, `ECOLI`, `PESTOT`, `SPFAS`, **clé de paramètre retenue** |
 | `cdparametre` | Code SANDRE | 0,09 | numérique en texte |
 | `libmajparametre` / `libminparametre` | Libellés | 0 | `libmin` lisible (accents OK) |
 | `libwebparametre` | Libellé « grand public » | **100** | **toujours vide** → inutilisable |
@@ -115,7 +115,7 @@ réf. bactério N 163 310 ; réf. chimique N 708 003.
 - 11 paramètres ont 2 écritures d'unité équivalentes (ex. `mg/L` | `mg(Mg)/L` pour le magnésium, `hPa` | `mbar`) :
   notation différente, même grandeur → à normaliser, pas d'incohérence réelle.
 
-## 6. Fichier COM_UDI — lien commune ↔ UDI (6 colonnes)
+## 6. Fichier COM_UDI : lien commune ↔ UDI (6 colonnes)
 
 | Colonne | Description (doc) | % NULL | Format observé / remarques |
 |---|---|---:|---|
@@ -138,7 +138,7 @@ réf. bactério N 163 310 ; réf. chimique N 708 003.
 |---|---|
 | Lignes strictement identiques (PLV, RESULT, COM_UDI, chaque année) | **0** |
 | `referenceprel` unique dans PLV ? | **Non** : 2026 → 201 770 lignes pour 156 503 prélèvements |
-| Clé de PLV | (`referenceprel`, `cdreseau`) : unique sauf **3 cas** au total (2025 : 2, 2026 : 1 — même UDI `011001612` saisie à la fois « sur place » et comme sa propre installation amont) |
+| Clé de PLV | (`referenceprel`, `cdreseau`) : unique sauf **3 cas** au total (2025 : 2, 2026 : 1, même UDI `011001612` saisie à la fois « sur place » et comme sa propre installation amont) |
 | Pourquoi un prélèvement a plusieurs lignes ? | Un prélèvement fait **en amont** (usine, captage) est rattaché à **chaque UDI aval** qu'il alimente. 2026 : 132 309 prélèvements → 1 UDI, 16 362 → 2 UDI, …, jusqu'à plus de 15 UDI |
 | Date et conformités identiques entre les lignes d'un même prélèvement ? | **Oui** (0 écart en 2026) → on peut dédoublonner les conformités par `referenceprel` |
 | Clé de RESULT | (`referenceprel`, `cdparametresiseeaux`, `insituana`, `referenceanl`) : **unique**, chaque année |
@@ -181,7 +181,7 @@ Paramètres quantitatifs (`qualitparam = N`, 123,2 M lignes), classes de `rqana`
 ## 9. Limites et références de qualité (`limitequal`, `refqual`)
 
 - **Toutes les limites sont de la forme `<=valeur unité`** (une seule borne). Motifs (chiffres → 9) :
-  `<=9,9 µg/L` (59,9 M lignes, 842 paramètres — surtout pesticides à 0,1), `<=9 n/(9mL)` (microbio, 0/100 mL),
+  `<=9,9 µg/L` (59,9 M lignes, 842 paramètres, surtout pesticides à 0,1), `<=9 n/(9mL)` (microbio, 0/100 mL),
   `<=9 µg/L`, `<=9 mg/L`, `<=9.9 µg/L`, `<=9,9 mg/L`, `<=9 µg(CN)/L`, `<=9 NFU`… plus un cas exotique
   `<=5 NG/(KG POIDS CORPOREL/J)` (3 964 lignes) qui n'est pas une concentration → à exclure du calcul.
 - **Les références** sont `<=x` ou des **intervalles** `>=6,5 et <=9 unité pH`, `>=200 et <=1100 µS/cm`,
@@ -204,7 +204,7 @@ Paramètres quantitatifs (`qualitparam = N`, 123,2 M lignes), classes de `rqana`
 | 2026 | 2 100 | 2 100 | 4 849 | 5 556 | 4 849 |
 
 → Bactériologie : le recalcul retrouve **quasi exactement** la conclusion officielle. Chimie : proche mais pas identique ;
-écart **non encore expliqué** — pistes à tester en phase 2 : dérogations (`D` = conforme officiellement malgré un dépassement),
+écart **non encore expliqué**, pistes à tester en phase 2 : dérogations (`D` = conforme officiellement malgré un dépassement),
 limites qui dépendent du point de prélèvement, paramètres sans limite chiffrée. Recalcul simplifié (limites `<=x` seulement,
 `N.M.` exclus). Bonne base pour le score et pour la validation demandée par le cahier des charges.
 
@@ -223,11 +223,11 @@ limites qui dépendent du point de prélèvement, paramètres sans limite chiffr
 | GT36_44 | Bact. aér. revivifiables 36 °C | 265 926 | n/mL | | |
 | GT22_68 | Bact. aér. revivifiables 22 °C | 265 563 | n/mL | | |
 | CL2TOT | Chlore total | 264 829 | mg(Cl2)/L | | |
-| ODQ | Odeur (qualitatif) | 261 969 | — | | |
-| ASP | Aspect (qualitatif) | 253 871 | — | | |
+| ODQ | Odeur (qualitatif) | 261 969 |, | | |
+| ASP | Aspect (qualitatif) | 253 871 |, | | |
 | NH4 | Ammonium | 251 466 | mg/L | | ≤0,1 |
-| SAVQ | Saveur (qualitatif) | 237 609 | — | | |
-| COULQ | Couleur (qualitatif) | 192 567 | — | | |
+| SAVQ | Saveur (qualitatif) | 237 609 |, | | |
+| COULQ | Couleur (qualitatif) | 192 567 |, | | |
 | COULF | Coloration | 192 251 | mg(Pt)/L | | ≤15 |
 | BSIR | Bact. et spores sulfito-réductrices | 161 656 | n/(100mL) | | ≤0 |
 | NO3 | Nitrates | 120 503 | mg/L | ≤50 | |
@@ -268,7 +268,7 @@ Autres codes utiles : `AS` arsenic (21 868 mesures en 2025, ≤10 µg/L), `PB` p
   | 2025 | 16 475 | 5 176 | 386 |
   | 2026 (jan.–août) | 12 236 | 3 957 | 93 |
 
-- **Métabolites de pesticides — le même composé change de code** : `ESAMTC` (ESA-métolachlore, limite ≤0,1 µg/L)
+- **Métabolites de pesticides, le même composé change de code** : `ESAMTC` (ESA-métolachlore, limite ≤0,1 µg/L)
   est mesuré de 2016 à 2023 (248 mesures en 2023) puis remplacé par `MTCESA` (même libellé, **sans limite**, depuis 2021).
   Idem `R471811` (chlorothalonil R471811, limite ≤0,1, 2022–2024) → `471811R` (sans limite, depuis 2023).
   Hypothèse à vérifier dans une source officielle avant de l'écrire : reclassement en « métabolite non pertinent ».
@@ -288,13 +288,13 @@ Autres codes utiles : `AS` arsenic (21 868 mesures en 2025, ≤10 µg/L), `PB` p
 3. Parser `rqana` (virgule/point, espaces, `<`, `>`, codes) en : `valeur`, `non_quantifie`, `lq`, `statut` ; exclure `N.M.`, vide, `ILLISIBL`.
 4. Parser `limitequal` / `refqual` en (`borne_min`, `borne_max`, `unite`) ; ignorer `NG/(KG POIDS CORPOREL/J)`.
 5. Normaliser les unités équivalentes (`mg(Mg)/L` = `mg/L`…), vérifier unité résultat = unité limite.
-6. Mesures terrain + labo du même paramètre : choisir une règle (ex. garder le labo si présent) — à décider.
+6. Mesures terrain + labo du même paramètre : choisir une règle (ex. garder le labo si présent), à décider.
 7. Fusionner les codes « jumeaux » d'un même composé (`ESAMTC`/`MTCESA`, `R471811`/`471811R`) pour les séries temporelles, en gardant la limite **en vigueur à la date** pour le score.
 8. `trim()` des textes (tabulations en tête), `pourcentdebit` → entier.
 9. Codes INSEE étrangers (`99001`, `99004`) dans `inseecommuneprinc` : sans effet si l'on passe par COM_UDI.
 10. Communes nouvelles : 108 codes disparus / 251 apparus entre 2016 et 2026 → raisonner sur le référentiel de l'année la plus récente.
 
-## 12. Lignes d'exemple (10 par type, 2025, tirage reproductible graine 42 — `scripts/explore/p0_samples.py`)
+## 12. Lignes d'exemple (10 par type, 2025, tirage reproductible graine 42 : `scripts/explore/p0_samples.py`)
 
 **PLV** (2025)
 

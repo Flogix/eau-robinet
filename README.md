@@ -1,13 +1,13 @@
 # Is my tap water good? 💧
 
-*EFREI 2026 individual project — Streamlit data-storytelling dashboard — Florian GIRAUD (20230851, DAI).*
+*EFREI 2026 individual project, Streamlit data-storytelling dashboard, Florian GIRAUD (20230851, DAI).*
 
 A Streamlit app that tells the story of French tap-water quality from 2016 to 2026, built on the official results of the
 sanitary control carried out by the Regional Health Agencies (ARS): ~3 million water samples and 133 million analyses.
 
 **▶ Live app: https://eau-robinet.streamlit.app/** · Code: https://github.com/Flogix/eau-robinet
 
-> **Status: work in progress** (phase 5 — polishing). Sections marked *TODO* are filled in later phases.
+> **Status: work in progress** (phase 5, polishing). Sections marked *TODO* are filled in later phases.
 
 ## Question and audience
 - **Main audience:** a resident who wonders whether the water from their tap is good.
@@ -19,7 +19,7 @@ The score is an **educational indicator, not a health opinion**: the official op
 
 ## Data
 - **Dataset:** Ministère des Solidarités et de la Santé, « Résultats du contrôle sanitaire de l'eau distribuée commune par commune »,
-  data.gouv.fr, Licence Ouverte / Open Licence 2.0, last updated 5 October 2026 —
+  data.gouv.fr, Licence Ouverte / Open Licence 2.0, last updated 5 October 2026,
   https://www.data.gouv.fr/datasets/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune
 - Coverage: samples validated since 1 January 2016; **2026 is partial (samples up to 31 August 2026)**.
 - Data dictionary: [docs/data_dictionary.md](docs/data_dictionary.md). All sources: [docs/sources.md](docs/sources.md).
@@ -44,14 +44,14 @@ where it stopped. Long steps can run in the background with a log: `.\scripts\ru
 ### Score /100 (`utils/score.py`, settings in `config.py`)
 The score is computed per **distribution network (UDI)** over the "current situation" windows ending on 31/08/2026:
 12 months for microbiology and comfort, 36 months for health-related chemistry (full analyses are rare in small networks).
-1. **Microbiology** — `100 × (1 − t)^5`, `t` = share of samples officially non-compliant with the bacteriological limits
+1. **Microbiology**: `100 × (1 − t)^5`, `t` = share of samples officially non-compliant with the bacteriological limits
    (0.5 % → 97.5; 5 % → 77; 1 incident in 5 samples → 33). `k = 5` rather than 10 so that a single incident in a small
    network that is sampled 5 times a year does not sink it to grade D.
-2. **Health-related chemistry** — for each parameter with a quality limit, `r = value / limit` at the maximum (or at the 95th
+2. **Health-related chemistry**: for each parameter with a quality limit, `r = value / limit` at the maximum (or at the 95th
    percentile with ≥ 10 measurements, to be fair to big networks that sample a lot); any measured exceedance counts at least
    as `r = 1`. Penalty: 0 up to `r = 0.5`, 0→20 up to `r = 1`, 20→80 up to `r = 2`, 80 beyond.
    Sub-score = `100 − worst penalty − 0.25 × sum of the other penalties`.
-3. **Comfort / indicators** — same rule with quality references and the 0.9 µg/L indicative value, penalty capped at 50;
+3. **Comfort / indicators**: same rule with quality references and the 0.9 µg/L indicative value, penalty capped at 50;
    ranges (pH, conductivity) and zero references (coliform bacteria) are scored on the share of samples outside.
 4. **Global** = weighted mean (0.4 / 0.4 / 0.2) of the **measured** families only: a family without data is never counted as
    perfect. Grade A ≥ 90 · B ≥ 75 · C ≥ 60 · D ≥ 40 · E, on the score rounded to one decimal (the value displayed). Confidence high / medium / low from the number of samples and families.
@@ -61,7 +61,7 @@ The score is computed per **distribution network (UDI)** over the "current situa
 score of 61 vs 90 for the others; with an official chemical non-conformity, a median chemistry sub-score of 19 vs 100
 (probability that such a network scores lower than a compliant one: 0.91 for bacteriology, 0.88 for chemistry, on the global score).
 **Sensitivity**: across 14 variants (weights, `k`, P95 vs max, smoothing, penalty curve, caps), the Spearman rank correlation with
-the default ranking stays between 0.95 and 0.998, and 0.86 when comfort is removed — the ranking depends little on these choices.
+the default ranking stays between 0.95 and 0.998, and 0.86 when comfort is removed: the ranking depends little on these choices.
 
 ## Key insights
 *TODO (phase 5).*

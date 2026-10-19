@@ -1,4 +1,4 @@
-"""Phase 2 — explain the gap between the official chemical conformity and our recomputation.
+"""Phase 2, explain the gap between the official chemical conformity and our recomputation.
 
 Reads data/interim (joined results, clean samples) with the project DuckDB settings (3 GB, 4 threads).
 Usage: python -I scripts/explore/p2_chem_gap.py <project_root>

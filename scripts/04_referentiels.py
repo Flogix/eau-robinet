@@ -1,4 +1,4 @@
-"""04 — Reference tables: communes (population, centre, department, region), typologies, department contours.
+"""04: Reference tables: communes (population, centre, department, region), typologies, department contours.
 
 Downloads (cached in data/raw/ref/, never overwritten):
   * geo.api.gouv.fr (API Découpage administratif): current communes with population and centre,

@@ -1,4 +1,4 @@
-"""06 — Small tables shaped for the app's map and trend charts (pandas only, a few seconds).
+"""06: Small tables shaped for the app's map and trend charts (pandas only, a few seconds).
 
 dept_family_year: department × year × variable -> networks measured / networks with at least one exceedance.
   bact_official, chem_official  official conformity of the samples (plvconformitebacterio / plvconformitechimique)

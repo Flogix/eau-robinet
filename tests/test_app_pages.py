@@ -26,7 +26,7 @@ def test_page_runs(page, lang):
     at.switch_page(f"sections/{page}").run()
     assert not at.exception, at.exception
     text = " ".join(m.value for m in at.markdown) + " ".join(c.value for c in at.caption)
-    assert "—" not in text, f"em dash on {page} ({lang})"
+    assert chr(0x2014) not in text, f"em dash on {page} ({lang})"
 
 
 # Edge cases of the sidebar filters: tiny overseas region, partial year alone, rare kinds of towns.

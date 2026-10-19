@@ -5,11 +5,11 @@ loaded into pandas). `register_macros(con)` installs them on a connection; the u
 same macros on small synthetic tables.
 
 Parameter families (Python, applied to the ~1,800-row parameter catalogue):
-  micro   — microbiology with a quality limit (E. coli, enterococci)
-  chem    — health-related chemistry with a quality limit (nitrates, pesticides, PFAS, metals, ...)
-  comfort — indicators / comfort with a quality reference (turbidity, coliform bacteria, iron, ...)
+  micro  , microbiology with a quality limit (E. coli, enterococci)
+  chem   , health-related chemistry with a quality limit (nitrates, pesticides, PFAS, metals, ...)
+  comfort, indicators / comfort with a quality reference (turbidity, coliform bacteria, iron, ...)
             + pesticide metabolites classified "non-relevant" (0.9 µg/L indicative value)
-  info    — no threshold, information only (hardness, calcium, temperature, ...)
+  info   , no threshold, information only (hardness, calcium, temperature, ...)
 """
 from __future__ import annotations
 
