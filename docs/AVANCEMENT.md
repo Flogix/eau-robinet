@@ -11,7 +11,7 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 | 1. Setup | ✅ terminée (commit `0f7ab0b`) | 19/10 |
 | 2. Pipeline | ✅ validée | 19/10 |
 | 3. Score | ✅ validée (k = 5) | 19/10 |
-| 4. App | ⏳ | prévu 21–22/10 |
+| 4. App | 🟡 version 1 en ligne sur GitHub, déploiement en cours | 19/10 |
 | 5. Finitions | ⏳ | prévu 22/10 |
 | 6. Livraison | ⏳ | prévu 23/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) | — |
@@ -28,6 +28,29 @@ journal dans `data/interim/logs/`).
 - DuckDB : **`memory_limit=3GB`, `threads=4`** (dans `config.py`), `temp_directory=data/interim/duckdb_tmp`.
 - `C:\.git` supprimé par Florian le 19/10 ; le dépôt du projet est autonome (`git init` dans le dossier du projet).
 - Fichiers parasites de `data/raw/ref/` (`departements-100m.geojson`, `geo_arrondissements.json`) : **supprimés par Florian** (19/10).
+
+## Phase 4 — App, version 1 (19/10/2026)
+
+### Fait
+- 8 pages en anglais dans l'ordre du storyboard ; sidebar globale (`utils/filters.py`) : période, région, famille de paramètres,
+  type de commune — chaque filtre a un `help=` qui dit ce qu'il change.
+- KPIs liés aux filtres (`utils/metrics.render_kpis`, accueil + carte) : % de prélèvements conformes bactério / chimie avec delta
+  vs l'année précédente, communes avec ≥ 1 non-conformité (+ population, borne haute), score médian.
+- Graphes Plotly interactifs avec infobulles, texte alternatif (`alt=`) + `st.caption` sous chaque graphe, phrases-titres calculées.
+- Carte des départements (choroplèthe : famille × période, ou score actuel), classements, histogramme des scores, tendances.
+- Ma commune : recherche sans accents + homonymes (département), jauge, sous-scores, rapport « pourquoi » par réseau, historique
+  d'un paramètre avec seuil (requête DuckDB ciblée sur `udi_param_year`, jamais chargé en entier). Lien partageable `?insee=`.
+- Comparer : Paris vs Villejuif par défaut (2 à 4 communes), groupes montagne / Méditerranée (approximation affichée) / urbain-rural /
+  taille, en boîtes à moustaches.
+- Plongées : **H3 en tête** (barres empilées des dépassements par groupe de paramètres + non-conformités officielles, dates des
+  reclassements Anses sourcées), nitrates, PFAS, saisonnalité bactério, dureté (H4), sliders what-if des poids, table de sensibilité.
+- Qualité des données : manquants (heatmap), statuts des résultats, officiel vs recalculé, couverture, 88 contrôles, biais et limites.
+- Conclusions : H1–H4 testées et chiffrées (H1 : réseaux < 12 prélèvements/an = 73 % des non-conformités bactério pour 26 % des
+  prélèvements ; H2 : ρ = 0,05 entre départements bactério et chimie ; H3 ; H4 : dureté 1 à 36 °f entre P5 et P95).
+- `scripts/06_build_app_tables.py` → `dept_family_year` (28 Ko). Tests : 148 verts, y compris depuis un clone propre sans données brutes.
+- Mémoire de l'app : 874 Mo → **507 Mo** (catégories + 32 bits pour les grosses tables, `st.cache_resource` sans copie).
+  Chargement des pages : 2,8 à 4,6 s (rechargement complet du navigateur, en local).
+- Repo public créé : https://github.com/Flogix/eau-robinet (vérifié : rien de `data/raw`, `data/interim`, ni le PDF du prof).
 
 ## Phase 3 — Score (19/10/2026)
 
