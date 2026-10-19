@@ -6,9 +6,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from utils import score as S
 from utils.filters import commune_mask, get_filters
-from utils.io import SOURCE_CAPTION, communes, load_table, search_communes
+from utils.io import SOURCE_CAPTION, commune_network_links, communes, load_table, search_communes
 from utils.viz import FAMILY_LABELS, SERIES, headline, layout, show
 
 f = get_filters()
@@ -51,7 +50,7 @@ else:
     show(fig, "Grouped bars: microbiology, health-chemistry and comfort sub-scores of each town (out of 100).")
 
     # key facts per town, from the current windows of all its networks
-    links = S.commune_links(load_table("bridge_commune_udi"))
+    links = commune_network_links()
     w = load_table("udi_param_window")
     rows = []
     for _, r in sel.iterrows():

@@ -7,7 +7,7 @@ import config
 from utils import metrics
 from utils.filters import OFFICIAL, dept_mask, get_filters
 from utils.io import SOURCE_CAPTION, dep_of_network, departments_geojson, load_table
-from utils.viz import GRADE_COLORS, PALETTE, SEQUENTIAL, headline, layout, pct, show
+from utils.viz import GRADE_COLORS, PALETTE, headline, layout, pct, show
 
 f = get_filters()
 st.title("🗺️ France's water map")

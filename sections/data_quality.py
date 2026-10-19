@@ -1,13 +1,12 @@
 """Page 7 — Data quality: missing values, duplicates, validation checks, official vs recomputed, coverage, biases."""
 import numpy as np
-import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 import config
 from utils.filters import get_filters
 from utils.io import SOURCE_CAPTION, load_table
-from utils.viz import PALETTE, SEQUENTIAL, SERIES, headline, layout, pct, show
+from utils.viz import PALETTE, SEQUENTIAL, SERIES, headline, layout, show
 
 f = get_filters()
 st.title("🧪 Data quality")

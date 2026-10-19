@@ -1,6 +1,5 @@
 """Page 6 — Deep dives: H3 (what we monitor and how we classify it drives chemical non-compliance), nitrates, PFAS,
 bacteria seasonality, hardness, and the what-if weights of the score."""
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -9,7 +8,7 @@ import config
 from utils import score as S
 from utils.filters import get_filters
 from utils.io import SOURCE_CAPTION, departments, dep_of_network, load_table
-from utils.viz import GRADE_COLORS, PALETTE, SERIES, event, headline, layout, pct, show, threshold
+from utils.viz import PALETTE, event, headline, layout, pct, show, threshold
 
 f = get_filters()
 st.title("🔎 Deep dives")

@@ -5,14 +5,14 @@ import pandas as pd
 
 import config
 from utils.filters import Filters, commune_mask, dept_mask
-from utils.io import cached, communes, departments, load_table
+from utils.io import cached_resource, communes, departments, load_table
 
 
 def _years(d: pd.DataFrame, f: Filters, col: str = "annee") -> pd.Series:
     return d[col].between(*f.years)
 
 
-@cached
+@cached_resource
 def commune_year_typed() -> pd.DataFrame:
     """commune_year + typology of the current commune (old codes mapped to their current commune)."""
     cy = load_table("commune_year")

@@ -5,7 +5,8 @@ import streamlit as st
 
 import config
 from utils import score as S
-from utils.io import SOURCE_CAPTION, communes, load_table, network_history, network_params, search_communes
+from utils.io import (SOURCE_CAPTION, commune_network_links, communes, load_table, network_history,
+                      search_communes)
 from utils.viz import FAMILY_COLORS, FAMILY_LABELS, GRADE_COLORS, PALETTE, headline, layout, show, threshold
 
 st.title("🏠 My town")
@@ -40,7 +41,7 @@ insee = pick_commune()
 com = communes().set_index("insee")
 c = com.loc[insee]
 udi = load_table("udi_scores").set_index("cdreseau")
-links = S.commune_links(load_table("bridge_commune_udi"))
+links = commune_network_links()
 nets = links[links["insee"] == insee]
 names = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
 

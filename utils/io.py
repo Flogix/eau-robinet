@@ -57,7 +57,36 @@ else:
 
     cached_resource = cached
 
-load_table = cached(read_processed)
+# Big tables are stored compactly in memory (Streamlit Community Cloud gives an app ~690 MB to 2.7 GB):
+# repeated text -> category, numbers -> 32 bits. Only columns never concatenated as text are converted.
+COMPACT = {
+    "udi_param_window": ["cdreseau", "code", "family", "subfamily", "win", "threshold_kind", "unit"],
+    "udi_family_window": ["cdreseau", "family", "subfamily", "win"],
+    "udi_param_p95": ["cdreseau", "code"],
+    "bridge_commune_udi": [],
+    "commune_year": [],
+    "udi_year": [],
+}
+
+
+def compact(d: pd.DataFrame, categories: list[str]) -> pd.DataFrame:
+    for c in categories:
+        d[c] = d[c].astype("category")
+    for c in d.select_dtypes(include=["int64"]).columns:
+        d[c] = pd.to_numeric(d[c], downcast="integer")
+    for c in d.select_dtypes(include=["float64"]).columns:
+        d[c] = d[c].astype("float32")
+    return d
+
+
+def _load(name: str) -> pd.DataFrame:
+    d = read_processed(name)
+    return compact(d, COMPACT[name]) if name in COMPACT else d
+
+
+# Shared, read-only objects (cache_resource: no copy per call). Pages never modify a loaded table in place:
+# they filter it (new frame) before adding columns.
+load_table = cached_resource(_load)
 
 
 SOURCE_CAPTION = (
@@ -80,18 +109,18 @@ def normalize(text: str) -> str:
     return " ".join("".join(ch if ch.isalnum() else " " for ch in t.lower()).split())
 
 
-@cached
+@cached_resource
 def departments() -> pd.DataFrame:
     return read_processed("dim_departements")
 
 
-@cached
+@cached_resource
 def departments_geojson() -> dict:
     with open(config.PROCESSED / "departements.geojson", encoding="utf-8") as f:
         return json.load(f)
 
 
-@cached
+@cached_resource
 def communes() -> pd.DataFrame:
     """Current communes with their typology and current score (one row per INSEE code of the dataset)."""
     dim = read_processed("dim_communes")
@@ -140,3 +169,10 @@ def network_params(networks: tuple[str, ...]) -> pd.DataFrame:
     """Current-window parameter rows (udi_param_window) for a few networks."""
     w = load_table("udi_param_window")
     return w[w["cdreseau"].isin(networks)].copy()
+
+
+@cached_resource
+def commune_network_links() -> pd.DataFrame:
+    """Networks of each commune for its latest year (2026, else 2025) — computed once."""
+    from utils.score import commune_links
+    return commune_links(read_processed("bridge_commune_udi"))

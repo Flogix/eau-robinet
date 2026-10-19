@@ -1,5 +1,4 @@
 """Page 2 — What is measured, which thresholds apply, and how often they are exceeded in France."""
-import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
