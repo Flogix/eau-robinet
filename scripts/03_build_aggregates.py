@@ -323,6 +323,35 @@ def build_aggregates(con) -> None:
         FROM jw WHERE thr_kind IS NOT NULL OR code IN ({sql_list(KEY_PARAMS)})
         GROUP BY 1, 2 HAVING count(*) FILTER (WHERE detected) > 0 OR count(*) FILTER (WHERE exceed) > 0
         ORDER BY 1, 2""", "udi_param_window")
+    build_p95(con)
+
+
+P95_MIN_N = config.P95_MIN_N   # P95 only when a network has at least 10 measurements of a parameter in the window
+P95_BUCKETS = 8  # networks split into 8 groups processed one after the other (exact quantiles stay in memory)
+
+
+def build_p95(con) -> None:
+    """95th percentile of value/threshold per network × parameter (chem 36 months, comfort 12 months).
+    Used by the score instead of the maximum when n >= 10 (fair to large networks that sample a lot)."""
+    parts = config.INTERIM / "parts" / "udi_param_p95"
+    parts.mkdir(parents=True, exist_ok=True)
+    window_files = [JOINED / f"joined_{y}.parquet" for y in range(START_36.year, END.year + 1)]
+    for b in range(P95_BUCKETS):
+        out = parts / f"bucket_{b}.parquet"
+        sql = f"""
+            SELECT cdreseau, code, count(ratio)::INT AS n_ratio, quantile_cont(ratio, 0.95)::FLOAT AS p95_ratio
+            FROM jw WHERE family IN ('chem', 'comfort') AND ratio IS NOT NULL
+                      AND hash(cdreseau) % {P95_BUCKETS} = {b}
+            GROUP BY 1, 2 HAVING count(ratio) >= {P95_MIN_N}"""
+        key = _key(sql, PREP_SOURCE, START_12, START_36, END)
+        if is_fresh(out, key, window_files):
+            continue
+        t0 = time.time()
+        con.execute(f"COPY ({sql}) TO '{out.as_posix()}' (FORMAT parquet)")
+        write_stamp(out, key)
+        print(f"  udi_param_p95 bucket {b}: {time.time() - t0:.0f}s", flush=True)
+    copy(con, f"SELECT * FROM read_parquet('{parts.as_posix()}/*.parquet') ORDER BY 1, 2", "udi_param_p95",
+         inputs=list(parts.glob("*.parquet")))
 
 
 # --- 4. Data quality ------------------------------------------------------------------------------------

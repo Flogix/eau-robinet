@@ -18,6 +18,7 @@ data:
 	$(PY) scripts/02_build_parquet.py
 	$(PY) scripts/03_build_aggregates.py
 	$(PY) scripts/04_referentiels.py
+	$(PY) scripts/05_build_scores.py
 
 test:
 	$(PY) -m pytest -q

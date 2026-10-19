@@ -36,11 +36,36 @@ Date de consultation indiquée entre crochets.
    https://bourgogne-franche-comte.ars.sante.fr/media/127554/download [19/10/2026]
    - Confirme : R471811 pertinent en 2023, classé non pertinent par l'avis Anses du 29/04/2024 ; depuis, valeur indicative de 0,9 µg/L.
 
-## À sourcer (ne pas afficher dans l'app sans source)
+## Limites du sélénium et de l'antimoine (changement du 01/01/2023) — vérifié le 19/10/2026
 
-- Limite de qualité du **sélénium** : les conclusions ARS 2016–2022 citent 10 µg/L, la colonne `limitequal` affiche 20 µg/L pour toutes
-  les années (et 30 µg/L « si conditions géologiques particulières » depuis 2023). Hypothèse : relèvement lors de la transposition de la
-  directive (UE) 2020/2184. Même question pour l'**antimoine**.
+10. **Directive 98/83/CE** du Conseil du 3 novembre 1998 (version consolidée du 27/10/2015), annexe I partie B :
+    **antimoine 5,0 µg/L**, **sélénium 10 µg/L**.
+    https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:01998L0083-20151027 [19/10/2026]
+11. **Directive (UE) 2020/2184** du 16 décembre 2020 (refonte), annexe I partie B : **antimoine 10 µg/L** ; **sélénium 20 µg/L**,
+    « 30 µg/l » pour les régions où les conditions géologiques pourraient occasionner des niveaux élevés dans les eaux souterraines.
+    Article 24 : transposition au plus tard le 12 janvier 2023.
+    https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:32020L2184 [19/10/2026]
+12. **Arrêté du 30 décembre 2022** modifiant l'arrêté du 11 janvier 2007 relatif aux limites et références de qualité des eaux brutes et
+    des eaux destinées à la consommation humaine (NOR SPRP2221010A, JO n° 303 du 31/12/2022) — transpose la directive 2020/2184 ;
+    article 2 : **entrée en vigueur le 1er janvier 2023**.
+    https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046849403 [19/10/2026]
+    - Valeurs de l'annexe (antimoine 10 µg/L ; sélénium 20 µg/L, 30 µg/L dans les zones géologiques concernées) lues dans la reproduction
+      INERIS/AIDA du texte (le tableau n'est pas affiché en texte sur Légifrance) :
+      https://aida.ineris.fr/reglementation/arrete-301222-modifiant-larrete-11-janvier-2007-relatif-limites-references-qualite [19/10/2026]
+    - Usage dans le projet : explique l'écart « non conforme officiel sans dépassement recalculé » de 2016–2022 (conformités jugées avec
+      les anciennes limites, colonne `limitequal` = limite actuelle). Les fenêtres du score commencent le 01/09/2023 → après le changement.
+
+## PFAS (somme de 20) — vérifié le 19/10/2026
+
+13. **Directive (UE) 2020/2184**, article 25 « Période transitoire » : au plus tard le **12 janvier 2026**, les États membres garantissent
+    le respect des valeurs paramétriques de l'annexe I partie B pour, entre autres, « la somme des PFAS ».
+    https://eur-lex.europa.eu/legal-content/FR/TXT/HTML/?uri=CELEX:32020L2184 [19/10/2026]
+14. **ARS Nouvelle-Aquitaine**, « Surveillance des PFAS (polluants chimiques éternels) dans l'eau en Nouvelle-Aquitaine », article du 12/05/2026 :
+    à partir du **1er janvier 2026**, l'intégration des 20 PFAS dans les programmes de contrôle sanitaire des ARS est obligatoire ;
+    limite de qualité **0,1 µg/L pour la somme des 20 PFAS** ; textes cités : directive 2020/2184 et décret n° 2025-1287 du 22/12/2025.
+    https://www.nouvelle-aquitaine.ars.sante.fr/surveillance-des-pfas-polluants-chimiques-eternels-dans-leau-en-nouvelle-aquitaine [19/10/2026]
+    - Usage : phrase du rapport « PFAS (sum of 20) not yet measured on this network (in the routine control since 01/01/2026) »
+      et annotation des graphiques PFAS.
 
 ## Référentiels géographiques (`scripts/04_referentiels.py`, fichiers en cache dans `data/raw/ref/`)
 

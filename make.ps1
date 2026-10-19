@@ -10,7 +10,7 @@ switch ($Target) {
         & $py -m pip install -r requirements.txt
     }
     "data" {
-        foreach ($s in "01_download", "02_build_parquet", "03_build_aggregates", "04_referentiels") {
+        foreach ($s in "01_download", "02_build_parquet", "03_build_aggregates", "04_referentiels", "05_build_scores") {
             & $py "scripts\$s.py"
             if ($LASTEXITCODE -ne 0) { throw "scripts\$s.py failed" }
         }

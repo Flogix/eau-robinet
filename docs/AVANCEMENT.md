@@ -9,8 +9,8 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 |---|---|---|
 | 0. Reconnaissance (lecture seule) | ✅ validée | 19/10 |
 | 1. Setup | ✅ terminée (commit `e23dc07`) | 19/10 |
-| 2. Pipeline | ✅ terminée — **en attente de validation** | 19/10 |
-| 3. Score | ⏳ | prévu 20–21/10 |
+| 2. Pipeline | ✅ validée | 19/10 |
+| 3. Score | ✅ terminée — **en attente de validation** | 19/10 |
 | 4. App | ⏳ | prévu 21–22/10 |
 | 5. Finitions | ⏳ | prévu 22/10 |
 | 6. Livraison | ⏳ | prévu 23/10 |
@@ -27,9 +27,46 @@ journal dans `data/interim/logs/`).
   pyarrow 26.0.0, plotly 7.1.0, requests 2.34.2, pytest 9.1.1, openpyxl 3.1.5, numpy 2.5.4).
 - DuckDB : **`memory_limit=3GB`, `threads=4`** (dans `config.py`), `temp_directory=data/interim/duckdb_tmp`.
 - `C:\.git` supprimé par Florian le 19/10 ; le dépôt du projet est autonome (`git init` dans le dossier du projet).
-- Fichiers parasites dans `data/raw/ref/` créés par erreur lors d'un premier téléchargement manuel (non utilisés, laissés en
-  place car on ne supprime rien dans `data/raw/`) : `departements-100m.geojson` (138 octets, page de redirection HTML) et
-  `geo_arrondissements.json`. **Florian peut les supprimer à la main.**
+- Fichiers parasites de `data/raw/ref/` (`departements-100m.geojson`, `geo_arrondissements.json`) : **supprimés par Florian** (19/10).
+
+## Phase 3 — Score (19/10/2026)
+
+### Fait
+- `utils/score.py` : formules (micro, pénalités chimie/confort, combinaison, note, confiance), score par UDI, score par commune
+  (moyenne des UDI du dernier lien 2026, sinon 2025 ; pire UDI gardée), rapport « pourquoi » par règles. Tout en pandas sur
+  `data/processed/` → les sliders what-if de l'app pourront recalculer sans données brutes.
+- `scripts/03_build_aggregates.py` : nouvelle table `udi_param_p95` (P95 du ratio valeur/seuil par UDI × paramètre, ≥ 10 mesures),
+  calculée en **8 paquets d'UDI** l'un après l'autre (≈ 5 s chacun, DuckDB 3 Go) ; 88/88 contrôles OK.
+- `scripts/05_build_scores.py` (pandas seul, ≈ 3 min) : `udi_scores`, `commune_scores`, `score_validation`, `score_sensitivity`,
+  `docs/score_witnesses.md`. Branché dans `Makefile` et `make.ps1`.
+- Tests : `tests/test_score.py` (35 tests sur données synthétiques) ; suite complète **145 verts**.
+- README : section méthode du score + validation + sensibilité. Ligne 38 corrigée (retour chariot invisible dans `.\scripts\run_logged.ps1`).
+
+### Décisions (phase 3)
+- Formule du cahier des charges gardée (k = 10, courbe 0,5/1/2 → 0/20/80, 0,25 × autres pénalités, plafond confort 50, poids 0,4/0,4/0,2).
+- **P95 au lieu du max dès 10 mesures** (équité envers les grandes villes) **+ plancher** : tout dépassement mesuré compte au moins
+  comme r = 1 (pénalité 20) → un dépassement n'est jamais effacé par le P95.
+- **pH et conductivité** (références en plage min–max) et **références à 0** (coliformes, spores) : pénalité selon la **part des
+  prélèvements hors référence**, 50 × (1 − (1 − t)^10). Raison : un pH de 8 pour un max de 9 n'est pas « presque en dépassement ».
+- **Nitrates et « nitrates/50 + nitrites/3 »** : une seule pénalité (la pire), comme les codes jumeaux des métabolites.
+- Score calculé seulement si la microbiologie OU la chimie est mesurée (le confort seul ne suffit pas).
+- Confiance : élevée = 3 familles, ≥ 12 prélèvements bactériologiques en 12 mois, nitrates et pesticides mesurés en 36 mois ;
+  faible = ≤ 3 prélèvements bactériologiques ou pas de micro ou pas de chimie ; moyenne sinon. Commune = la plus faible de ses UDI.
+- Commune « petite rurale » témoin tirée au sort (graine 42) : < 500 hab., rural dispersé/très dispersé, métropole.
+- Spearman calculé comme corrélation des rangs (pas de scipy ajouté).
+
+### Chiffres clés (calculés)
+- 23 733 UDI notées ; médiane 89,6 ; A 48,4 % · B 27,3 % · C 8,3 % · D 14,8 % · E 1,3 % ; confiance élevée 31 %, moyenne 56 %, faible 13 %.
+- 34 826 communes notées sur 34 827 (25322 : aucune UDI avec données dans les fenêtres).
+- Validation : UDI avec non-conformité bactério officielle (3 020) → score médian 52 contre 90 ; avec non-conformité chimique officielle
+  (3 178) → sous-score chimie médian 19 contre 100 ; probabilité qu'une UDI non conforme ait un score plus bas : 0,95 (bactério), 0,85 (chimie).
+- Sensibilité (14 variantes) : Spearman 0,85 (sans confort) à 0,998.
+- Témoins : Paris 84,0 B · Villejuif 81,0 B · Chamonix 78,7 B · Sète 100 A · Fouchères (89) 95,0 A.
+
+### Point ouvert (décision de Florian)
+- **Petits réseaux et microbiologie** : 1 non-conformité sur 5 prélèvements → t = 20 % → micro ≈ 11 → souvent note D
+  (pic de 14,8 % de D). Variante testée « lissage » (12 prélèvements fictifs au taux national) : D 11,4 %, mais A 34,7 %
+  (une petite UDI parfaite n'a plus 100). Autre piste : k = 5 (D 11,3 %, A 50,2 %). Défaut actuel inchangé en attendant la décision.
 
 ## Phase 2 — Pipeline (19/10/2026)
 
@@ -82,7 +119,8 @@ journal dans `data/interim/logs/`).
 - **Sélénium et antimoine (2016–2022)** : la majorité des « N officiel sans dépassement » ; valeurs médianes 14–15 µg/L sous la limite
   de 20 µg/L écrite sur la ligne, alors que **les conclusions de l'ARS citent une limite de 10 µg/L** (1 627 conclusions mentionnent le
   sélénium). Les conformités ont été jugées avec la limite de l'époque, la colonne `limitequal` montre la limite actuelle.
-  Le changement réglementaire exact (directive 2020/2184 ?) reste **à sourcer** avant d'en parler dans l'app.
+  **Sourcé le 19/10** (`docs/sources.md` n° 10–12) : directive 98/83/CE Sb 5 / Se 10 µg/L → directive (UE) 2020/2184 Sb 10 / Se 20 µg/L
+  (30 µg/L si géologie), transposée par l'arrêté du 30/12/2022, en vigueur le 01/01/2023.
 - Bactériologie : recalcul = officiel (ex. 2025 : 4 659 / 4 659).
 - Conséquence : l'app s'appuie sur les **conformités officielles** pour les KPIs historiques ; le recalcul sert au score (fenêtres
   2023–2026, où l'accord est quasi parfait) et à la page qualité des données.
@@ -146,9 +184,13 @@ journal dans `data/interim/logs/`).
 - ✅ Écart chimie recalculée vs officielle : expliqué en phase 2 (dérogations, chlorites, sélénium).
 - ✅ Source officielle sur les métabolites non pertinents : fournie par Florian, vérifiée (`docs/sources.md`).
 - ✅ Règle terrain vs labo : on garde la mesure de laboratoire (décision du 19/10).
-- ⏳ Sourcer l'évolution de la limite du sélénium (10 → 20 µg/L) avant d'en parler dans l'app.
+- ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
+- 19/10 — **Phase 2 validée par Florian.** Parasites de `data/raw/ref/` supprimés par lui. Littoral : repli « départements
+  méditerranéens hors montagne » accepté, **à présenter clairement comme une approximation dans l'app**.
+- 19/10 — Sélénium/antimoine : piste de Florian vérifiée sur EUR-Lex et Légifrance → on peut en parler dans l'app (sources 10–12).
+- 19/10 — PFAS : « dans le contrôle de routine depuis le 01/01/2026 » sourcé (ARS Nouvelle-Aquitaine, décret 2025-1287 ; directive art. 25).
 - 19/10 — **Phase 0 validée par Florian.** Phases 1 et 2 enchaînées sans arrêt intermédiaire, sur toutes les années 2016–2026.
 - 19/10 — `C:\.git` supprimé par Florian ; vérifié : plus aucun dépôt parent détecté avant le `git init`.
 - 19/10 — Consignes renommées (pas copiées) en `docs/consignes.pdf`.
