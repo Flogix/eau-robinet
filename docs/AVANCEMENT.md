@@ -8,7 +8,7 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 | Phase | Statut | Date |
 |---|---|---|
 | 0. Reconnaissance (lecture seule) | ✅ validée | 19/10 |
-| 1. Setup | ✅ terminée (commit `e23dc07`) | 19/10 |
+| 1. Setup | ✅ terminée (commit `0f7ab0b`) | 19/10 |
 | 2. Pipeline | ✅ validée | 19/10 |
 | 3. Score | ✅ validée (k = 5) | 19/10 |
 | 4. App | ⏳ | prévu 21–22/10 |
@@ -192,6 +192,8 @@ journal dans `data/interim/logs/`).
 - ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
+- 19/10 — `docs/consignes.pdf` (sujet du prof, avec son e-mail) **retiré de l’historique git** avant la publication (choix de Florian),
+  gardé sur le disque et ajouté au `.gitignore`. Les hash des commits ont changé (phase 1 = `0f7ab0b`).
 - 19/10 — **Phase 3 validée par Florian** : option k = 5 pour les petits réseaux, note sur score arrondi. Phases 4–5 enchaînées,
   repo GitHub public « eau-robinet » confirmé (création + push autorisés).
 - 19/10 — **Phase 2 validée par Florian.** Parasites de `data/raw/ref/` supprimés par lui. Littoral : repli « départements
