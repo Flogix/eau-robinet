@@ -1,12 +1,12 @@
-# CLAUDE.md — « Is my tap water good? » / « Mon eau du robinet est-elle bonne ? »
-Projet individuel EFREI 2026 — Streamlit Dashboard (data storytelling)
+# CLAUDE.md : « Is my tap water good? » / « Mon eau du robinet est-elle bonne ? »
+Projet individuel EFREI 2026, Streamlit Dashboard (data storytelling)
 
 ## Fiche étudiant
-- Nom : GIRAUD — Prénom : Florian — N° étudiant : 20230851 — Groupe : DAI
+- Nom : GIRAUD, Prénom : Florian, N° étudiant : 20230851, Groupe : DAI
 - Zip final : `StApp26_20230851_GIRAUD_DAI.zip` (modèle du prof : `StApp26_20000_NOM_DAI.zip`)
 - Langue des livrables (app, README, storyboard, script vidéo) : anglais (consignes en anglais)
 - Langue des docs internes (AVANCEMENT, data_dictionary) et de nos échanges : français
-- OS : Windows (PowerShell ; `make` n'est pas installé par défaut) — Python : à détecter en phase 0
+- OS : Windows (PowerShell ; `make` n'est pas installé par défaut) ; Python : à détecter en phase 0
 - Dossier du projet : `C:\Users\flogi\projets\eau-robinet` (hors OneDrive)
 - Comptes : GitHub = Flogix (connecté via GitHub CLI `gh`) ; Streamlit Community Cloud = compte créé avec GitHub
 - **Rendu : samedi 24 octobre 2026 à 12:00.** Plusieurs remises autorisées → viser une 1re remise jeudi 22 au soir.
@@ -17,7 +17,7 @@ Fil rouge : « Mon eau est-elle bonne ? » → score /100 par commune + rapport 
 comparaisons (ex. Paris vs Villejuif, montagne vs littoral méditerranéen, urbain vs rural), carte, évolution dans le temps.
 Bonus eau en bouteille : hors périmètre pour l'instant, ne pas commencer sans mon accord.
 
-Documents de référence — à lire en entier au début de chaque session si tu ne les as pas en contexte :
+Documents de référence, à lire en entier au début de chaque session si tu ne les as pas en contexte :
 - `docs/consignes.pdf` : consignes officielles + barème. Elles priment en cas de doute.
 - `docs/CAHIER_DES_CHARGES.md` : public, storyboard, méthode du score, pipeline, phases, planning.
 - `docs/AVANCEMENT.md` : journal du projet (à créer en phase 0, puis à tenir à jour). C'est la mémoire entre sessions.
@@ -62,7 +62,7 @@ Faits vérifiés sur la page data.gouv.fr (le reste est à vérifier dans les fi
   limites `limitequal` / `refqual` ; conformités `plvconformitebacterio`, `plvconformitechimique`,
   `plvconformitereferencebact`, `plvconformitereferencechim`. Équivalents dans l'API Hub'Eau :
   `limite_qualite_parametre`, `reference_qualite_parametre`, `conformite_limites_bact_prelevement`, etc.
-- API Hub'Eau (mêmes données) : https://hubeau.eaufrance.fr/page/api-qualite-eau-potable — utile pour vérifier une commune,
+- API Hub'Eau (mêmes données) : https://hubeau.eaufrance.fr/page/api-qualite-eau-potable, utile pour vérifier une commune,
   mais profondeur limitée à 20 000 résultats : pas pour le traitement national.
 
 ## Stack
@@ -100,6 +100,18 @@ README.md  requirements.txt  Makefile  .gitignore  .streamlit/config.toml
 - Tout chargement passe par `@st.cache_data` (et `@st.cache_resource` pour une connexion DuckDB).
   Les agrégations lourdes sont faites dans les scripts, jamais dans l'app.
 - Un clone propre + installation + `streamlit run app.py` doit fonctionner SANS les données brutes.
+
+## Règles d'écriture et d'identité (décidées par Florian, à respecter dans toutes les sessions)
+- Écrire comme un humain qui raconte une histoire : des phrases complètes et des paragraphes courts qui interprètent.
+  Pas de listes à puces à tout va, pas de titres de section vides de sens.
+- Le tiret cadratin est interdit partout (app, README, docs). Pas d'emojis décoratifs.
+- Chaque graphe a un titre qui dit ce qu'il montre, une légende en dessous et un paragraphe qui explique ce qu'il faut en
+  retenir et pourquoi il est là. Aucun graphe posé sans histoire.
+- Le public n'y connaît rien : chaque terme technique (réseau de distribution, limite, référence, métabolite, centile…)
+  est expliqué en mots simples la première fois qu'il apparaît.
+- Aucun chiffre ni affirmation de santé sans source officielle listée dans `docs/sources.md`.
+- L'anglais est la langue officielle de l'app ; le français est disponible via le sélecteur EN / FR. Tous les textes
+  (graphes compris) passent par le module de traduction.
 
 ## Storytelling, visualisation, accessibilité
 - Chaque section s'ouvre sur une phrase-titre qui énonce l'insight, calculée depuis les données (jamais inventée).
