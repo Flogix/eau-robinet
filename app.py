@@ -1,9 +1,38 @@
 """Entry point: language, navigation (order = order of the story), header, sidebar filters, footer."""
+import sys
+from pathlib import Path
+
 import streamlit as st
 
-from utils.filters import language_selector, sidebar
-from utils.i18n import t
-from utils.viz import footer, header, inject_css
+
+def _forget_stale_project_modules() -> None:
+    """After a code update (git push to Streamlit Cloud, or an edit in local development), the server keeps the old
+    project modules in memory, and a page importing a new function fails with ImportError. Forget the project
+    modules whose source file changed since they were loaded, so that the imports below load the new code."""
+    root = Path(__file__).resolve().parent
+    project = [n for n in sys.modules if n == "config" or n == "utils" or n.startswith("utils.")]
+    for name in project:
+        mod = sys.modules[name]
+        src, pyc = getattr(mod, "__file__", None), getattr(mod, "__cached__", None)
+        if not src or not pyc or not Path(src).resolve().is_relative_to(root):
+            continue
+        try:   # the compiled file is written when the module is imported: a newer source means stale code
+            stale = Path(src).stat().st_mtime > Path(pyc).stat().st_mtime + 1
+        except OSError:
+            continue
+        if stale:
+            for other in project:
+                sys.modules.pop(other, None)
+            st.cache_data.clear()
+            st.cache_resource.clear()
+            break
+
+
+_forget_stale_project_modules()
+
+from utils.filters import language_selector, sidebar  # noqa: E402
+from utils.i18n import t  # noqa: E402
+from utils.viz import footer, header, inject_css  # noqa: E402
 
 st.set_page_config(page_title="Au robinet", page_icon=":material/water_drop:", layout="wide")
 inject_css()
