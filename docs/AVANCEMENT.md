@@ -10,7 +10,7 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 | 0. Reconnaissance (lecture seule) | ✅ validée | 19/10 |
 | 1. Setup | ✅ terminée (commit `e23dc07`) | 19/10 |
 | 2. Pipeline | ✅ validée | 19/10 |
-| 3. Score | ✅ terminée — **en attente de validation** | 19/10 |
+| 3. Score | ✅ validée (k = 5) | 19/10 |
 | 4. App | ⏳ | prévu 21–22/10 |
 | 5. Finitions | ⏳ | prévu 22/10 |
 | 6. Livraison | ⏳ | prévu 23/10 |
@@ -63,10 +63,15 @@ journal dans `data/interim/logs/`).
 - Sensibilité (14 variantes) : Spearman 0,85 (sans confort) à 0,998.
 - Témoins : Paris 84,0 B · Villejuif 81,0 B · Chamonix 78,7 B · Sète 100 A · Fouchères (89) 95,0 A.
 
-### Point ouvert (décision de Florian)
-- **Petits réseaux et microbiologie** : 1 non-conformité sur 5 prélèvements → t = 20 % → micro ≈ 11 → souvent note D
-  (pic de 14,8 % de D). Variante testée « lissage » (12 prélèvements fictifs au taux national) : D 11,4 %, mais A 34,7 %
-  (une petite UDI parfaite n'a plus 100). Autre piste : k = 5 (D 11,3 %, A 50,2 %). Défaut actuel inchangé en attendant la décision.
+### Petits réseaux (décision de Florian à la validation de la phase 3)
+- Constat : avec k = 10, 1 non-conformité sur 5 prélèvements → t = 20 % → micro ≈ 11 → souvent note D (pic de 14,8 % de D).
+- Options présentées : garder k = 10 ; **k = 5** ; lissage (12 prélèvements fictifs au taux national : D 11,4 % mais A 34,7 %).
+- **Choix : k = 5** (aussi utilisé pour la pénalité « part hors référence » du confort). La note est calculée sur le score
+  **arrondi à 0,1** (valeur affichée) : un score affiché 60,0 n'est jamais noté D.
+- Après recalcul : UDI A 50,4 % · B 26,7 % · C 10,8 % · D 11,2 % · E 0,9 % (médiane 90,0) ; communes A 47,2 % · B 27,6 % ·
+  C 12,7 % · D 12,2 % · E 0,4 % (médiane 89,1). Validation : score médian 61 (non-conformité bactério officielle) contre 90 ;
+  chimie 19 contre 100 ; probabilités 0,91 et 0,88. Sensibilité : Spearman 0,95 à 0,998 (0,86 sans confort).
+- Témoins : Paris 84,1 B · Villejuif 81,1 B · Chamonix 83,1 B (Le Tour passe de D à C 70,5) · Sète 100 A · Fouchères 95,0 A.
 
 ## Phase 2 — Pipeline (19/10/2026)
 
@@ -187,6 +192,8 @@ journal dans `data/interim/logs/`).
 - ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
+- 19/10 — **Phase 3 validée par Florian** : option k = 5 pour les petits réseaux, note sur score arrondi. Phases 4–5 enchaînées,
+  repo GitHub public « eau-robinet » confirmé (création + push autorisés).
 - 19/10 — **Phase 2 validée par Florian.** Parasites de `data/raw/ref/` supprimés par lui. Littoral : repli « départements
   méditerranéens hors montagne » accepté, **à présenter clairement comme une approximation dans l'app**.
 - 19/10 — Sélénium/antimoine : piste de Florian vérifiée sur EUR-Lex et Légifrance → on peut en parler dans l'app (sources 10–12).

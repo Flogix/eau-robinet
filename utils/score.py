@@ -100,9 +100,11 @@ def combine_penalties(pen: pd.Series, other_factor: float) -> float:
 
 
 def grade(score: float | None) -> str | None:
-    """Letter grade A–E from a score /100 (thresholds in config.GRADES)."""
+    """Letter grade A–E from a score /100 (thresholds in config.GRADES), taken on the score rounded to one
+    decimal — the value displayed — so that a score shown as 60.0 is never graded D."""
     if score is None or (isinstance(score, float) and np.isnan(score)):
         return None
+    score = round(float(score), 1)
     for threshold, letter in config.GRADES:
         if score >= threshold:
             return letter

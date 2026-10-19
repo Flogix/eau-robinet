@@ -32,8 +32,14 @@ def run(params_rows, m=None, f=None, p95=None, s=S.DEFAULT):
 
 # --- elementary formulas ----------------------------------------------------------------------------
 def test_micro_formula_matches_spec_examples():
-    assert S.micro_subscore(200, 1)[()] == pytest.approx(95.1, abs=0.1)    # 0.5 % non-compliant -> ≈ 95
-    assert S.micro_subscore(100, 5)[()] == pytest.approx(59.9, abs=0.1)    # 5 % -> ≈ 60
+    # first proposal (k = 10): 0.5 % non-compliant -> ≈ 95 ; 5 % -> ≈ 60
+    assert S.micro_subscore(200, 1, k=10)[()] == pytest.approx(95.1, abs=0.1)
+    assert S.micro_subscore(100, 5, k=10)[()] == pytest.approx(59.9, abs=0.1)
+    # chosen k = 5: 0.5 % -> ≈ 97.5 ; 5 % -> ≈ 77 ; 1 incident in 5 samples -> ≈ 33 (was ≈ 11 with k = 10)
+    assert config.MICRO_K == 5
+    assert S.micro_subscore(200, 1)[()] == pytest.approx(97.5, abs=0.1)
+    assert S.micro_subscore(100, 5)[()] == pytest.approx(77.4, abs=0.1)
+    assert S.micro_subscore(5, 1)[()] == pytest.approx(32.8, abs=0.1)
     assert S.micro_subscore(10, 0)[()] == 100
     assert np.isnan(S.micro_subscore(0, 0)[()])                           # no sample = not measured
 
@@ -60,6 +66,10 @@ def test_combine_penalties():
 @pytest.mark.parametrize("score, letter", [(100, "A"), (90, "A"), (89.9, "B"), (75, "B"), (60, "C"), (40, "D"), (39.9, "E"), (0, "E")])
 def test_grades(score, letter):
     assert S.grade(score) == letter
+
+
+def test_grade_uses_rounded_score():
+    assert S.grade(59.96) == "C" and S.grade(89.95) == "A" and S.grade(59.94) == "D"
 
 
 def test_grade_none():

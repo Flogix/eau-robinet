@@ -37,7 +37,7 @@ VARIANTS = {   # name -> changes to the default settings
     "weights micro-heavy (0.6/0.3/0.1)": dict(weights={"micro": 0.6, "chem": 0.3, "comfort": 0.1}),
     "weights chem-heavy (0.3/0.6/0.1)": dict(weights={"micro": 0.3, "chem": 0.6, "comfort": 0.1}),
     "no comfort (0.5/0.5/0)": dict(weights={"micro": 0.5, "chem": 0.5, "comfort": 0.0}),
-    "micro k = 5": dict(micro_k=5),
+    "micro k = 10 (first proposal)": dict(micro_k=10),
     "micro k = 20": dict(micro_k=20),
     "micro smoothed (12 pseudo-samples at the national rate)": dict(micro_prior_n=12),
     "max instead of P95": dict(use_p95=False),

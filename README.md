@@ -42,7 +42,9 @@ where it stopped. Long steps can run in the background with a log: `.\scripts\ru
 ### Score /100 (`utils/score.py`, settings in `config.py`)
 The score is computed per **distribution network (UDI)** over the "current situation" windows ending on 31/08/2026:
 12 months for microbiology and comfort, 36 months for health-related chemistry (full analyses are rare in small networks).
-1. **Microbiology** — `100 × (1 − t)^10`, `t` = share of samples officially non-compliant with the bacteriological limits.
+1. **Microbiology** — `100 × (1 − t)^5`, `t` = share of samples officially non-compliant with the bacteriological limits
+   (0.5 % → 97.5; 5 % → 77; 1 incident in 5 samples → 33). `k = 5` rather than 10 so that a single incident in a small
+   network that is sampled 5 times a year does not sink it to grade D.
 2. **Health-related chemistry** — for each parameter with a quality limit, `r = value / limit` at the maximum (or at the 95th
    percentile with ≥ 10 measurements, to be fair to big networks that sample a lot); any measured exceedance counts at least
    as `r = 1`. Penalty: 0 up to `r = 0.5`, 0→20 up to `r = 1`, 20→80 up to `r = 2`, 80 beyond.
@@ -50,14 +52,14 @@ The score is computed per **distribution network (UDI)** over the "current situa
 3. **Comfort / indicators** — same rule with quality references and the 0.9 µg/L indicative value, penalty capped at 50;
    ranges (pH, conductivity) and zero references (coliform bacteria) are scored on the share of samples outside.
 4. **Global** = weighted mean (0.4 / 0.4 / 0.2) of the **measured** families only: a family without data is never counted as
-   perfect. Grade A ≥ 90 · B ≥ 75 · C ≥ 60 · D ≥ 40 · E. Confidence high / medium / low from the number of samples and families.
+   perfect. Grade A ≥ 90 · B ≥ 75 · C ≥ 60 · D ≥ 40 · E, on the score rounded to one decimal (the value displayed). Confidence high / medium / low from the number of samples and families.
 5. **Commune** = mean of the networks serving it (worst network shown). A rule-based report explains each score.
 
 **Validation** (23,733 networks): networks with an official bacteriological non-conformity in the last 12 months have a median
-score of 52 vs 90 for the others; with an official chemical non-conformity, a median chemistry sub-score of 19 vs 100
-(probability that such a network scores lower than a compliant one: 0.95 for bacteriology, 0.85 for chemistry, on the global score).
-**Sensitivity**: across 14 variants (weights, `k`, P95 vs max, penalty curve, caps), the Spearman rank correlation with the
-default ranking stays between 0.85 (comfort removed) and 0.998 — the ranking depends little on these choices.
+score of 61 vs 90 for the others; with an official chemical non-conformity, a median chemistry sub-score of 19 vs 100
+(probability that such a network scores lower than a compliant one: 0.91 for bacteriology, 0.88 for chemistry, on the global score).
+**Sensitivity**: across 14 variants (weights, `k`, P95 vs max, smoothing, penalty curve, caps), the Spearman rank correlation with
+the default ranking stays between 0.95 and 0.998, and 0.86 when comfort is removed — the ranking depends little on these choices.
 
 ## Key insights
 *TODO (phase 5).*
