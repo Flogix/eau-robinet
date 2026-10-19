@@ -1,0 +1,26 @@
+# Usage: make setup | make data | make test | make run
+# Windows without make: see make.ps1 (.\make.ps1 setup, etc.)
+ifeq ($(OS),Windows_NT)
+PY := .venv/Scripts/python.exe
+else
+PY := .venv/bin/python
+endif
+
+.PHONY: setup data test run clean-interim
+
+setup:
+	python -m venv .venv
+	$(PY) -m pip install --upgrade pip
+	$(PY) -m pip install -r requirements.txt
+
+data:
+	$(PY) scripts/01_download.py
+	$(PY) scripts/02_build_parquet.py
+	$(PY) scripts/03_build_aggregates.py
+	$(PY) scripts/04_referentiels.py
+
+test:
+	$(PY) -m pytest -q
+
+run:
+	$(PY) -m streamlit run app.py

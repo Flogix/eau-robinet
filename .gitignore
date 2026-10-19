@@ -1,0 +1,17 @@
+# Données brutes et intermédiaires : jamais commitées
+data/raw/
+data/interim/
+
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Divers
+*.log
+.DS_Store
+Thumbs.db

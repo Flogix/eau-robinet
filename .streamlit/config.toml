@@ -1,0 +1,9 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+
+[theme]
+# Light/dark follow the viewer's system setting; colours used in charts come from utils/viz.py.
+base = "light"
