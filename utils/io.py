@@ -176,3 +176,17 @@ def commune_network_links() -> pd.DataFrame:
     """Networks of each commune for its latest year (2026, else 2025) — computed once."""
     from utils.score import commune_links
     return commune_links(read_processed("bridge_commune_udi"))
+
+
+EXAMPLE_TOWNS = ["75056", "69123", "13055", "33063", "59350"]   # Paris, Lyon, Marseille, Bordeaux, Lille
+
+
+@cached_resource
+def town_options() -> tuple[list[str], dict[str, str]]:
+    """INSEE codes of the current communes with a score, the five examples first, then alphabetical;
+    labels 'Name (department)' so that homonyms are told apart."""
+    d = communes()
+    d = d[d["is_current"]].sort_values(["search", "dep"])
+    labels = dict(zip(d["insee"], d["label"]))
+    rest = [i for i in d["insee"] if i not in EXAMPLE_TOWNS]
+    return [i for i in EXAMPLE_TOWNS if i in labels] + rest, labels

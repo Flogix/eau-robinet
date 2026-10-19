@@ -1,29 +1,37 @@
-"""Entry point: page config, navigation (order = order of the story), global sidebar filters."""
+"""Entry point: language, navigation (order = order of the story), header, sidebar filters, footer."""
 import streamlit as st
 
-from utils.filters import sidebar
+from utils.filters import language_selector, sidebar
+from utils.i18n import t
+from utils.viz import footer, header, inject_css
 
-st.set_page_config(page_title="Is my tap water good?", page_icon="💧", layout="wide")
+st.set_page_config(page_title="Au robinet", page_icon=":material/water_drop:", layout="wide")
+inject_css()
+language_selector()
 
-pages = [
-    st.Page("sections/intro.py", title="Is my tap water good?", icon="💧", default=True),
-    st.Page("sections/comprendre.py", title="Understand your water", icon="🔬"),
-    st.Page("sections/ma_commune.py", title="My town", icon="🏠"),
-    st.Page("sections/comparer.py", title="Compare", icon="⚖️"),
-    st.Page("sections/overview.py", title="France's water map", icon="🗺️"),
-    st.Page("sections/deep_dives.py", title="Deep dives", icon="🔎"),
-    st.Page("sections/data_quality.py", title="Data quality", icon="🧪"),
-    st.Page("sections/conclusions.py", title="Conclusions", icon="✅"),
-]
+PAGES = {   # url path -> (file, title key, material icon)
+    "": ("sections/intro.py", "nav.home", ":material/water_drop:"),
+    "reading": ("sections/comprendre.py", "nav.reading", ":material/science:"),
+    "town": ("sections/ma_commune.py", "nav.town", ":material/home_pin:"),
+    "compare": ("sections/comparer.py", "nav.compare", ":material/compare_arrows:"),
+    "map": ("sections/overview.py", "nav.map", ":material/map:"),
+    "monitor": ("sections/deep_dives.py", "nav.monitor", ":material/search_insights:"),
+    "quality": ("sections/data_quality.py", "nav.quality", ":material/fact_check:"),
+    "conclusions": ("sections/conclusions.py", "nav.conclusions", ":material/flag:"),
+    "about": ("sections/about.py", "nav.about", ":material/info:"),
+}
 
-nav = st.navigation(pages)
-sidebar()
 
-with st.sidebar:
-    st.divider()
-    st.caption(
-        "Educational indicator, not a health opinion. "
-        "The official opinion on your water is the one of your Regional Health Agency (ARS)."
-    )
+def page(path: str) -> st.Page:
+    file, title, icon = PAGES[path]
+    return st.Page(file, title=t(title), icon=icon, url_path=path or None, default=(path == ""))
 
+
+nav = st.navigation({
+    t("nav.section.story"): [page(p) for p in ("", "reading", "town", "compare", "map", "monitor", "conclusions")],
+    t("nav.section.more"): [page(p) for p in ("quality", "about")],
+})
+sidebar(nav.url_path)
+header()
 nav.run()
+footer()

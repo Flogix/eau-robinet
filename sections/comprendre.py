@@ -1,29 +1,43 @@
-"""Page 2 — What is measured, which thresholds apply, and how often they are exceeded in France."""
+"""How to read a water test: samples, results, thresholds, families, and how often each threshold is crossed."""
 import plotly.graph_objects as go
 import streamlit as st
 
 import config
 from utils.filters import get_filters
-from utils.io import SOURCE_CAPTION, load_table
-from utils.score import KEY_LABELS
-from utils.viz import FAMILY_COLORS, FAMILY_LABELS, headline, layout, pct, show
+from utils.i18n import num, pct, t
+from utils.io import load_table
+from utils.score import label
+from utils.viz import FAMILY_COLORS, chart, headline, kicker, layout, lede
 
 f = get_filters()
-st.title("🔬 Understand your water")
+kicker(t("read.kicker"))
+st.title(t("read.title"))
+lede(t("read.lede"))
 
+rs = load_table("dq_result_status")
+nq = rs.loc[rs["status"] == "not_quantified", "n"].sum() / rs["n"].sum()
+st.markdown(t("read.p1"))
+st.markdown(t("read.p2", share=pct(nq, 0)))
+st.markdown(t("read.p3"))
+
+# --- Families ---------------------------------------------------------------------------------------
+cat = load_table("params_catalog")
+kicker(t("read.families.kicker"))
+st.header(t("read.families.title"))
+for fam in ("micro", "chem", "comfort", "info"):
+    st.markdown(t(f"read.fam.{fam}") + " " + t("read.fam.count", n=num((cat["family"] == fam).sum()),
+                                                 total=num(len(cat))))
+st.caption(t("read.fam.sources"))
+
+# --- How often each threshold is crossed ---------------------------------------------------------------
 year = min(f.years[1], config.COMPLETE_YEARS[-1])
 py = load_table("param_year")
-cat = load_table("params_catalog").set_index("code")
 y = py[py["annee"] == year]
-
-# One row per parameter (twin codes merged): samples measured and samples above the applicable threshold
-KEYS = {  # code_merged -> (family, threshold kind shown)
-    "ECOLI": "micro", "STRF": "micro",
-    "NO3": "chem", "PESTOT": "chem", "CLDZ_D": "chem", "ADET": "chem", "SPFAS": "chem", "AS": "chem", "PB": "chem",
-    "CLVYL": "chem", "THM4": "chem", "BRATE": "chem",
-    "CTF": "comfort", "TURBNFU": "comfort", "FET": "comfort", "MN": "comfort", "ALTMICR": "comfort",
-    "471811R": "comfort", "MTCESA": "comfort",
-}
+KEYS = {"ECOLI": "micro", "STRF": "micro",
+        "NO3": "chem", "PESTOT": "chem", "CLDZ_D": "chem", "ADET": "chem", "SPFAS": "chem", "AS": "chem", "PB": "chem",
+        "CLVYL": "chem", "THM4": "chem", "BRATE": "chem",
+        "CTF": "comfort", "TURBNFU": "comfort", "FET": "comfort", "MN": "comfort", "ALTMICR": "comfort",
+        "471811R": "comfort", "MTCESA": "comfort"}
 g = (y[y["code_merged"].isin(KEYS)].groupby("code_merged")
      .agg(n=("n_samples", "sum"), lim=("n_exceed_limit", "sum"), ind=("n_exceed_indicative", "sum"),
           ref=("n_exceed_reference", "sum"), thr=("typical_threshold", "first"),
@@ -31,63 +45,32 @@ g = (y[y["code_merged"].isin(KEYS)].groupby("code_merged")
 g["n_exceed"] = g["lim"] + g["ind"] + g["ref"]
 g["share"] = g["n_exceed"] / g["n"]
 g["family"] = g["code_merged"].map(KEYS)
-g["label"] = g["code_merged"].map(lambda c: KEY_LABELS.get(c) or cat["label"].get(c, c))
-g["label"] = g["label"].replace({"Total pesticides": "Total pesticides (sum)"})
-g["label"] = g.apply(lambda r: r["label"] if r["code_merged"] != "CLDZ_D" else "Chloridazone desphenyl (metabolite)", axis=1)
-g["label"] = g.apply(lambda r: r["label"] if r["code_merged"] != "ADET" else "Atrazine desethyl (metabolite)", axis=1)
+labels = dict(zip(cat["code"], cat["label"]))
+g["label"] = g["code_merged"].map(lambda c: label(c, labels))
 g = g.sort_values("share")
 
-top = g.sort_values("share", ascending=False).iloc[0]
-headline(f"In {year}, the parameter most often above its threshold was {top['label']}: {pct(top['share'])} of the samples "
-         f"where it was measured; {(g['share'] < 0.01).sum()} of the {len(g)} key parameters stay below 1%.")
-
+kicker(t("read.chart.kicker"))
+top = g.iloc[-1]
+headline(t("read.chart.headline", year=year, label=top["label"], share=pct(top["share"]),
+           k=int((g["share"] < 0.01).sum()), n=len(g)))
 fig = go.Figure()
 for fam in ("micro", "chem", "comfort"):
     d = g[g["family"] == fam]
-    fig.add_trace(go.Bar(y=d["label"], x=100 * d["share"], orientation="h", name=FAMILY_LABELS[fam],
-                         marker_color=FAMILY_COLORS[fam], text=[f"{100 * v:.2f}%" for v in d["share"]],
-                         textposition="outside", customdata=d[["n_exceed", "n", "thr", "kind"]],
-                         hovertemplate="%{y}<br>%{customdata[0]:,} of %{customdata[1]:,} samples above the "
-                                       "%{customdata[3]} (%{customdata[2]})<extra></extra>"))
-layout(fig, f"Samples above the threshold in {year} (%)", None, height=560)
+    hover = [t("read.chart.hover", label=lab, k=num(k), n=num(n), kind=t(f"read.kind.{kd}"), thr=f"{thr:g}")
+             for lab, k, n, kd, thr in zip(d["label"], d["n_exceed"], d["n"], d["kind"], d["thr"])]
+    fig.add_trace(go.Bar(y=d["label"], x=100 * d["share"], orientation="h", name=t(f"fam.{fam}"),
+                         marker_color=FAMILY_COLORS[fam], text=[pct(v, 2) for v in d["share"]],
+                         textposition="outside", hovertext=hover, hoverinfo="text"))
+layout(fig, t("read.chart.x"), None, height=580)
 fig.update_layout(barmode="overlay", yaxis=dict(categoryorder="array", categoryarray=g["label"].tolist()))
-show(fig, f"Horizontal bars: for 19 key parameters, share of the samples analysed in {year} where the value was "
-          "above its threshold (health limit, quality reference, or 0.9 µg/L indicative value), coloured by family.")
+fig.update_xaxes(range=[0, 100 * g["share"].max() * 1.25])
+chart(fig, t("read.chart.title", year=year), t("read.chart.caption"), t("read.chart.take"))
 
-st.subheader("The four families of parameters")
-st.caption("How this app classifies the 1,789 parameters of the dataset (rules in `utils/prep.py`).")
-fam_text = {
-    "micro": ("🦠 Microbiology — health limits",
-              "Bacteria such as *E. coli* and enterococci, counted per 100 mL. **Limit: 0 per 100 mL.** "
-              "The score uses the official conformity of each sample over the last 12 months."),
-    "chem": ("⚗️ Health-related chemistry — health limits",
-             "Nitrates (**50 mg/L**), pesticides and their relevant metabolites (**0.1 µg/L** per substance, "
-             "**0.5 µg/L** in total), PFAS (**0.1 µg/L** for the sum of 20, in the routine control since "
-             "1 January 2026), metals (lead and arsenic **10 µg/L**), disinfection by-products… "
-             "The score uses the last 36 months."),
-    "comfort": ("💡 Indicators and comfort — quality references",
-                "Turbidity, coliform bacteria, iron, manganese, aluminium, pH, conductivity… They signal a treatment "
-                "or network problem rather than a direct health risk. Pesticide metabolites classified **non-relevant** "
-                "by Anses are compared with the **0.9 µg/L indicative value** (see Deep dives)."),
-    "info": ("ℹ️ Information only — no threshold",
-             "Hardness (limescale), calcium, magnesium, temperature… No health limit: hard water is not a health "
-             "problem, so it never lowers the score."),
-}
-cols = st.columns(2)
-for i, (fam, (title, text)) in enumerate(fam_text.items()):
-    with cols[i % 2].expander(title, expanded=True):
-        st.markdown(text)
-        n_par = int((cat["family"] == fam).sum())
-        st.caption(f"{n_par:,} parameters of the dataset in this family.")
-
-st.markdown("**Limits vs references.** A *quality limit* is a health threshold: above it the sample is "
-            "declared non-compliant. A *quality reference* is an indicator value used to "
-            "monitor treatment and the network. Thresholds are those written on each result row of the dataset "
-            "(the decree of 11 January 2007 as amended).")
-with st.expander("Thresholds used in this app (from the dataset rows)"):
-    tbl = g[["label", "family", "thr", "kind"]].rename(columns={"label": "Parameter", "family": "Family",
-                                                                 "thr": "Threshold", "kind": "Type"})
-    tbl["Unit"] = [cat["limit_unit"].get(c) if k == "limit" else cat["ref_unit"].get(c) if k == "reference" else "µg/L"
-                   for c, k in zip(g["code_merged"], g["kind"])]
-    st.dataframe(tbl.sort_values(["Family", "Parameter"]), hide_index=True)
-st.caption(SOURCE_CAPTION)
+with st.expander(t("read.table.title")):
+    unit = [cat.set_index("code")["limit_unit"].get(c) if k == "limit" else
+            cat.set_index("code")["ref_unit"].get(c) if k == "reference" else "µg/L"
+            for c, k in zip(g["code_merged"], g["kind"])]
+    tbl = g.assign(fam=g["family"].map(lambda x: t(f"fam.{x}")), kd=g["kind"].map(lambda x: t(f"read.kind.{x}")),
+                   unit=unit)[["label", "fam", "thr", "kd", "unit"]]
+    tbl.columns = [t("read.col.param"), t("read.col.family"), t("read.col.thr"), t("read.col.kind"), t("read.col.unit")]
+    st.dataframe(tbl.sort_values([t("read.col.family"), t("read.col.param")]), hide_index=True)

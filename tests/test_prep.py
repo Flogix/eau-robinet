@@ -138,3 +138,27 @@ def test_dep_of_network_and_search_normalisation():
     assert dep_of_network(codes).tolist() == ["01", "2A", "75", "971"]
     assert normalize("Saint-Étienne") == "saint etienne"
     assert normalize("  L'Haÿ-les-Roses ") == "l hay les roses"
+
+
+def test_translations_complete_and_clean():
+    """Every text exists in English and French, uses the same placeholders, and contains no em dash."""
+    import re
+
+    from utils.texts import TEXTS
+    for key, v in TEXTS.items():
+        assert set(v) == {"en", "fr"}, key
+        assert set(re.findall(r"{(\w+)", v["en"])) == set(re.findall(r"{(\w+)", v["fr"])), key
+        assert "—" not in v["en"] + v["fr"], key
+
+
+def test_every_text_key_used_in_code_exists():
+    import pathlib
+    import re
+
+    from utils.texts import TEXTS
+    root = pathlib.Path(__file__).resolve().parents[1]
+    files = list((root / "sections").glob("*.py")) + list((root / "utils").glob("*.py")) + [root / "app.py"]
+    used = set()
+    for f in files:
+        used |= set(re.findall(r"""\b(?:t|_tr)\(\s*["']([a-zA-Z0-9_.]+)["']""", f.read_text(encoding="utf-8")))
+    assert not {k for k in used if k not in TEXTS and not k.endswith(".")}

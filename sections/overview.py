@@ -1,4 +1,5 @@
-"""Page 5 — France's water map: KPIs, department map, rankings, distribution of scores, trend."""
+"""The map of France: KPIs, department map, rankings, H2 (two maps), H1 (small networks), distribution, trend."""
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -6,143 +7,195 @@ import streamlit as st
 import config
 from utils import metrics
 from utils.filters import OFFICIAL, dept_mask, get_filters
-from utils.io import SOURCE_CAPTION, dep_of_network, departments_geojson, load_table
-from utils.viz import GRADE_COLORS, PALETTE, headline, layout, pct, show
+from utils.i18n import lang, num, pct, t
+from utils.io import dep_of_network, departments, departments_geojson, load_table
+from utils.score import label
+from utils.viz import (BLUE, BRICK, GRADE_COLORS, NEUTRAL, OCHRE, TEAL, chart, headline, kicker, layout, lede,
+                       partial_year)
 
 f = get_filters()
-st.title("🗺️ France's water map")
-metrics.render_kpis(f)
+kicker(t("map.kicker"))
+st.title(t("map.title"))
+lede(t("map.lede"))
+metrics.render_kpis(f, explain=False)
+st.caption(t("map.kpi.note"))
+fmt1 = (lambda v: f"{v:.1f}".replace(".", ",")) if lang() == "fr" else (lambda v: f"{v:.1f}")
 
-# --- Map --------------------------------------------------------------------------------------------
-st.subheader("Where are the problems?")
-mode = st.segmented_control("Map shows", [f"{f.variable_label} — {f.period_label}", "Current score of communes"],
-                            default=f"{f.variable_label} — {f.period_label}", key="map_mode",
-                            help="Change the family and the period in the sidebar. The current score uses the last "
-                                 "12/36 months whatever the period.")
-by_score = mode == "Current score of communes"
+# --- Map ------------------------------------------------------------------------------------------------
+modes = {"var": t("map.mode.var", var=f.variable_label, period=f.period_label), "score": t("map.mode.score")}
+mode = st.segmented_control(t("map.mode"), list(modes), format_func=modes.get, default="var", key="map_mode",
+                            help=t("map.mode.help")) or "var"
+by_score = mode == "score"
 if by_score:
     d = metrics.dept_scores(f)
-    d = d[d["n_communes"] >= 5]
+    d = d[d["n_communes"] >= 5].copy()
     d["value"], d["n"] = d["median_score"], d["n_communes"]
-    value_label, fmt = "Median commune score (/100)", ".1f"
-    colorscale = "Blues"
-    hover = "%{customdata[0]} (%{location})<br>median score %{z:.1f}/100<br>%{customdata[1]} communes<extra></extra>"
+    hover = [t("map.hover.score", dep=f"{nm} ({c})", v=fmt1(v), n=num(n))
+             for nm, c, v, n in zip(d["dep_nom"], d["dep"], d["value"], d["n"])]
+    value_label, scale = t("map.value.score"), [[0, "#E8E2D4"], [1, "#0E5A61"]]
 else:
     d = metrics.dept_variable(f)
-    d = d[d["n_networks"] >= 10]
+    d = d[d["n_networks"] >= 10].copy()
     d["value"], d["n"] = 100 * d["share"], d["n_networks"]
-    value_label, fmt = "Networks with ≥ 1 exceedance, per year (%)", ".1f"
-    colorscale = "Oranges"
-    hover = ("%{customdata[0]} (%{location})<br>%{z:.1f}% of network-years with at least one exceedance"
-             "<br>%{customdata[1]:,} network-years measured<extra></extra>")
+    hover = [t("map.hover.var", dep=f"{nm} ({c})", v=pct(v / 100), n=num(n))
+             for nm, c, v, n in zip(d["dep_nom"], d["dep"], d["value"], d["n"])]
+    value_label, scale = t("map.value.var"), [[0, "#F2E6DC"], [1, "#8C2D1C"]]
+d["hover"] = hover
 metro = d[~d["dep"].str.startswith("97")]
 overseas = d[d["dep"].str.startswith("97")]
 
-if metro.empty:
-    st.info("No department with enough data for this selection.")
-else:
-    hi = metro.loc[metro["value"].idxmax()]
-    lo = metro.loc[metro["value"].idxmin()]
+if not metro.empty:
+    hi, lo = metro.loc[metro["value"].idxmax()], metro.loc[metro["value"].idxmin()]
     if by_score:
-        headline(f"Median commune score ranges from {lo['value']:.0f}/100 ({lo['dep_nom']}) to {hi['value']:.0f}/100 "
-                 f"({hi['dep_nom']}) across mainland departments.")
+        headline(t("map.headline.score", lo=lo["dep_nom"], lo_v=f"{lo['value']:.0f}", hi=hi["dep_nom"],
+                   hi_v=f"{hi['value']:.0f}"))
     else:
-        headline(f"{f.variable_label}: from {lo['value']:.1f}% ({lo['dep_nom']}) to {hi['value']:.1f}% "
-                 f"({hi['dep_nom']}) of networks with at least one exceedance per year, {f.period_label}.")
+        headline(t("map.headline.var", var=f.variable_label, lo=lo["dep_nom"], lo_v=pct(lo["value"] / 100),
+                   hi=hi["dep_nom"], hi_v=pct(hi["value"] / 100), period=f.period_label))
     fig = go.Figure(go.Choropleth(
         geojson=departments_geojson(), featureidkey="properties.code", locations=metro["dep"], z=metro["value"],
-        colorscale=colorscale, reversescale=by_score, marker_line_color="white", marker_line_width=0.5,
-        customdata=metro[["dep_nom", "n"]], hovertemplate=hover,
+        colorscale=scale, marker_line_color="rgba(127,127,127,0.6)", marker_line_width=0.5,
+        hovertext=metro["hover"], hoverinfo="text",
         colorbar=dict(title=dict(text=value_label.replace(" (", "<br>("), side="right"), thickness=12)))
     fig.update_geos(fitbounds="locations", visible=False, bgcolor="rgba(0,0,0,0)")
-    fig.update_layout(height=560, margin=dict(l=0, r=0, t=10, b=0))
-    show(fig, f"Choropleth map of mainland departments: {value_label.lower()}"
-              f"{'' if by_score else ', ' + f.variable_label + ', ' + f.period_label}; darker = "
-              f"{'better score' if by_score else 'more networks affected'}. Departments with too few data are blank.")
+    fig.update_layout(height=580, margin=dict(l=0, r=0, t=10, b=0), font=dict(family="IBM Plex Sans"))
+    take = (t("map.take.score", k=int((metro["value"] >= 75).sum()), n=len(metro)) if by_score
+            else t("map.take.var"))
+    chart(fig, t("map.title.score") if by_score else t("map.title.var", var=f.variable_label, period=f.period_label),
+          t("map.caption", dir=t("map.dir.score") if by_score else t("map.dir.var")), take)
     if not overseas.empty:
-        st.caption("Overseas departments (not on the map): " + " · ".join(
-            f"{r['dep_nom']} {r['value']:{fmt}}" for _, r in overseas.iterrows()))
+        st.caption(t("map.overseas", list=" · ".join(
+            f"{r['dep_nom']} {fmt1(r['value']) if by_score else pct(r['value'] / 100)}" for _, r in overseas.iterrows())))
     if not by_score and f.variable not in OFFICIAL:
-        st.caption("Recomputed exceedances: a result above the threshold written on its row. "
-                   "Official conformity can differ (temporary derogations, limits changed over time — see Data quality).")
+        st.caption(t("map.recomputed"))
 
-    # --- Rankings -------------------------------------------------------------------------------------
-    st.subheader("Rankings of departments")
-    n_rank = st.slider("Departments shown at each end", 3, 15, 8, key="rank_n")
+    # --- Rankings ---------------------------------------------------------------------------------------
+    kicker(t("map.rank.kicker"))
+    n_rank = st.slider(t("map.rank.n"), 3, 15, 8, key="rank_n")
     asc = not by_score
     best = d.sort_values("value", ascending=asc).head(n_rank)
     worst = d.sort_values("value", ascending=not asc).head(n_rank)
-    r = pd.concat([best.assign(group="Best"), worst.assign(group="Worst")]).drop_duplicates("dep")
+    r = pd.concat([best.assign(group="best"), worst.assign(group="worst")]).drop_duplicates("dep")
     r = r.sort_values("value", ascending=not by_score)
     fig = go.Figure(go.Bar(
         x=r["value"], y=r["dep_nom"] + " (" + r["dep"] + ")", orientation="h",
-        marker_color=[PALETTE["green"] if g == "Best" else PALETTE["vermillion"] for g in r["group"]],
-        marker_pattern_shape=["" if g == "Best" else "/" for g in r["group"]],
-        text=[f"{v:{fmt}}" + ("" if by_score else "%") + f" — {g.lower()}" for v, g in zip(r["value"], r["group"])],
-        textposition="outside", customdata=r[["n"]],
-        hovertemplate="%{y}: %{x:.1f}<br>based on %{customdata[0]:,} " +
-                      ("communes" if by_score else "network-years") + "<extra></extra>"))
-    layout(fig, value_label, None, height=max(300, 28 * len(r)), legend=False)
-    fig.update_xaxes(range=[0, r["value"].max() * 1.25])
-    show(fig, f"Bars: the {n_rank} best and {n_rank} worst departments for {value_label.lower()} (best in green "
-              "plain bars, worst in vermillion hatched bars, also written in the label). "
-              f"Minimum {'5 communes' if by_score else '10 network-years'} per department.")
+        marker_color=[TEAL if g == "best" else BRICK for g in r["group"]],
+        marker_pattern_shape=["" if g == "best" else "/" for g in r["group"]],
+        text=[(fmt1(v) if by_score else pct(v / 100)) + f"  {t('map.rank.' + g)}" for v, g in zip(r["value"], r["group"])],
+        textposition="outside", hovertext=r["hover"], hoverinfo="text"))
+    layout(fig, value_label, None, height=max(320, 28 * len(r)), legend=False)
+    fig.update_xaxes(range=[0, r["value"].max() * 1.3])
+    chart(fig, t("map.rank.title", n=n_rank),
+          t("map.rank.caption", min=t("map.rank.min.score") if by_score else t("map.rank.min.var")), t("map.rank.take"))
 
-# --- Distribution of scores -------------------------------------------------------------------------------
-st.subheader("How are the communes' scores distributed?")
+# --- H2: two different maps -----------------------------------------------------------------------------------
+kicker(t("map.h2.kicker"))
+st.header(t("map.h2.title"))
+dy = load_table("dept_year")
+dd = dy[dy["annee"].between(*f.years)].groupby("dep")[["n_bact", "n_bact_nc", "n_chem", "n_chem_nc"]].sum()
+dd = dd[~dd.index.str.startswith("97")]
+dd["b"], dd["c"] = dd["n_bact_nc"] / dd["n_bact"], dd["n_chem_nc"] / dd["n_chem"]
+rho = dd["b"].rank().corr(dd["c"].rank())
+names = departments().set_index("dep")["dep_nom"]
+headline(t("map.h2.headline", rho=f"{rho:.2f}".replace(".", ",") if lang() == "fr" else f"{rho:.2f}"))
+top_b, top_c = dd["b"].nlargest(5).index, dd["c"].nlargest(5).index
+named = set(top_b) | set(top_c)
+fig = go.Figure(go.Scatter(
+    x=100 * dd["b"], y=100 * dd["c"], mode="markers+text",
+    marker=dict(size=9, color=[BRICK if k in top_b else BLUE if k in top_c else NEUTRAL for k in dd.index],
+                symbol=["circle" if k in top_b else "diamond" if k in top_c else "circle-open" for k in dd.index]),
+    text=[names.get(k, k) if k in named else "" for k in dd.index], textposition="top center",
+    textfont=dict(size=11), hovertext=[f"{names.get(k, k)} ({k})<br>{pct(b, 2)} / {pct(c, 2)}"
+                                       for k, b, c in zip(dd.index, dd["b"], dd["c"])], hoverinfo="text"))
+layout(fig, t("map.h2.x"), t("map.h2.y"), height=460, legend=False)
+chart(fig, t("map.h2.chart", period=f.period_label), t("map.h2.caption"),
+      t("map.h2.take", top_b=", ".join(names.get(k, k) for k in top_b[:3]),
+        top_c=", ".join(names.get(k, k) for k in top_c[:3])))
+
+# --- H1: small networks -----------------------------------------------------------------------------------------
+kicker(t("map.h1.kicker"))
+st.header(t("map.h1.title"))
+uy = load_table("udi_year")
+y0, y1 = f.years[0], min(f.years[1], config.COMPLETE_YEARS[-1])
+u = uy[uy["annee"].between(y0, y1) & (uy["n_bact"] > 0)]
+u = u.assign(dep=dep_of_network(u["cdreseau"].astype(str)))
+u = u[dept_mask(u, f)]
+classes = ["< 6", "6–11", "12–51", "≥ 52"]
+u = u.assign(size=pd.cut(u["n_bact"], [0, 6, 12, 52, np.inf], right=False, labels=classes))
+h1 = u.groupby("size", observed=True).agg(samples=("n_bact", "sum"), nc=("n_bact_nc", "sum")).reindex(classes)
+h1["rate"] = h1["nc"] / h1["samples"]
+if h1["samples"].isna().any() or h1["rate"].fillna(0).eq(0).any():
+    st.info(t("map.h1.few"))
+else:
+    small = h1.loc[["< 6", "6–11"]]
+    headline(t("map.h1.headline", share_nc=pct(small["nc"].sum() / h1["nc"].sum(), 0),
+               share_s=pct(small["samples"].sum() / h1["samples"].sum(), 0)))
+    fig = go.Figure(go.Bar(x=classes, y=100 * h1["rate"], marker_color=[BRICK, BRICK, OCHRE, TEAL],
+                           text=[pct(v, 2) for v in h1["rate"]], textposition="outside",
+                           hovertext=[t("map.h1.hover", c=c, v=pct(v, 2), k=num(k), n=num(n))
+                                      for c, v, k, n in zip(classes, h1["rate"], h1["nc"], h1["samples"])],
+                           hoverinfo="text"))
+    layout(fig, t("map.h1.x"), t("map.h1.y"), height=360, legend=False)
+    fig.update_yaxes(range=[0, 100 * h1["rate"].max() * 1.25])
+    chart(fig, t("map.h1.chart", period=f"{y0}–{y1}"), t("map.h1.caption"),
+          t("map.h1.take", ratio=f"{h1.loc['< 6', 'rate'] / h1.loc['≥ 52', 'rate']:.0f}",
+            a=pct(h1.loc["< 6", "rate"]), b=pct(h1.loc["≥ 52", "rate"], 2)))
+
+# --- Distribution of scores ----------------------------------------------------------------------------------------
+kicker(t("map.dist.kicker"))
 sc = metrics.scored_communes(f)
 if len(sc):
-    share_a = (sc["grade"] == "A").mean()
-    headline(f"{share_a:.0%} of the {len(sc):,} communes selected are graded A; "
-             f"{sc['grade'].isin(['D', 'E']).mean():.0%} are graded D or E ({f.type_label}, {f.scope_label}).")
-    fig = go.Figure(go.Histogram(x=sc["score"], xbins=dict(start=0, end=100.01, size=2.5),
-                                 marker_color=PALETTE["blue"], marker_line_color="white", marker_line_width=1,
-                                 hovertemplate="score %{x}: %{y:,} communes<extra></extra>"))
+    headline(t("map.dist.headline", a=pct((sc["grade"] == "A").mean(), 0), n=num(len(sc)),
+               de=pct(sc["grade"].isin(["D", "E"]).mean(), 0), type=f.type_label.lower(), scope=f.scope_label))
+    fig = go.Figure(go.Histogram(x=sc["score"], xbins=dict(start=0, end=100.01, size=2.5), marker_color=BLUE,
+                                 marker_line_color="rgba(255,255,255,0.6)", marker_line_width=1,
+                                 hovertemplate=t("map.dist.hover") + "<extra></extra>"))
     for lo_, hi_, g in ((0, 40, "E"), (40, 60, "D"), (60, 75, "C"), (75, 90, "B"), (90, 100, "A")):
-        fig.add_vrect(x0=lo_, x1=hi_, fillcolor=GRADE_COLORS[g], opacity=0.12, line_width=0,
+        fig.add_vrect(x0=lo_, x1=hi_, fillcolor=GRADE_COLORS[g], opacity=0.13, line_width=0,
                       annotation_text=f"<b>{g}</b>", annotation_position="top")
-    layout(fig, "Commune score (/100)", "Number of communes", height=360, legend=False)
-    show(fig, "Histogram: number of communes by current score (bins of 2.5 points), with the grade bands "
-              "E, D, C, B, A in the background.")
+    layout(fig, t("map.dist.x"), t("map.dist.y"), height=360, legend=False)
+    chart(fig, t("map.dist.title"), t("map.dist.caption"),
+          t("map.dist.take", share=pct((sc["score"] >= 85).mean(), 0), low=num((sc["score"] < 60).sum())))
 
-# --- Trend of the selected family ------------------------------------------------------------------------
-st.subheader(f"Trend: {f.variable_label}")
-t = metrics.national_variable_by_year(f)
-t = t[t["annee"].between(*f.years)]
-if len(t):
-    fr = t[t["scope"] == "France"].set_index("annee")["share"]
+# --- Trend ---------------------------------------------------------------------------------------------------------
+kicker(t("map.trend.kicker"))
+tr = metrics.national_variable_by_year(f)
+tr = tr[tr["annee"].between(*f.years)]
+tr["scope"] = tr["scope"].replace({"France": t("map.trend.france")})
+if len(tr):
+    fr = tr[tr["scope"] == t("map.trend.france")].set_index("annee")["share"]
     if len(fr) >= 2:
-        headline(f"In France, {pct(fr.iloc[0])} of networks had at least one exceedance of '{f.variable_label}' in "
-                 f"{fr.index[0]}, {pct(fr.iloc[-1])} in {fr.index[-1]}"
-                 f"{' (partial year)' if fr.index[-1] == config.PARTIAL_YEAR else ''}.")
+        headline(t("map.trend.headline", a=pct(fr.iloc[0]), y0=fr.index[0], b=pct(fr.iloc[-1]), y1=fr.index[-1],
+                   partial=t("map.trend.partial") if fr.index[-1] == config.PARTIAL_YEAR else ""))
     fig = go.Figure()
-    for i, (scope, s) in enumerate(t.groupby("scope", sort=False)):
-        fig.add_trace(go.Scatter(x=s["annee"], y=100 * s["share"], name=scope, mode="lines+markers",
-                                 line=dict(width=2, color=[PALETTE["blue"], PALETTE["orange"]][i]),
-                                 marker=dict(size=8, symbol=["circle", "square"][i]),
-                                 customdata=s[["n_networks_exceed", "n_networks"]],
-                                 hovertemplate="%{x}: %{y:.1f}%<br>%{customdata[0]:,} of %{customdata[1]:,} networks"
-                                               "<extra>" + scope + "</extra>"))
-    if t["annee"].max() == config.PARTIAL_YEAR:
-        fig.add_vrect(x0=config.PARTIAL_YEAR - 0.5, x1=config.PARTIAL_YEAR + 0.5, fillcolor="grey", opacity=0.12,
-                      line_width=0, annotation_text="2026: Jan–Aug only", annotation_position="top left")
-    layout(fig, "Year", "Networks with ≥ 1 exceedance (%)", height=360)
+    for i, (scope, s) in enumerate(tr.groupby("scope", sort=False)):
+        fig.add_trace(go.Scatter(
+            x=s["annee"], y=100 * s["share"], name=scope, mode="lines+markers",
+            line=dict(width=2.2, color=[BLUE, OCHRE][i]), marker=dict(size=8, symbol=["circle", "square"][i]),
+            hovertext=[t("map.trend.hover", y=y, v=pct(v), k=num(k), n=num(n))
+                       for y, v, k, n in zip(s["annee"], s["share"], s["n_networks_exceed"], s["n_networks"])],
+            hoverinfo="text"))
+    if tr["annee"].max() == config.PARTIAL_YEAR:
+        partial_year(fig, config.PARTIAL_YEAR, t("common.partial2026"))
+    layout(fig, t("common.year"), t("map.trend.y"), height=360)
     fig.update_yaxes(rangemode="tozero")
-    show(fig, f"Lines: share of distribution networks with at least one exceedance of '{f.variable_label}' each "
-              f"year, France{' and ' + f.region_name if f.region else ''}. A partial year has fewer samples, "
-              "so fewer chances to detect an exceedance.")
+    fig.update_xaxes(dtick=1)
+    chart(fig, t("map.trend.title", var=f.variable_label),
+          t("map.trend.caption", region=f" / {f.region_name}" if f.region else ""), t("map.trend.take"))
 
-# --- Networks ranking ------------------------------------------------------------------------------------
-with st.expander("Lowest-scored networks (at least 12 bacteriological samples in 12 months)"):
+# --- Lowest networks -----------------------------------------------------------------------------------------------
+with st.expander(t("map.low.title")):
     u = load_table("udi_scores")
-    names = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
+    nm = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
+    cat = load_table("params_catalog")
+    cat_labels = dict(zip(cat["code"], cat["label"]))
     u = u[u["n_bact"] >= config.MIN_SAMPLES_RANKING].copy()
     u["dep"] = dep_of_network(u["cdreseau"])
     u = u[dept_mask(u, f)]
-    u["Network"] = u["cdreseau"].map(names)
-    st.dataframe(u.nsmallest(15, "score")[["Network", "cdreseau", "dep", "score", "grade", "micro", "chem", "comfort",
-                                          "worst_chem_code", "n_bact"]],
-                 hide_index=True, column_config={c: st.column_config.NumberColumn(format="%.1f")
-                                                 for c in ("score", "micro", "chem", "comfort")})
-    st.caption("Networks with fewer samples are left out of rankings: one incident weighs too much on them.")
-st.caption(SOURCE_CAPTION)
+    low = u.nsmallest(15, "score")
+    tbl = pd.DataFrame({t("map.col.net"): low["cdreseau"].map(nm), t("map.col.code"): low["cdreseau"],
+                        t("map.col.dep"): low["dep"], t("map.col.score"): low["score"], t("map.col.grade"): low["grade"],
+                        t("map.col.worst"): low["worst_chem_code"].map(lambda c: label(c, cat_labels) if isinstance(c, str) else ""),
+                        t("map.col.nbact"): low["n_bact"]})
+    st.dataframe(tbl, hide_index=True, column_config={t("map.col.score"): st.column_config.NumberColumn(format="%.1f")})
+    st.caption(t("map.low.caption"))

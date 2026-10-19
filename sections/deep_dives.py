@@ -1,5 +1,4 @@
-"""Page 6 — Deep dives: H3 (what we monitor and how we classify it drives chemical non-compliance), nitrates, PFAS,
-bacteria seasonality, hardness, and the what-if weights of the score."""
+"""What we look for, what we find: H3 told as three clues, then nitrates, PFAS, seasons, hardness (H4), what-if."""
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -7,234 +6,207 @@ import streamlit as st
 import config
 from utils import score as S
 from utils.filters import get_filters
-from utils.io import SOURCE_CAPTION, departments, dep_of_network, load_table
-from utils.viz import PALETTE, event, headline, layout, pct, show, threshold
+from utils.i18n import lang, months, num, pct, t
+from utils.io import departments, dep_of_network, load_table
+from utils.viz import (BLUE, BRICK, LIGHT_NEUTRAL, NEUTRAL, OCHRE, PLUM, TEAL, chart, event, headline, kicker,
+                       layout, lede, threshold)
 
 f = get_filters()
-st.title("🔎 Deep dives")
-y0, y1 = f.years
-
+kicker(t("mon.kicker"))
+st.title(t("mon.title"))
+lede(t("mon.lede"))
 py = load_table("param_year")
 ny = load_table("national_year")
+nc = ny.set_index("annee")["n_chem_nc"]
 
-# ======================================================================================================
-st.header("1. What we monitor — and how we classify it — drives chemical non-compliance")
-GROUPS = {   # code_merged -> group (the four metabolite groups explain the 2021–2024 rise, see Data quality)
-    "CLDZ_D": "Chloridazone metabolites", "CLDZ_MD": "Chloridazone metabolites",
-    "MTCESA": "ESA-metolachlor", "MTCNOA": "ESA-metolachlor",
-    "471811R": "Chlorothalonil metabolites", "CLTHALS": "Chlorothalonil metabolites",
-    "NO3": "Nitrates", "NO2": "Nitrates", "NO3_NO2": "Nitrates",
-}
-ORDER = ["Chloridazone metabolites", "ESA-metolachlor", "Chlorothalonil metabolites", "Other pesticides",
-         "Nitrates", "Other chemistry"]
-chem = py[(py["family"] == "chem") & (py["annee"] <= config.YEARS[-1])].copy()
+# --- exceedances by group of substances ------------------------------------------------------------------------
+GROUPS = {"CLDZ_D": "cldz", "CLDZ_MD": "cldz", "MTCESA": "esa", "MTCNOA": "esa", "471811R": "chlo", "CLTHALS": "chlo",
+          "NO3": "no3", "NO2": "no3", "NO3_NO2": "no3"}
+ORDER = ["cldz", "esa", "chlo", "pest", "no3", "other"]
+COLORS = {"cldz": BRICK, "esa": OCHRE, "chlo": PLUM, "pest": TEAL, "no3": BLUE, "other": LIGHT_NEUTRAL}
+chem = py[py["family"] == "chem"].copy()
 chem["group"] = chem["code_merged"].map(GROUPS)
-chem.loc[chem["group"].isna() & (chem["subfamily"] == "pesticides"), "group"] = "Other pesticides"
-chem["group"] = chem["group"].fillna("Other chemistry")
-# metabolites published under twin codes are in comfort when compared with the 0.9 µg/L value: keep limit rows only
+chem.loc[chem["group"].isna() & (chem["subfamily"] == "pesticides"), "group"] = "pest"
+chem["group"] = chem["group"].fillna("other")
+# metabolites compared with the 0.9 µg/L value are in the comfort family: keep their rows that carried a limit
 twins = py[py["code"].isin(["ESAMTC", "NOAMTC", "R471811", "471811R", "MTCESA", "MTCNOA"]) & (py["family"] == "comfort")]
 twins = twins.assign(group=twins["code_merged"].map(GROUPS))
-ex = pd.concat([chem, twins])
-by = ex.groupby(["annee", "group"])["n_exceed_limit"].sum().unstack(fill_value=0).reindex(columns=ORDER, fill_value=0)
+by = (pd.concat([chem, twins]).groupby(["annee", "group"])["n_exceed_limit"].sum().unstack(fill_value=0)
+      .reindex(columns=ORDER, fill_value=0))
+meta = by.loc[2021:2024, ["cldz", "esa", "chlo"]].sum().sum() / by.loc[2021:2024].sum().sum()
+headline(t("mon.headline", before=num(nc.loc[2016:2020].mean()), during=num(nc.loc[2021:2024].mean()),
+           y2025=num(nc.loc[2025]), meta=pct(meta, 0)))
 
-nc = ny.set_index("annee")["n_chem_nc"]
-before = nc.loc[2016:2020].mean()
-during = nc.loc[2021:2024].mean()
-meta = by.loc[2021:2024, ORDER[:3]].sum().sum() / by.loc[2021:2024].sum().sum()
-headline(f"Officially non-compliant chemical samples rose from {before:,.0f} a year (2016–2020) to {during:,.0f} "
-         f"(2021–2024), then fell to {nc.loc[2025]:,.0f} in 2025. Three newly monitored or reclassified pesticide "
-         f"metabolites account for {meta:.0%} of the limit exceedances of 2021–2024.")
-st.markdown(
-    "This is our main finding (hypothesis **H3**, confirmed): the rise of chemical non-compliance after 2020 does not "
-    "show that the water suddenly got worse. It follows **what laboratories started to look for** (pesticide "
-    "metabolites added to the monitoring) and **how these molecules are classified** (Anses reclassified some of them "
-    "as *non-relevant*: they are then compared with a 0.9 µg/L indicative value instead of the 0.1 µg/L limit).")
-
+# --- Clue 1 ------------------------------------------------------------------------------------------------------
+kicker(t("mon.s1.kicker"))
+st.header(t("mon.s1.title"))
+n_par = py[py["n_samples"] > 0].groupby("annee")["code"].nunique()
+n_pest = py[(py["n_samples"] > 0) & (py["subfamily"] == "pesticides")].groupby("annee")["code"].nunique()
+st.markdown(t("mon.s1.text", a=num(n_par.loc[2016]), b=num(n_par.loc[2025])))
 fig = go.Figure()
-cols = {"Chloridazone metabolites": PALETTE["vermillion"], "ESA-metolachlor": PALETTE["orange"],
-        "Chlorothalonil metabolites": PALETTE["purple"], "Other pesticides": PALETTE["sky"],
-        "Nitrates": PALETTE["blue"], "Other chemistry": "#C8C8C8"}
+for s_, name, color, sym in ((n_par, t("mon.s1.all"), TEAL, "circle"), (n_pest, t("mon.s1.pest"), OCHRE, "square")):
+    fig.add_trace(go.Scatter(x=s_.index, y=s_.values, name=name, mode="lines+markers", line=dict(color=color, width=2.2),
+                             marker=dict(size=8, symbol=sym), hoverinfo="text",
+                             hovertext=[t("mon.s1.hover", y=y, v=num(v)) for y, v in zip(s_.index, s_.values)]))
+layout(fig, t("common.year"), t("mon.s1.y"), height=340)
+fig.update_yaxes(rangemode="tozero")
+fig.update_xaxes(dtick=1)
+chart(fig, t("mon.s1.chart"), t("mon.s1.caption"), t("mon.s1.take"))
+
+# --- Clue 2 ------------------------------------------------------------------------------------------------------
+kicker(t("mon.s2.kicker"))
+st.header(t("mon.s2.title"))
+st.markdown(t("mon.s2.text"))
+fig = go.Figure()
 for g in ORDER:
-    fig.add_trace(go.Bar(x=by.index, y=by[g], name=g, marker_color=cols[g], marker_line_color="white",
-                         marker_line_width=1, hovertemplate="%{x}: %{y:,} exceedances<extra>" + g + "</extra>"))
-fig.add_trace(go.Scatter(x=nc.index, y=nc.values, name="Officially non-compliant samples", mode="lines+markers",
-                         line=dict(color="#888888", width=2), marker=dict(size=8, symbol="diamond"),
-                         hovertemplate="%{x}: %{y:,} non-compliant samples<extra></extra>"))
-event(fig, 2020.55, "2021: chloridazone<br>metabolites monitored", 0.99)
-event(fig, 2022.75, "30/09/2022: ESA-metolachlor<br>non-relevant (Anses)", 0.80)
-event(fig, 2024.33, "29/04/2024: chlorothalonil<br>R471811 non-relevant", 0.99)
-event(fig, 2025.55, "01/01/2026: PFAS in<br>routine control", 0.62)
-fig.add_vrect(x0=config.PARTIAL_YEAR - 0.5, x1=config.PARTIAL_YEAR + 0.5, fillcolor="grey", opacity=0.10, line_width=0)
+    name = t(f"mon.grp.{g}")
+    fig.add_trace(go.Bar(x=by.index, y=by[g], name=name, marker_color=COLORS[g], marker_line_color="rgba(255,255,255,0.5)",
+                         marker_line_width=1, hoverinfo="text",
+                         hovertext=[f"{name}<br>" + t("mon.s2.hover", y=y, v=num(v)) for y, v in zip(by.index, by[g])]))
+fig.add_trace(go.Scatter(x=nc.index, y=nc.values, name=t("mon.s2.official"), mode="lines+markers",
+                         line=dict(color="#5E5A50", width=2.6), marker=dict(size=9, symbol="diamond"), hoverinfo="text",
+                         hovertext=[t("mon.s2.hover.off", y=y, v=num(v)) for y, v in zip(nc.index, nc.values)]))
+event(fig, 2020.55, t("mon.ev.cldz"), 0.99)
+event(fig, 2022.75, t("mon.ev.esa"), 0.80)
+event(fig, 2024.33, t("mon.ev.chlo"), 0.99)
+event(fig, 2025.55, t("mon.ev.pfas"), 0.62)
+fig.add_vrect(x0=config.PARTIAL_YEAR - 0.5, x1=config.PARTIAL_YEAR + 0.5, fillcolor=NEUTRAL, opacity=0.10, line_width=0)
 fig.update_layout(barmode="stack")
-layout(fig, "Year (2026: January–August)", "Number of samples / exceedances", height=520)
-show(fig, "Stacked bars: number of limit exceedances per year by group of parameters (one count per sample and "
-          "parameter); black line: samples officially declared non-compliant for chemistry. Dotted lines mark the "
-          "changes of monitoring and classification.")
+layout(fig, t("mon.s2.x"), t("mon.s2.y"), height=540)
+fig.update_xaxes(dtick=1)
+chart(fig, t("mon.s2.chart"), t("mon.s2.caption"), t("mon.s2.take"))
 
-c1, c2 = st.columns(2)
-with c1:
-    n_par = py[py["n_samples"] > 0].groupby("annee")["code"].nunique()
-    n_pest = py[(py["n_samples"] > 0) & (py["subfamily"] == "pesticides")].groupby("annee")["code"].nunique()
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=n_par.index, y=n_par.values, name="All parameters", mode="lines+markers",
-                             line=dict(color=PALETTE["blue"], width=2), marker=dict(size=8),
-                             hovertemplate="%{x}: %{y} parameters<extra></extra>"))
-    fig.add_trace(go.Scatter(x=n_pest.index, y=n_pest.values, name="Pesticides and relevant metabolites",
-                             mode="lines+markers", line=dict(color=PALETTE["orange"], width=2),
-                             marker=dict(size=8, symbol="square"), hovertemplate="%{x}: %{y} pesticides<extra></extra>"))
-    layout(fig, "Year", "Distinct parameters measured", height=360)
-    fig.update_yaxes(rangemode="tozero")
-    st.markdown(f"**More molecules searched**: {n_par.loc[2016]:,} parameters in 2016, {n_par.loc[2025]:,} in 2025.")
-    show(fig, "Lines: number of distinct parameters measured at least once in the year, all parameters and pesticides.")
-with c2:
-    m = py[py["code_merged"].isin(["MTCESA", "471811R"])].groupby(["annee", "code_merged"])[
-        ["n_samples", "n_detected", "n_exceed_limit", "n_exceed_indicative"]].sum().reset_index()
-    pick = st.radio("Metabolite", ["ESA-metolachlor", "Chlorothalonil R471811"], horizontal=True, key="h3_meta")
-    code = "MTCESA" if pick == "ESA-metolachlor" else "471811R"
-    mm = m[m["code_merged"] == code]
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=mm["annee"], y=mm["n_exceed_limit"], name="Above the 0.1 µg/L limit",
-                         marker_color=PALETTE["vermillion"], hovertemplate="%{x}: %{y:,} samples<extra></extra>"))
-    fig.add_trace(go.Bar(x=mm["annee"], y=mm["n_exceed_indicative"], name="Above the 0.9 µg/L indicative value",
-                         marker_color=PALETTE["sky"], marker_pattern_shape="/",
-                         hovertemplate="%{x}: %{y:,} samples<extra></extra>"))
-    fig.add_trace(go.Scatter(x=mm["annee"], y=mm["n_detected"], name="Detected (any level)", mode="lines+markers",
-                             line=dict(color="#888888", width=2, dash="dot"), marker=dict(size=8),
-                             hovertemplate="%{x}: detected in %{y:,} samples<extra></extra>"))
-    event(fig, 2022.75 if code == "MTCESA" else 2024.33, "reclassified non-relevant", 0.99)
-    layout(fig, "Year", "Number of samples", height=360)
-    st.markdown(f"**Same molecule, new threshold**: {pick} keeps being detected after its reclassification, "
-                "but is no longer counted as a limit exceedance.")
-    show(fig, f"Bars and line: samples where {pick} was detected, above the 0.1 µg/L limit, and above the 0.9 µg/L "
-              "indicative value, per year.")
-with st.expander("Sources of the dates and thresholds above"):
-    st.markdown(
-        "- Anses opinions of 30/09/2022 (ESA and NOA metolachlor non-relevant) and the 0.9 µg/L indicative value "
-        "(decree 2022-1720, order of 11/01/2007 as amended): Assemblée nationale, written question no. 2237, answer of "
-        "28/03/2023 — https://questions.assemblee-nationale.fr/dyn/16/questions/QANR5L16QE2237.pdf\n"
-        "- Chlorothalonil R471811 relevant in 2023, non-relevant since the Anses opinion of 29/04/2024: ARS "
-        "Hauts-de-France — https://www.hauts-de-france.ars.sante.fr/les-metabolites-du-chlorothalonil-0 ; ARS "
-        "Bourgogne-Franche-Comté — https://bourgogne-franche-comte.ars.sante.fr/media/127554/download\n"
-        "- PFAS (sum of 20) in the routine control from 01/01/2026: ARS Nouvelle-Aquitaine — "
-        "https://www.nouvelle-aquitaine.ars.sante.fr/surveillance-des-pfas-polluants-chimiques-eternels-dans-leau-en-nouvelle-aquitaine\n"
-        "- Selenium and antimony limits raised on 01/01/2023 (directive (EU) 2020/2184, order of 30/12/2022): "
-        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046849403\n"
-        "- Chloridazone metabolites: first year with measurements read from the data (none before 2021).")
-st.caption("Caution: an exceedance count depends on how often and where each molecule is searched. These charts show "
-           "monitoring and classification effects; they do not measure whether the water got better or worse.")
+# --- Clue 3 ------------------------------------------------------------------------------------------------------
+kicker(t("mon.s3.kicker"))
+st.header(t("mon.s3.title"))
+st.markdown(t("mon.s3.text"))
+m = py[py["code_merged"].isin(["MTCESA", "471811R"])].groupby(["annee", "code_merged"])[
+    ["n_samples", "n_detected", "n_exceed_limit", "n_exceed_indicative"]].sum().reset_index()
+mols = {"MTCESA": S.label("MTCESA"), "471811R": S.label("471811R")}
+code = st.segmented_control(t("mon.s3.pick"), list(mols), format_func=mols.get, default="MTCESA", key="h3_meta") or "MTCESA"
+mm = m[m["code_merged"] == code]
+fig = go.Figure()
+fig.add_trace(go.Bar(x=mm["annee"], y=mm["n_exceed_limit"], name=t("mon.s3.limit"), marker_color=BRICK,
+                     hovertemplate="%{x}: %{y:,}<extra></extra>"))
+fig.add_trace(go.Bar(x=mm["annee"], y=mm["n_exceed_indicative"], name=t("mon.s3.ind"), marker_color=TEAL,
+                     marker_pattern_shape="/", hovertemplate="%{x}: %{y:,}<extra></extra>"))
+fig.add_trace(go.Scatter(x=mm["annee"], y=mm["n_detected"], name=t("mon.s3.det"), mode="lines+markers",
+                         line=dict(color="#5E5A50", width=2.2, dash="dot"), marker=dict(size=8),
+                         hovertemplate="%{x}: %{y:,}<extra></extra>"))
+event(fig, 2022.75 if code == "MTCESA" else 2024.33, t("mon.s3.ev"), 0.99)
+layout(fig, t("common.year"), t("mon.s3.y"), height=380)
+fig.update_xaxes(dtick=1)
+det2025 = mm.loc[mm["annee"] == 2025, "n_detected"]
+chart(fig, t("mon.s3.chart", mol=mols[code]), t("mon.s3.caption"),
+      t("mon.s3.take", n=num(det2025.iloc[0]) if len(det2025) else "?"))
+st.caption(t("mon.sources"))
+st.success(t("mon.verdict"))
 
-# ======================================================================================================
-st.header("2. Focus by family")
-t_nit, t_pfas, t_bact, t_hard = st.tabs(["Nitrates", "PFAS", "Bacteria by season", "Hardness"])
+# --- Other things we looked at ------------------------------------------------------------------------------------
+kicker(t("mon.focus.kicker"))
+st.header(t("mon.focus.title"))
 win = load_table("udi_param_window")
-with t_nit:
+t_no3, t_pfas, t_season, t_hard = st.tabs([t("mon.tab.no3"), t("mon.tab.pfas"), t("mon.tab.season"), t("mon.tab.hard")])
+with t_no3:
     no3 = win[win["code"] == "NO3"]
-    above = (no3["max_value"] > 50).mean()
-    headline(f"{(no3['max_value'] <= 25).mean():.0%} of networks stayed below half of the nitrate limit (25 mg/L) in 36 months; "
-             f"{above:.1%} exceeded the 50 mg/L limit at least once.")
+    headline(t("mon.no3.headline", low=pct((no3["max_value"] <= 25).mean(), 0), above=pct((no3["max_value"] > 50).mean())))
     fig = go.Figure(go.Histogram(x=no3["max_value"].clip(upper=100), xbins=dict(start=0, end=100.01, size=2.5),
-                                 marker_color=PALETTE["blue"], marker_line_color="white", marker_line_width=1,
-                                 hovertemplate="max %{x} mg/L: %{y:,} networks<extra></extra>"))
-    threshold(fig, 50, "limit 50 mg/L", axis="x", color=PALETTE["vermillion"])
-    layout(fig, "Maximum nitrate concentration in 36 months (mg/L, capped at 100)", "Number of networks",
-           height=360, legend=False)
-    show(fig, "Histogram: networks by their maximum nitrate concentration over the last 36 months, with the "
-              "50 mg/L limit as a dashed line. Networks where nitrates were never quantified are not shown.")
+                                 marker_color=BLUE, marker_line_color="rgba(255,255,255,0.6)", marker_line_width=1,
+                                 hovertemplate=t("mon.no3.hover") + "<extra></extra>"))
+    threshold(fig, 50, t("mon.no3.thr"), axis="x")
+    layout(fig, t("mon.no3.x"), t("mon.no3.y"), height=360, legend=False)
+    chart(fig, t("mon.no3.chart"), t("mon.no3.caption"), t("mon.no3.take"))
 with t_pfas:
     pf = py[py["code"] == "SPFAS"].set_index("annee")[["n_samples", "n_exceed_limit"]]
-    headline(f"Samples analysed for the sum of 20 PFAS: {pf['n_samples'].get(2022, 0):,} in 2022, "
-             f"{pf['n_samples'].get(2025, 0):,} in 2025; {pf['n_exceed_limit'].get(2025, 0):,} were above "
-             "0.1 µg/L in 2025.")
+    headline(t("mon.pfas.headline", a=num(pf["n_samples"].get(2022, 0)), b=num(pf["n_samples"].get(2025, 0)),
+               c=num(pf["n_exceed_limit"].get(2025, 0))))
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=pf.index, y=pf["n_samples"], name="Samples analysed", marker_color=PALETTE["sky"],
-                         text=pf["n_samples"], textposition="outside",
-                         hovertemplate="%{x}: %{y:,} samples analysed<extra></extra>"))
-    fig.add_trace(go.Bar(x=pf.index, y=pf["n_exceed_limit"], name="Above 0.1 µg/L", marker_color=PALETTE["vermillion"],
-                         marker_pattern_shape="/", text=pf["n_exceed_limit"], textposition="outside",
-                         hovertemplate="%{x}: %{y:,} samples above the limit<extra></extra>"))
-    event(fig, 2025.55, "01/01/2026: PFAS in routine control", 0.95)
-    layout(fig, "Year (2026: January–August)", "Number of samples", height=360)
-    show(fig, "Bars: samples analysed for the sum of 20 PFAS and samples above the 0.1 µg/L limit, per year. "
-              "Few measurements before 2025: an absence of measurement is not an absence of PFAS.")
-with t_bact:
-    nm = load_table("national_month")
+    fig.add_trace(go.Bar(x=pf.index, y=pf["n_samples"], name=t("mon.pfas.n"), marker_color=TEAL,
+                         text=[num(v) for v in pf["n_samples"]], textposition="outside",
+                         hovertemplate="%{x}: %{y:,}<extra></extra>"))
+    fig.add_trace(go.Bar(x=pf.index, y=pf["n_exceed_limit"], name=t("mon.pfas.k"), marker_color=BRICK,
+                         marker_pattern_shape="/", text=[num(v) for v in pf["n_exceed_limit"]], textposition="outside",
+                         hovertemplate="%{x}: %{y:,}<extra></extra>"))
+    event(fig, 2025.55, t("mon.ev.pfas"), 0.95)
+    layout(fig, t("mon.s2.x"), t("mon.pfas.y"), height=360)
+    fig.update_xaxes(dtick=1)
+    chart(fig, t("mon.pfas.chart"), t("mon.pfas.caption"), t("mon.pfas.take"))
+with t_season:
     c_last = config.COMPLETE_YEARS[-1]
-    m0, m1 = min(y0, c_last), min(y1, c_last)   # complete years only (seasons need all 12 months)
-    if (m0, m1) != (y0, y1):
-        st.caption(f"Complete years only: {m0}–{m1} (2026 lacks September–December).")
-    nm = nm[nm["annee"].between(m0, m1)]
-    mo = nm.groupby("month")[["n_bact", "n_bact_nc"]].sum()
+    m0, m1 = min(f.years[0], c_last), min(f.years[1], c_last)   # seasons need the twelve months
+    if (m0, m1) != tuple(f.years):
+        st.caption(t("mon.season.note", a=m0, b=m1))
+    nm = load_table("national_month")
+    mo = nm[nm["annee"].between(m0, m1)].groupby("month")[["n_bact", "n_bact_nc"]].sum()
     mo["rate"] = mo["n_bact_nc"] / mo["n_bact"]
-    names_m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    names_m = months()
     hi_m, lo_m = mo["rate"].idxmax(), mo["rate"].idxmin()
-    headline(f"Bacteriological non-compliance peaks in {names_m[hi_m - 1]} ({pct(mo.loc[hi_m, 'rate'], 2)}) and is "
-             f"lowest in {names_m[lo_m - 1]} ({pct(mo.loc[lo_m, 'rate'], 2)}), France, {m0}–{m1}.")
-    fig = go.Figure(go.Bar(x=names_m, y=100 * mo["rate"].values, marker_color=PALETTE["vermillion"],
-                           text=[f"{100 * v:.2f}%" for v in mo["rate"]], textposition="outside",
-                           customdata=mo[["n_bact_nc", "n_bact"]].values,
-                           hovertemplate="%{x}: %{y:.2f}%<br>%{customdata[0]:,} of %{customdata[1]:,} samples"
-                                         "<extra></extra>"))
-    layout(fig, "Month", "Non-compliant bacteriological samples (%)", height=360, legend=False)
-    show(fig, "Bars: share of bacteriological samples officially non-compliant, by month of sampling, over the "
-              "complete years of the selected period. A seasonal pattern is a correlation, not an explanation.")
+    headline(t("mon.season.headline", hi=names_m[hi_m - 1], hv=pct(mo.loc[hi_m, "rate"], 2), lo=names_m[lo_m - 1],
+               lv=pct(mo.loc[lo_m, "rate"], 2), a=m0, b=m1))
+    fig = go.Figure(go.Bar(x=names_m, y=100 * mo["rate"].values, marker_color=BRICK,
+                           text=[pct(v, 2) for v in mo["rate"]], textposition="outside", hoverinfo="text",
+                           hovertext=[t("mon.season.hover", m=mn, v=pct(v, 2), k=num(k), n=num(n))
+                                      for mn, v, k, n in zip(names_m, mo["rate"], mo["n_bact_nc"], mo["n_bact"])]))
+    layout(fig, t("mon.season.x"), t("mon.season.y"), height=360, legend=False)
+    fig.update_yaxes(range=[0, 100 * mo["rate"].max() * 1.2])
+    ratio = mo.loc[hi_m, "rate"] / mo.loc[lo_m, "rate"]
+    chart(fig, t("mon.season.chart"), t("mon.season.caption"),
+          t("mon.season.take", ratio=f"{ratio:.1f}".replace(".", ",") if lang() == "fr" else f"{ratio:.1f}"))
 with t_hard:
     th = win[win["code"] == "TH"][["cdreseau", "mean"]].copy()
-    th["dep"] = dep_of_network(th["cdreseau"])
+    th["dep"] = dep_of_network(th["cdreseau"].astype(str))
     th = th.merge(departments(), on="dep", how="left").dropna(subset=["reg_nom"])
     med = th.groupby("reg_nom")["mean"].median().sort_values()
-    headline(f"Median hardness of networks ranges from {med.iloc[0]:.0f} °f ({med.index[0]}) to {med.iloc[-1]:.0f} °f "
-             f"({med.index[-1]}) — limescale, not a health issue (hypothesis H4).")
+    st.markdown(t("mon.hard.text"))
+    headline(t("mon.hard.headline", lo_v=f"{med.iloc[0]:.0f}", lo=med.index[0], hi_v=f"{med.iloc[-1]:.0f}",
+               hi=med.index[-1]))
     fig = go.Figure()
-    for i, reg in enumerate(med.index):
+    for reg in med.index:
         fig.add_trace(go.Box(x=th.loc[th["reg_nom"] == reg, "mean"], name=reg, orientation="h", boxpoints=False,
-                             marker_color=PALETTE["blue"], hoverinfo="x+name"))
-    layout(fig, "Mean hardness of the network in 12 months (°f, French degrees)", None, height=560, legend=False)
-    show(fig, "Box plots: hardness of the distribution networks by region, sorted by median. Hardness has no health "
-              "limit and never lowers the score.")
+                             marker_color=OCHRE, hoverinfo="x+name"))
+    layout(fig, t("mon.hard.x"), None, height=580, legend=False)
+    chart(fig, t("mon.hard.chart"), t("mon.hard.caption"), t("mon.hard.take"))
 
-# ======================================================================================================
-st.header("3. What if the score weighted things differently?")
-st.markdown("The default weights (0.4 microbiology, 0.4 chemistry, 0.2 comfort) are a choice. Move them and see how "
-            "much the ranking of networks changes.")
+# --- What if ---------------------------------------------------------------------------------------------------------
+kicker(t("mon.whatif.kicker"))
+st.header(t("mon.whatif.title"))
+st.markdown(t("mon.whatif.text"))
 u = load_table("udi_scores")
 c1, c2, c3 = st.columns(3)
-w_micro = c1.slider("Weight of microbiology", 0.0, 1.0, config.WEIGHTS["micro"], 0.05, key="w_micro")
-w_chem = c2.slider("Weight of health chemistry", 0.0, 1.0, config.WEIGHTS["chem"], 0.05, key="w_chem")
-w_comf = c3.slider("Weight of comfort", 0.0, 1.0, config.WEIGHTS["comfort"], 0.05, key="w_comf")
+w_micro = c1.slider(t("mon.w.micro"), 0.0, 1.0, config.WEIGHTS["micro"], 0.05, key="w_micro")
+w_chem = c2.slider(t("mon.w.chem"), 0.0, 1.0, config.WEIGHTS["chem"], 0.05, key="w_chem")
+w_comf = c3.slider(t("mon.w.comfort"), 0.0, 1.0, config.WEIGHTS["comfort"], 0.05, key="w_comf")
 if w_micro + w_chem + w_comf == 0:
-    st.warning("At least one weight must be above 0.")
+    st.warning(t("mon.w.zero"))
 else:
     tot = w_micro + w_chem + w_comf
     w = {"micro": w_micro / tot, "chem": w_chem / tot, "comfort": w_comf / tot}
     new = S.global_score(u, w)
     elig = u["n_bact"] >= config.MIN_SAMPLES_RANKING
     rho = u.loc[elig, "score"].rank().corr(new[elig].rank())
-    g_old = u["grade"]
     g_new = new.map(S.grade)
-    changed = (g_old != g_new)[u["score"].notna()].mean()
-    headline(f"With these weights (normalised to {w['micro']:.2f} / {w['chem']:.2f} / {w['comfort']:.2f}), "
-             f"{changed:.0%} of networks change grade; the ranking stays correlated at ρ = {rho:.3f} with the "
-             "default one.")
-    dist = pd.DataFrame({"Default weights": g_old.value_counts(normalize=True),
-                         "Your weights": g_new.value_counts(normalize=True)}).reindex(list("ABCDE")).fillna(0)
+    changed = (u["grade"] != g_new)[u["score"].notna()].mean()
+    wtxt = " / ".join(pct(w[k], 0) for k in ("micro", "chem", "comfort"))
+    rho_txt = f"{rho:.3f}".replace(".", ",") if lang() == "fr" else f"{rho:.3f}"
+    headline(t("mon.whatif.headline", w=wtxt, changed=pct(changed, 0), rho=rho_txt))
+    dist = pd.DataFrame({"default": u["grade"].value_counts(normalize=True),
+                         "yours": g_new.value_counts(normalize=True)}).reindex(list("ABCDE")).fillna(0)
     fig = go.Figure()
-    for i, col in enumerate(dist.columns):
-        fig.add_trace(go.Bar(x=dist.index, y=100 * dist[col], name=col, marker_color=[PALETTE["grey"], PALETTE["blue"]][i],
-                             marker_pattern_shape=["/", ""][i], text=[f"{100 * v:.0f}%" for v in dist[col]],
-                             textposition="outside", hovertemplate="grade %{x}: %{y:.1f}% of networks<extra>" + col +
-                                                                   "</extra>"))
-    layout(fig, "Grade", "Networks (%)", height=340)
-    show(fig, "Grouped bars: share of networks in each grade with the default weights (grey, hatched) and with "
-              "your weights (blue).")
-with st.expander("Sensitivity analysis (14 variants of the method, computed by scripts/05_build_scores.py)"):
+    for col, color, pat in (("default", NEUTRAL, "/"), ("yours", BLUE, "")):
+        name = t(f"mon.whatif.{col}")
+        fig.add_trace(go.Bar(x=dist.index, y=100 * dist[col], name=name, marker_color=color, marker_pattern_shape=pat,
+                             text=[pct(v, 0) for v in dist[col]], textposition="outside",
+                             hovertemplate="%{x}: %{y:.1f}%<extra>" + name + "</extra>"))
+    layout(fig, t("mon.whatif.x"), t("mon.whatif.y"), height=340)
+    chart(fig, t("mon.whatif.chart"), t("mon.whatif.caption"), t("mon.whatif.take"))
+with st.expander(t("mon.sens.title")):
     sens = load_table("score_sensitivity")
-    st.dataframe(sens[["variant", "spearman_networks", "spearman_communes", "share_grade_changed", "bottom10_overlap",
-                       "median_score"]].rename(columns={
-        "variant": "Variant", "spearman_networks": "Rank correlation (networks ≥ 12 samples)",
-        "spearman_communes": "Rank correlation (communes)", "share_grade_changed": "Networks changing grade",
-        "bottom10_overlap": "Same bottom 10%", "median_score": "Median score"}), hide_index=True,
-        column_config={"Networks changing grade": st.column_config.NumberColumn(format="percent"),
-                       "Same bottom 10%": st.column_config.NumberColumn(format="percent")})
-    st.caption("Spearman rank correlation with the default ranking: 1 = identical order. All variants stay above "
-               "0.95 except removing comfort entirely (0.86).")
-st.caption(SOURCE_CAPTION)
+    tbl = sens[["variant", "spearman_networks", "spearman_communes", "share_grade_changed", "bottom10_overlap",
+                "median_score"]].copy()
+    tbl["variant"] = tbl["variant"].map(lambda v: t(f"variant.{v}"))
+    tbl.columns = [t("mon.sens.variant"), t("mon.sens.rho_n"), t("mon.sens.rho_c"), t("mon.sens.changed"),
+                   t("mon.sens.bottom"), t("mon.sens.median")]
+    st.dataframe(tbl, hide_index=True,
+                 column_config={t("mon.sens.changed"): st.column_config.NumberColumn(format="percent"),
+                                t("mon.sens.bottom"): st.column_config.NumberColumn(format="percent")})
+    st.caption(t("mon.sens.caption"))

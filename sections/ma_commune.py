@@ -1,43 +1,38 @@
-"""Page 3 — My town: score /100, grade, confidence, the "why" report per network, and parameter history."""
+"""The water of my town: one searchable list, score, gauge, sub-scores, the report per network, history."""
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 import config
 from utils import score as S
-from utils.io import (SOURCE_CAPTION, commune_network_links, communes, load_table, network_history,
-                      search_communes)
-from utils.viz import FAMILY_COLORS, FAMILY_LABELS, GRADE_COLORS, PALETTE, headline, layout, show, threshold
+from utils.i18n import lang, num, t
+from utils.io import commune_network_links, communes, load_table, network_history, town_options
+from utils.viz import (BRICK, FAMILY_COLORS, GRADE_COLORS, SERIES, badge, chart, headline, kicker, layout, lede,
+                       partial_year, threshold)
 
-st.title("🏠 My town")
+kicker(t("town.kicker"))
+st.title(t("town.title"))
+lede(t("town.lede"))
 
-DEFAULT_INSEE = "75056"  # Paris
-
-
-def pick_commune() -> str:
-    """Search box with accent-insensitive matching; the choice is kept in session state and in the URL."""
-    current = st.session_state.get("insee") or st.query_params.get("insee") or DEFAULT_INSEE
-    com = communes().set_index("insee")
-    if current not in com.index:
-        current = DEFAULT_INSEE
-    c1, c2 = st.columns([1, 2])
-    q = c1.text_input("Search a town", placeholder="Type a name, e.g. Villejuif", key="town_q",
-                      help="Accents and hyphens are ignored. Homonyms are shown with their department number.")
-    if q:
-        hits = search_communes(q, limit=30)
-        if hits.empty:
-            c2.warning("No town found with this name.")
-        else:
-            options = hits["insee"].tolist()
-            choice = c2.selectbox(f"{len(hits)} match(es)", options, format_func=lambda i: com.loc[i, "label"],
-                                  key="town_pick")
-            current = choice
-    st.session_state["insee"] = current
-    st.query_params["insee"] = current
-    return current
+DEFAULT_INSEE = "75056"   # Paris
+options, labels = town_options()
 
 
-insee = pick_commune()
+def _sync_choice():
+    st.session_state["insee"] = st.session_state["town_pick"]
+
+
+current = st.session_state.get("insee") or st.query_params.get("insee") or DEFAULT_INSEE
+if current not in labels:
+    current = DEFAULT_INSEE
+if st.session_state.get("town_pick") != current:
+    st.session_state["town_pick"] = current
+st.selectbox(t("town.pick"), options, format_func=labels.get, key="town_pick", on_change=_sync_choice,
+             help=t("town.pick.help"))
+insee = st.session_state["town_pick"]
+st.session_state["insee"] = insee
+st.query_params["insee"] = insee
+
 com = communes().set_index("insee")
 c = com.loc[insee]
 udi = load_table("udi_scores").set_index("cdreseau")
@@ -45,126 +40,131 @@ links = commune_network_links()
 nets = links[links["insee"] == insee]
 names = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
 
-st.subheader(f"{c['nom']} ({c['dep']} — {c['dep_nom']})")
-facts = [f"{int(c['population']):,} inhabitants" if pd.notna(c["population"]) else None, c.get("density7_label"),
-         "Mountain Act commune" if c.get("mountain") else None,
-         "Mediterranean department outside mountain areas (approximation of the coast)" if c.get("mediterranean_coast") else None,
-         f"served by {len(nets)} distribution network(s)"]
-st.caption(" · ".join(x for x in facts if x))
+facts = [t("town.facts.pop", n=num(c["population"])) if pd.notna(c["population"]) else None,
+         t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None, t("town.facts.mountain") if c.get("mountain") else None,
+         t("town.facts.med") if c.get("mediterranean_coast") else None, t("town.facts.nets", n=len(nets))]
+st.caption(" · ".join(str(x) for x in facts if x))
 
 if pd.isna(c.get("score")):
-    st.warning("No score for this town: none of its networks has samples in the last 12/36 months.")
+    st.warning(t("town.noscore"))
     st.stop()
 
-# --- Score, grade, confidence ------------------------------------------------------------------------
-grade = c["grade"]
-headline(f"{c['nom']}: {c['score']:.1f}/100, grade {grade} — confidence {c['confidence']}.")
-left, right = st.columns([1, 1.3])
+# --- Score --------------------------------------------------------------------------------------------
+town, grade, score = c["nom"], c["grade"], float(c["score"])
+fmt1 = (lambda v: f"{v:.1f}".replace(".", ",")) if lang() == "fr" else (lambda v: f"{v:.1f}")
+headline(t("town.headline", town=town, score=fmt1(score), grade=grade, conf=t(f"conf.{c['confidence']}")))
+st.markdown(t("town.how"))
+
+median = communes()["score"].median()
+left, right = st.columns([1, 1.25])
 with left:
     fig = go.Figure(go.Indicator(
-        mode="gauge+number", value=round(float(c["score"]), 1), number=dict(suffix="/100", valueformat=".1f"),
-        title=dict(text=f"Grade <b>{grade}</b>"),
+        mode="gauge+number", value=round(score, 1),
+        number=dict(suffix="/100", valueformat=".1f", font=dict(family="IBM Plex Mono")),
+        title=dict(text=f"{t('grade')} <b>{grade}</b>"),
         gauge=dict(axis=dict(range=[0, 100], tickvals=[0, 40, 60, 75, 90, 100]),
-                   bar=dict(color="#888888", thickness=0.3),
+                   bar=dict(color="#8A8578", thickness=0.3),
                    steps=[dict(range=[lo, hi], color=GRADE_COLORS[g]) for lo, hi, g in
                           ((0, 40, "E"), (40, 60, "D"), (60, 75, "C"), (75, 90, "B"), (90, 100, "A"))])))
-    fig.update_layout(height=260, margin=dict(l=30, r=40, t=50, b=10))
-    show(fig, f"Gauge: score {c['score']:.1f} out of 100, in the band of grade {grade} "
-              "(E < 40 ≤ D < 60 ≤ C < 75 ≤ B < 90 ≤ A).", source="")
+    fig.update_layout(height=260, margin=dict(l=30, r=40, t=50, b=10), font=dict(family="IBM Plex Sans"))
+    gap = abs(score - median)
+    take = t("town.gauge.take.above" if score >= median else "town.gauge.take.below", median=fmt1(median),
+             town=town, gap=fmt1(gap))
+    chart(fig, t("town.gauge.title", town=town), t("town.gauge.caption"), take)
 with right:
-    subs = pd.DataFrame({"family": ["micro", "chem", "comfort"],
-                         "value": [c["micro"], c["chem"], c["comfort"]]})
-    subs["label"] = subs["family"].map(FAMILY_LABELS) + " (weight " + subs["family"].map(
-        lambda k: f"{config.WEIGHTS[k]:.0%}") + ")"
-    fig = go.Figure(go.Bar(x=subs["value"].fillna(0), y=subs["label"], orientation="h",
-                           marker_color=[FAMILY_COLORS[k] for k in subs["family"]],
-                           text=[f"{v:.0f}" if pd.notna(v) else "not measured" for v in subs["value"]],
-                           textposition="outside", hovertemplate="%{y}: %{x:.1f}/100<extra></extra>"))
-    layout(fig, "Sub-score (/100)", None, height=260, legend=False)
-    fig.update_xaxes(range=[0, 115])
+    fams = ["micro", "chem", "comfort"]
+    vals = [c[k] for k in fams]
+    ylab = [t("town.subs.weight", fam=t(f"fam.{k}"), w=f"{int(100 * config.WEIGHTS[k])}%") for k in fams]
+    fig = go.Figure(go.Bar(x=[0 if pd.isna(v) else v for v in vals], y=ylab, orientation="h",
+                           marker_color=[FAMILY_COLORS[k] for k in fams],
+                           text=[f"{v:.0f}" if pd.notna(v) else t("town.notmeasured") for v in vals],
+                           textposition="outside", hoverinfo="skip"))
+    layout(fig, t("town.subs.x"), None, height=260, legend=False)
+    fig.update_xaxes(range=[0, 118])
     fig.update_yaxes(autorange="reversed")
-    show(fig, "Bars: the three sub-scores out of 100; the global score is their weighted mean over the measured "
-              "families only.", source="")
-st.caption(f"**Confidence {c['confidence']}**: high = microbiology, chemistry and comfort measured, ≥ 12 "
-           "bacteriological samples in 12 months, nitrates and pesticides analysed in 36 months; low = fewer than 4 "
-           "bacteriological samples or a family missing. The score is an educational indicator, not a health opinion.")
+    measured = {k: v for k, v in zip(fams, vals) if pd.notna(v)}
+    weakest = min(measured, key=measured.get)
+    take = (t("town.subs.take.perfect") if measured[weakest] >= 99.95 else
+            t("town.subs.take", fam=t(f"fam.{weakest}").lower(), v=f"{measured[weakest]:.0f}", town=town))
+    chart(fig, t("town.subs.title"), t("town.subs.caption"), take)
 
-# --- Networks and reports ----------------------------------------------------------------------------
-st.subheader("Why this score? — network by network")
+# --- Report per network ---------------------------------------------------------------------------------
+kicker(t("town.why.kicker"))
+st.header(t("town.why.title"))
 n = nets.merge(udi.reset_index(), on="cdreseau", how="left")
-n["name"] = n["cdreseau"].map(names)
+n["name"] = n["cdreseau"].map(names).fillna(n["cdreseau"])
 if len(n) > 1:
-    tbl = n[["name", "cdreseau", "score", "grade", "confidence", "n_bact", "districts"]].sort_values("score")
+    st.markdown(t("town.why.several", town=town, n=len(n)))
+    tbl = n[["name", "cdreseau", "score", "grade", "confidence", "n_bact", "districts"]].sort_values("score").copy()
+    tbl["confidence"] = tbl["confidence"].map(lambda x: t(f"conf.{x}") if isinstance(x, str) else "")
     tbl["districts"] = tbl["districts"].fillna("")
-    st.dataframe(tbl.rename(columns={"name": "Network", "cdreseau": "Code", "score": "Score", "grade": "Grade",
-                                     "confidence": "Confidence", "n_bact": "Bacteriological samples (12 months)",
-                                     "districts": "Districts served"}),
-                 hide_index=True, column_config={"Score": st.column_config.NumberColumn(format="%.1f")})
-    st.caption(f"The town's score is the mean of its {n['score'].notna().sum()} scored networks; the worst is shown first.")
+    tbl.columns = [t("town.col.net"), t("town.col.code"), t("town.col.score"), t("town.col.grade"), t("town.col.conf"),
+                   t("town.col.nbact"), t("town.col.districts")]
+    st.dataframe(tbl, hide_index=True, column_config={t("town.col.score"): st.column_config.NumberColumn(format="%.1f")})
+else:
+    st.markdown(t("town.why.one", town=town))
 
 params = load_table("udi_param_window")
 fam = load_table("udi_family_window")
 p95 = load_table("udi_param_p95")
 cat = load_table("params_catalog")
-labels = dict(zip(cat["code"], cat["label"]))
+cat_labels = dict(zip(cat["code"], cat["label"]))
 ranges = S.reference_ranges(cat)
 ordered = n.sort_values("score")
-tabs = st.tabs([f"{r['name'] or r['cdreseau']} — {r['score']:.0f} ({r['grade']})" if pd.notna(r["score"])
-                else f"{r['name'] or r['cdreseau']} — no data" for _, r in ordered.iterrows()])
+tabs = st.tabs([f"{r['name']} · {r['score']:.0f} ({r['grade']})" if pd.notna(r["score"])
+                else t("town.tab.nodata", net=r["name"]) for _, r in ordered.iterrows()])
 for tab, (_, r) in zip(tabs, ordered.iterrows()):
     with tab:
         if pd.isna(r["score"]):
-            st.write("No sample in the windows for this network.")
+            st.write(t("town.nodata"))
             continue
         row = udi.loc[r["cdreseau"]].copy()
         row["cdreseau"] = r["cdreseau"]
         rep = S.why_report(row, params[params["cdreseau"] == r["cdreseau"]], fam[fam["cdreseau"] == r["cdreseau"]],
-                           p95[p95["cdreseau"] == r["cdreseau"]], labels, ranges=ranges)
-        for icon, text in rep:
-            st.markdown(f"{icon} {text}")
+                           p95[p95["cdreseau"] == r["cdreseau"]], cat_labels, ranges=ranges)
+        html = "".join(f"<p>{badge(kind)}{text}</p>" for kind, text in rep)
+        st.markdown(f'<div class="ar-report">{html}</div>', unsafe_allow_html=True)
         if isinstance(r.get("districts"), str):
-            st.caption(f"Districts served: {r['districts']}")
+            st.caption(t("town.districts", d=r["districts"]))
+st.caption(t("town.legend"))
 
-st.caption("Legend: ✅ strength · ❌ above a health limit · ⚠️ vigilance (above half of a limit, or above a "
-           "quality reference) · ℹ️ information · ❔ not measured. Windows: 12 months (bacteria, comfort) and "
-           "36 months (chemistry) up to 31 August 2026.")
-
-# --- History of key parameters -------------------------------------------------------------------------
-st.subheader("History of a key parameter, 2016–2026")
+# --- History ----------------------------------------------------------------------------------------------
+kicker(t("town.hist.kicker"))
 hist = network_history(tuple(n["cdreseau"]))
 if hist.empty:
-    st.info("No history for these networks.")
+    st.info(t("town.hist.none"))
 else:
     avail = hist.groupby("code")["n"].sum().sort_values(ascending=False)
     pref = [k for k in ("NO3", "PESTOT", "SPFAS", "ECOLI", "TH", "CLDZ_D", "PB", "AS") if k in avail.index]
-    options = pref + [k for k in avail.index if k not in pref]
-    code = st.selectbox("Parameter", options, format_func=lambda k: S.KEY_LABELS.get(k) or labels.get(k, k),
-                        help="Yearly maximum and mean of the measurements of each network serving the town.")
+    codes = pref + [k for k in avail.index if k not in pref]
+    code_labels = {k: S.label(k, cat_labels) for k in codes}
+    code = st.selectbox(t("town.hist.pick"), codes, format_func=code_labels.get, help=t("town.hist.pick.help"),
+                        key="hist_code")
     h = hist[hist["code"] == code].copy()
     h["name"] = h["cdreseau"].map(names).fillna(h["cdreseau"])
-    lab = S.KEY_LABELS.get(code) or labels.get(code, code)
+    lab = S.label(code, cat_labels)
     unit = cat.set_index("code")["unit"].get(code)
     unit = unit if isinstance(unit, str) else ""
     fig = go.Figure()
-    colors = [PALETTE[k] for k in ("blue", "orange", "green", "vermillion", "sky", "purple")]
     for i, (net, d) in enumerate(h.groupby("name")):
-        col = colors[i % len(colors)]
-        fig.add_trace(go.Scatter(x=d["annee"], y=d["max"], name=f"{net} — max", mode="lines+markers",
-                                 line=dict(color=col, width=2), marker=dict(size=8),
-                                 customdata=d[["n", "n_exceed"]],
-                                 hovertemplate="%{x}: max %{y:.3g} " + unit + "<br>%{customdata[0]} measurements, "
-                                               "%{customdata[1]} above the threshold<extra>" + net + "</extra>"))
-        fig.add_trace(go.Scatter(x=d["annee"], y=d["mean"], name=f"{net} — mean", mode="lines",
-                                 line=dict(color=col, width=2, dash="dot"),
-                                 hovertemplate="%{x}: mean %{y:.3g} " + unit + "<extra>" + net + "</extra>"))
+        col = SERIES[i % len(SERIES)]
+        hover = [t("town.hist.hover", y=y, v=f"{v:.3g}", unit=unit, n=k1, k=k2)
+                 for y, v, k1, k2 in zip(d["annee"], d["max"], d["n"], d["n_exceed"])]
+        fig.add_trace(go.Scatter(x=d["annee"], y=d["max"], name=t("town.hist.max", net=net), mode="lines+markers",
+                                 line=dict(color=col, width=2.2), marker=dict(size=8), hovertext=hover,
+                                 hoverinfo="text"))
+        fig.add_trace(go.Scatter(x=d["annee"], y=d["mean"], name=t("town.hist.mean", net=net), mode="lines",
+                                 line=dict(color=col, width=1.6, dash="dot"), hoverinfo="skip"))
     thr = h["threshold"].dropna()
+    thr_part = ""
     if len(thr):
-        kind = h["threshold_kind"].dropna().iloc[-1]
-        threshold(fig, float(thr.iloc[-1]), f"{kind} {thr.iloc[-1]:g} {unit}", color=PALETTE["vermillion"])
+        kind = t(f"town.kind.{h['threshold_kind'].dropna().iloc[-1]}")
+        threshold(fig, float(thr.iloc[-1]), f"{kind} {thr.iloc[-1]:g} {unit}", color=BRICK)
+        thr_part = t("town.hist.thr_part", kind=kind, thr=f"{thr.iloc[-1]:g}", unit=unit)
     if h["annee"].max() == config.PARTIAL_YEAR:
-        fig.add_vrect(x0=config.PARTIAL_YEAR - 0.5, x1=config.PARTIAL_YEAR + 0.5, fillcolor="grey", opacity=0.12,
-                      line_width=0, annotation_text="2026 partial", annotation_position="top left")
-    layout(fig, "Year", f"{lab} ({unit})" if unit else lab, height=400)
-    show(fig, f"Lines: yearly maximum (solid) and mean (dotted) of {lab} in each network serving {c['nom']}, "
-              "with the threshold as a dashed line when there is one.")
-st.caption(SOURCE_CAPTION)
+        partial_year(fig, config.PARTIAL_YEAR, t("common.partial2026"))
+    layout(fig, t("common.year"), f"{lab} ({unit})" if unit else lab, height=400)
+    fig.update_xaxes(dtick=1)
+    top = h.loc[h["max"].idxmax()]
+    chart(fig, t("town.hist.title", param=lab, town=town), t("town.hist.caption"),
+          t("town.hist.take", max=f"{top['max']:.3g}", unit=unit, year=int(top["annee"]), thr_part=thr_part))

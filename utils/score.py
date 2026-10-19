@@ -231,18 +231,41 @@ def commune_scores(udi: pd.DataFrame, links: pd.DataFrame, s: ScoreSettings = DE
 
 
 # --- "Why" report (rules, no AI) ---------------------------------------------------------------------
+# Labels of the key parameters; in French the catalogue labels (French) are used for the others.
 KEY_LABELS = {
-    "NO3": "Nitrates", "NO2": "Nitrites", "SPFAS": "PFAS (sum of 20)", "PESTOT": "Total pesticides",
-    "AS": "Arsenic", "PB": "Lead", "SE": "Selenium", "SB": "Antimony", "CLVYL": "Vinyl chloride",
-    "THM4": "Trihalomethanes", "BRATE": "Bromates", "CLITE_T": "Chlorites", "CLATE_T": "Chlorates",
-    "ECOLI": "E. coli", "STRF": "Enterococci", "CTF": "Coliform bacteria", "BSIR": "Sulphite-reducing spores",
-    "TURBNFU": "Turbidity", "FET": "Iron", "MN": "Manganese", "ALTMICR": "Aluminium", "NH4": "Ammonium",
-    "COT": "Total organic carbon", "PH": "pH", "CDT25": "Conductivity", "TH": "Hardness",
-    "MTCESA": "ESA-metolachlor", "ESAMTC": "ESA-metolachlor", "MTCNOA": "NOA-metolachlor",
-    "NOAMTC": "NOA-metolachlor", "471811R": "Chlorothalonil R471811", "R471811": "Chlorothalonil R471811",
+    "en": {"NO3": "Nitrates", "NO2": "Nitrites", "NO3_NO2": "Nitrates/50 + nitrites/3", "SPFAS": "PFAS (sum of 20)",
+           "PESTOT": "Total pesticides", "AS": "Arsenic", "PB": "Lead", "SE": "Selenium", "SB": "Antimony",
+           "CLVYL": "Vinyl chloride", "THM4": "Trihalomethanes", "BRATE": "Bromates", "CLITE_T": "Chlorites",
+           "CLATE_T": "Chlorates", "CLATE": "Chlorates", "ECOLI": "E. coli", "STRF": "Enterococci",
+           "CTF": "Coliform bacteria", "BSIR": "Sulphite-reducing spores", "TURBNFU": "Turbidity", "FET": "Iron",
+           "MN": "Manganese", "ALTMICR": "Aluminium", "NH4": "Ammonium", "COT": "Total organic carbon", "PH": "pH",
+           "CDT25": "Conductivity", "TH": "Hardness", "MTCESA": "ESA-metolachlor", "ESAMTC": "ESA-metolachlor",
+           "MTCNOA": "NOA-metolachlor", "NOAMTC": "NOA-metolachlor", "471811R": "Chlorothalonil R471811",
+           "R471811": "Chlorothalonil R471811", "CLDZ_D": "Chloridazon-desphenyl",
+           "CLDZ_MD": "Chloridazon-methyl-desphenyl", "ADET": "Atrazine-desethyl", "CLTHALS": "Chlorothalonil R417888"},
+    "fr": {"NO3": "Nitrates", "NO2": "Nitrites", "NO3_NO2": "Nitrates/50 + nitrites/3", "SPFAS": "PFAS (somme de 20)",
+           "PESTOT": "Total des pesticides", "AS": "Arsenic", "PB": "Plomb", "SE": "Sélénium", "SB": "Antimoine",
+           "CLVYL": "Chlorure de vinyle", "THM4": "Trihalométhanes", "BRATE": "Bromates", "CLITE_T": "Chlorites",
+           "CLATE_T": "Chlorates", "CLATE": "Chlorates", "ECOLI": "E. coli", "STRF": "Entérocoques",
+           "CTF": "Bactéries coliformes", "BSIR": "Spores sulfito-réductrices", "TURBNFU": "Turbidité", "FET": "Fer",
+           "MN": "Manganèse", "ALTMICR": "Aluminium", "NH4": "Ammonium", "COT": "Carbone organique total", "PH": "pH",
+           "CDT25": "Conductivité", "TH": "Dureté", "MTCESA": "ESA-métolachlore", "ESAMTC": "ESA-métolachlore",
+           "MTCNOA": "NOA-métolachlore", "NOAMTC": "NOA-métolachlore", "471811R": "Chlorothalonil R471811",
+           "R471811": "Chlorothalonil R471811", "CLDZ_D": "Chloridazone desphényl",
+           "CLDZ_MD": "Chloridazone méthyl desphényl", "ADET": "Atrazine déséthyl", "CLTHALS": "Chlorothalonil R417888"},
 }
-SUBFAMILY_LABELS = {"nitrates": "Nitrates", "pesticides": "Pesticides", "pfas": "PFAS (sum of 20)",
-                    "metals": "Metals", "disinfection_byproducts": "Disinfection by-products"}
+REPORT_KINDS = ("ok", "limit", "watch", "info", "unknown")
+REPORT_LABELS_EN = {"ok": "Good", "limit": "Above limit", "watch": "Watch", "info": "Note", "unknown": "Not tested"}
+
+
+def _tr(key: str, **kw) -> str:
+    from utils.i18n import t
+    return t(key, **kw)
+
+
+def _lang() -> str:
+    from utils.i18n import lang
+    return lang()
 
 
 def _fmt(v: float) -> str:
@@ -252,20 +275,26 @@ def _fmt(v: float) -> str:
         return "0"
     a = abs(v)
     s = f"{v:.0f}" if a >= 100 else f"{v:.1f}" if a >= 10 else f"{v:.2f}" if a >= 0.1 else f"{v:.3g}"
-    return s.rstrip("0").rstrip(".") if "." in s else s
+    s = s.rstrip("0").rstrip(".") if "." in s else s
+    return s.replace(".", ",") if _lang() == "fr" else s
 
 
-def _label(code: str, catalog_labels: dict | None) -> str:
-    return KEY_LABELS.get(code) or (catalog_labels or {}).get(code) or code
+def _pct1(x: float) -> str:
+    s = f"{100 * x:.1f}"
+    return f"{s.replace('.', ',')} %" if _lang() == "fr" else f"{s}%"
+
+
+def label(code: str, catalog_labels: dict | None = None) -> str:
+    return KEY_LABELS[_lang()].get(code) or (catalog_labels or {}).get(code) or code
 
 
 def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95: pd.DataFrame | None = None,
                catalog_labels: dict | None = None, s: ScoreSettings = DEFAULT, ranges: dict | None = None,
                max_items: int = 6) -> list[tuple[str, str]]:
-    """Rule-based explanation of one network's score: list of (icon, sentence).
+    """Rule-based explanation of one network's score: list of (kind, sentence) in the current language.
 
-    Icons are always followed by words (not colour alone): ✅ strength · ❌ above a limit · ⚠️ vigilance ·
-    ℹ️ information · ❔ not measured.
+    kind: ok (strength), limit (above a health limit), watch (close to a limit, or above a comfort reference),
+    info (good to know), unknown (not measured). The app shows each kind as a labelled badge.
     """
     out: list[tuple[str, str]] = []
     net = udi_row["cdreseau"]
@@ -273,78 +302,79 @@ def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95:
     pen = parameter_penalties(p, None if p95 is None else p95[p95["cdreseau"] == net], s, ranges)
     f = fam[fam["cdreseau"] == net]
 
-    # microbiology (official conformity, 12 months)
+    def unit_of(r):
+        u = r.get("unit")
+        return u if isinstance(u, str) else ""
+
+    # bacteria (official conformity, 12 months)
     n, nc = int(udi_row["n_bact"]), int(udi_row["n_bact_nc"])
     if n == 0:
-        out.append(("❔", "No bacteriological sample in the last 12 months."))
+        out.append(("unknown", _tr("rep.bact_none")))
     elif nc == 0:
-        out.append(("✅", f"100% of the {n} bacteriological samples compliant (12 months)."))
+        out.append(("ok", _tr("rep.bact_ok", n=n)))
     else:
         bugs = p[(p["family"] == "micro") & (p["n_exceed"] > 0)]
-        which = ", ".join(_label(c, catalog_labels) for c in bugs["code"]) or "bacteria"
-        out.append(("❌", f"{nc} of {n} bacteriological samples non-compliant ({100 * nc / n:.1f}%, 12 months): {which}."))
+        which = ", ".join(label(c, catalog_labels) for c in bugs["code"]) or _tr("rep.bacteria")
+        out.append(("limit", _tr("rep.bact_nc", nc=nc, n=n, pct=_pct1(nc / n), which=which)))
 
-    # health-related chemistry (36 months)
+    # health chemistry (36 months)
     chem = pen[pen["family"] == "chem"]
     issues = chem[chem["penalty"] > 0]
     for _, r in issues.head(max_items).iterrows():
-        lab = _label(r["code"], catalog_labels)
-        unit = r.get("unit") or ""
-        basis = " (95th percentile above half the limit)" if r["ratio_basis"] == "p95" and r["n_exceed"] == 0 else ""
-        date = f" on {r['date_max']}" if pd.notna(r.get("date_max")) else ""
+        lab, unit = label(r["code"], catalog_labels), unit_of(r)
+        date = _tr("rep.on_date", date=r["date_max"]) if pd.notna(r.get("date_max")) else ""
         if r["n_exceed"] > 0:
-            out.append(("❌", f"{lab}: {int(r['n_exceed'])} of {int(r['n'])} measurements above the limit of "
-                              f"{_fmt(r['threshold'])} {unit}; max {_fmt(r['max_value'])} {unit}{date} (36 months)."))
+            out.append(("limit", _tr("rep.chem_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]),
+                                     thr=_fmt(r["threshold"]), unit=unit, max=_fmt(r["max_value"]), date=date)))
         else:
-            out.append(("⚠️", f"{lab}: max {_fmt(r['max_value'])} {unit}{date} for a limit of "
-                              f"{_fmt(r['threshold'])} {unit}{basis}."))
+            key = "rep.chem_close_p95" if r["ratio_basis"] == "p95" else "rep.chem_close"
+            out.append(("watch", _tr(key, lab=lab, max=_fmt(r["max_value"]), unit=unit, date=date,
+                                     thr=_fmt(r["threshold"]))))
     if udi_row.get("n_samples_chem", 0) > 0 and issues.empty:
-        out.append(("✅", "Health-related chemistry: no parameter above half of its limit (36 months)."))
+        out.append(("ok", _tr("rep.chem_ok")))
     nit = chem[chem["code"] == "NO3"]
     if len(nit) and nit["penalty"].iloc[0] == 0:
         r = nit.iloc[0]
-        out.append(("✅", f"Nitrates: max {_fmt(r['max_value'])} {r.get('unit') or ''}, below the limit of "
-                          f"{_fmt(r['threshold'])} {r.get('unit') or ''}."))
+        out.append(("ok", _tr("rep.nitrates_ok", max=_fmt(r["max_value"]), unit=unit_of(r), thr=_fmt(r["threshold"]))))
     pest_sub = f[(f["family"] == "chem") & (f["subfamily"] == "pesticides")]
     if len(pest_sub) and int(pest_sub["n_exceed"].sum()) == 0:
-        out.append(("✅", f"Pesticides: no exceedance in {int(pest_sub['n_samples'].max())} samples "
-                          f"({int(pest_sub['n_params'].max())} substances analysed, 36 months)."))
+        out.append(("ok", _tr("rep.pest_ok", n=int(pest_sub["n_samples"].max()), k=int(pest_sub["n_params"].max()))))
 
-    # comfort / indicators (12 months)
+    # comfort and indicators (12 months)
     comf = pen[(pen["family"] == "comfort") & (pen["penalty"] > 0)]
     for _, r in comf.head(max_items).iterrows():
-        lab = _label(r["code"], catalog_labels)
-        kind = "indicative value" if r["threshold_kind"] == "indicative" else "quality reference"
-        unit = r.get("unit") or ""
+        lab, unit = label(r["code"], catalog_labels), unit_of(r)
+        kind = _tr("rep.kind_indicative") if r["threshold_kind"] == "indicative" else _tr("rep.kind_reference")
         if r["code"] in (ranges or {}):
             lo, hi = ranges[r["code"]]
-            out.append(("⚠️", f"{lab}: {int(r['n_exceed'])} of {int(r['n'])} measurements outside the quality reference "
-                              f"range ({_fmt(lo)}–{_fmt(hi)} {unit}) — comfort/indicator, not a health limit."))
+            out.append(("watch", _tr("rep.comf_range", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), lo=_fmt(lo),
+                                     hi=_fmt(hi), unit=unit)))
+        elif r["n_exceed"] > 0 and r["threshold_kind"] == "indicative":
+            out.append(("watch", _tr("rep.indicative_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]))))
         elif r["n_exceed"] > 0:
-            out.append(("⚠️", f"{lab}: {int(r['n_exceed'])} of {int(r['n'])} measurements above the {kind} "
-                              f"({_fmt(r['threshold'])} {unit}) — comfort/indicator, not a health limit."))
+            out.append(("watch", _tr("rep.comf_exceed", lab=lab, k=int(r["n_exceed"]), n=int(r["n"]), kind=kind,
+                                     thr=_fmt(r["threshold"]), unit=unit)))
         else:
-            article = "an" if kind.startswith("i") else "a"
-            out.append(("ℹ️", f"{lab}: max {_fmt(r['max_value'])} {unit} for {article} {kind} of "
-                              f"{_fmt(r['threshold'])} {unit}."))
+            out.append(("info", _tr("rep.comf_close", lab=lab, max=_fmt(r["max_value"]), unit=unit, kind=kind,
+                                    thr=_fmt(r["threshold"]))))
     nonrel = p[(p["subfamily"] == "pesticide_metabolite_non_relevant") & (p["n_detected"] > 0) & (p["n_exceed"] == 0)]
     for _, r in nonrel.drop_duplicates("code").iterrows():
         if r["code"] not in set(comf["code"]):
-            out.append(("ℹ️", f"{_label(r['code'], catalog_labels)} (non-relevant metabolite) detected: max "
-                              f"{_fmt(r['max_value'])} µg/L, below the indicative value of 0.9 µg/L."))
+            out.append(("info", _tr("rep.nonrel", lab=label(r["code"], catalog_labels), max=_fmt(r["max_value"]))))
     th = p[p["code"] == "TH"]
     if len(th):
-        out.append(("ℹ️", f"Hardness: mean {_fmt(th['mean'].iloc[0])} °f (information only, no health limit)."))
+        out.append(("info", _tr("rep.hardness", v=_fmt(float(th["mean"].iloc[0])))))
 
     # not measured
     if udi_row.get("n_samples_chem", 0) == 0:
-        out.append(("❔", "No health-related chemistry measured in the last 36 months."))
+        out.append(("unknown", _tr("rep.no_chem")))
     else:
-        for flag, lab in (("has_nitrates", "Nitrates"), ("has_pesticides", "Pesticides")):
-            if not udi_row.get(flag, False):
-                out.append(("❔", f"{lab} not measured on this network in the last 36 months."))
+        if not udi_row.get("has_nitrates", False):
+            out.append(("unknown", _tr("rep.no_nitrates")))
+        if not udi_row.get("has_pesticides", False):
+            out.append(("unknown", _tr("rep.no_pesticides")))
         if not udi_row.get("has_pfas", False):
-            out.append(("❔", "PFAS (sum of 20) not yet measured on this network (in the routine control since 01/01/2026)."))
+            out.append(("unknown", _tr("rep.no_pfas")))
     if udi_row.get("n_samples_comfort", 0) == 0:
-        out.append(("❔", "No comfort/indicator parameter measured in the last 12 months."))
+        out.append(("unknown", _tr("rep.no_comfort")))
     return out

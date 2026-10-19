@@ -254,3 +254,7 @@ journal dans `data/interim/logs/`).
   reprise étape par étape (demande de Florian).
 - 19/10 — Toutes les années traitées (pas de plan B). Raison : volumétrie maîtrisée grâce à DuckDB + Parquet.
 - 19/10 — `.venv` en Python 3.12.9 (version stable déjà installée ; même version à choisir sur Streamlit Community Cloud, à confirmer au déploiement).
+
+## Session identité, écriture, accueil, ergonomie (19/10/2026, en cours)
+- Fait : règles d'écriture dans CLAUDE.md ; direction visuelle A « Au robinet » (papier et encre, Fraunces + IBM Plex, palette validée daltonisme en clair et en sombre) ; module de traduction `utils/i18n.py` + `utils/texts/` (EN officiel, FR via le sélecteur, 559 clés, tests de complétude) ; accueil refait (OMS, Santé publique France, absence de chiffre officiel de décès dite honnêtement, méthode, H1 à H4, indicateurs expliqués) ; pages renommées ; recherche de commune en une seule liste (exemples Paris, Lyon, Marseille, Bordeaux, Lille) ; filtres grisés hors de leurs pages ; rapport « pourquoi » traduit avec étiquettes au lieu d'emojis ; pied de page et page À propos ; `docs/sources.md` renuméroté (sources 1 à 17), sans tiret cadratin ; H1 et H2 testées sur la carte. 167 tests verts avant les derniers ajustements.
+- Reste : relire chaque page en FR et EN dans le navigateur, retirer les tirets cadratins restants dans README et docs internes, vérifier l'app en ligne après le push.

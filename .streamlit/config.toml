@@ -4,6 +4,34 @@ gatherUsageStats = false
 [server]
 headless = true
 
+# Visual identity "Au robinet": a lab notebook / newspaper data page.
+# Paper and ink in light mode, ink and paper in dark mode. The app follows the viewer's setting.
+# Chart colours are checked for colour-vision deficiencies on both backgrounds (see utils/viz.py).
 [theme]
-# Light/dark follow the viewer's system setting; colours used in charts come from utils/viz.py.
-# no "base": the app follows the light or dark setting of the viewer (charts use the Streamlit Plotly theme)
+font = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+headingFont = "Fraunces:https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+codeFont = "IBM Plex Mono:https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+baseRadius = "0.25rem"
+metricValueFontSize = "1.9rem"
+showSidebarBorder = true
+chartCategoricalColors = ["#0095A3", "#C8452F", "#3F73C9", "#B07E00", "#A8479A", "#4E9431"]
+
+[theme.light]
+primaryColor = "#0E7C86"
+backgroundColor = "#F6F2E9"
+secondaryBackgroundColor = "#ECE5D6"
+textColor = "#1B2A41"
+borderColor = "#D6CDB9"
+linkColor = "#0E7C86"
+codeBackgroundColor = "#ECE5D6"
+
+[theme.dark]
+primaryColor = "#3FB8C4"
+backgroundColor = "#11161F"
+secondaryBackgroundColor = "#1A2230"
+textColor = "#ECE6D8"
+borderColor = "#2C3648"
+linkColor = "#5CC6D0"
+codeBackgroundColor = "#1A2230"
+

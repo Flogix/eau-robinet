@@ -94,11 +94,21 @@ def dept_scores(f: Filters) -> pd.DataFrame:
     return g.merge(departments(), on="dep", how="left")
 
 
-def render_kpis(f: Filters) -> None:
-    """Metrics header tied to the filters (period, region, type of commune), with deltas and help texts."""
+def yearly_rates(f: Filters) -> pd.DataFrame:
+    """Non-compliance rates per year (bacteria, chemistry) for the region filter."""
+    dy = load_table("dept_year")
+    d = dy[dept_mask(dy, f)].groupby("annee")[["n_bact", "n_bact_nc", "n_chem", "n_chem_nc"]].sum()
+    d["bact"] = d["n_bact_nc"] / d["n_bact"]
+    d["chem"] = d["n_chem_nc"] / d["n_chem"]
+    return d.reset_index()
+
+
+def render_kpis(f: Filters, explain: bool = True) -> None:
+    """Metrics header tied to the filters, then (explain=True) how to read each number and whether it improves."""
     import streamlit as st
 
-    from utils.viz import fmt_int, headline, pct
+    from utils.i18n import num, pct, pp, t
+    from utils.viz import headline
 
     bact = sample_compliance(f, "bact")
     chem = sample_compliance(f, "chem")
@@ -106,26 +116,32 @@ def render_kpis(f: Filters) -> None:
     sc = scored_communes(f)
 
     def delta(k):
-        return None if k["delta_pp"] is None else f"{k['delta_pp']:+.2f} pp vs {k['last'] - 1}"
+        return None if k["delta_pp"] is None else t("kpi.delta", d=pp(k["delta_pp"]), y=k["last"] - 1)
 
-    headline(f"{pct(bact['rate'])} of bacteriological samples and {pct(chem['rate'])} of chemical samples complied "
-             f"with the health limits ({f.scope_label}, {f.period_label}).")
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Bacteria: samples OK", pct(bact["rate"], 2), delta(bact), border=True,
-              help=f"Share of the {fmt_int(bact['n'])} samples that the ARS declared compliant with the bacteriological "
-                   f"limits (E. coli, enterococci). Delta = {bact['last']} vs the year before, in percentage points. "
-                   "Filters: period, region.")
-    c2.metric("Chemistry: samples OK", pct(chem["rate"], 2), delta(chem), border=True,
-              help=f"Share of the {fmt_int(chem['n'])} samples declared compliant with the chemical limits (samples "
-                   "under a temporary derogation count as compliant, as in the official conclusion). "
-                   "Filters: period, region.")
-    c3.metric("Bacteria: communes hit", fmt_int(hit["n_hit"]),
-              f"{pct(hit['share'])} of {fmt_int(hit['n_communes'])} communes", delta_color="off", border=True,
-              help=f"Communes served by a network where at least one bacteriological sample was non-compliant over the "
-                   f"period. They "
-                   f"have {hit['pop_hit'] / 1e6:.1f} million inhabitants — an upper bound: a commune is counted whole "
-                   "even if only one of its networks or districts was affected. Filters: period, region, type.")
-    c4.metric("Median score (now)", f"{sc['score'].median():.0f}/100" if len(sc) else "—",
-              f"{pct(sc['grade'].isin(['D', 'E']).mean())} graded D or E" if len(sc) else None, delta_color="off",
-              border=True, help="Current score (last 12/36 months to 31/08/2026), whatever the period. "
-                                "Filters: region, type of commune.")
+    headline(t("kpi.headline", period=f.period_label, scope=f.scope_label, bact=pct(bact["rate"]),
+               chem=pct(chem["rate"])))
+    r1, r2 = st.columns(2), st.columns(2)   # 2 x 2: values stay readable on medium screens
+    c1, c2, c3, c4 = r1[0], r1[1], r2[0], r2[1]
+    c1.metric(t("kpi.bact"), pct(bact["rate"], 2), delta(bact), border=True, help=t("kpi.bact.help", n=num(bact["n"])))
+    c2.metric(t("kpi.chem"), pct(chem["rate"], 2), delta(chem), border=True, help=t("kpi.chem.help", n=num(chem["n"])))
+    c3.metric(t("kpi.hit"), num(hit["n_hit"]), t("kpi.hit.delta", share=pct(hit["share"]), n=num(hit["n_communes"])),
+              delta_color="off", border=True, help=t("kpi.hit.help"))
+    c4.metric(t("kpi.score"), f"{sc['score'].median():.0f}/100" if len(sc) else "?",
+              t("kpi.score.delta", share=pct(sc["grade"].isin(["D", "E"]).mean())) if len(sc) else None,
+              delta_color="off", border=True, help=t("kpi.score.help"))
+    if not explain:
+        return
+    c1, c2 = st.columns(2)
+    c1.markdown(t("kpi.read.bact"))
+    c1.markdown(t("kpi.read.chem"))
+    c2.markdown(t("kpi.read.hit", pop=num(hit["pop_hit"] / 1e6, 1)))
+    c2.markdown(t("kpi.read.score"))
+    y0, y1 = f.years[0], min(f.years[1], config.COMPLETE_YEARS[-1])
+    r = yearly_rates(f).set_index("annee")
+    if y1 <= y0 or y0 not in r.index or y1 not in r.index:
+        st.markdown(t("kpi.trend.short"))
+        return
+    b0, b1, c0, c1_ = r.loc[y0, "bact"], r.loc[y1, "bact"], r.loc[y0, "chem"], r.loc[y1, "chem"]
+    msg = t("kpi.trend.better_bact" if b1 < b0 else "kpi.trend.worse_bact", a=pct(b0, 2), b=pct(b1, 2), y0=y0, y1=y1)
+    msg += " " + t("kpi.trend.chem_up" if c1_ > c0 else "kpi.trend.chem_down", a=pct(c0, 2), b=pct(c1_, 2), y0=y0)
+    st.markdown(msg)

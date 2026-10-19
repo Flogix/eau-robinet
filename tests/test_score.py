@@ -152,7 +152,7 @@ def test_range_reference_uses_share_outside_not_closeness_to_max():
     r = S.udi_scores(micro(), fam(), pd.DataFrame(outside), None, ranges=ranges).iloc[0]
     assert r["comfort"] == pytest.approx(100 - config.COMFORT_PENALTY_CAP * (1 - 0.9 ** config.MICRO_K))
     rep = S.why_report(r, pd.DataFrame(outside), fam(), ranges=ranges)
-    assert any("outside the quality reference range (6.5–9" in t for _, t in rep)
+    assert any(k == "watch" and "outside the expected range (6.5 to 9" in t for k, t in rep)
 
 
 def test_nitrates_and_nitrate_nitrite_sum_counted_once():
@@ -203,7 +203,19 @@ def test_why_report_mentions_strengths_issues_and_unmeasured():
     udi = S.udi_scores(micro(n=48), f, params, None).iloc[0]
     rep = S.why_report(udi, params, f)
     text = " ".join(t for _, t in rep)
-    assert ("✅", "100% of the 48 bacteriological samples compliant (12 months).") in rep
-    assert "Nitrates: max 38 mg/L" in text and "limit of 50 mg/L" in text
-    assert any(i == "❔" and "PFAS" in t for i, t in rep)
-    assert all(t for _, t in rep)
+    assert ("ok", "All 48 bacteriological samples of the last twelve months were compliant.") in rep
+    assert "Nitrates: highest value 38 mg/L" in text and "limit of 50 mg/L" in text
+    assert any(k == "unknown" and "PFAS" in t for k, t in rep)
+    assert all(k in S.REPORT_KINDS and t for k, t in rep)
+    assert "—" not in text   # no em dash in the generated sentences
+
+
+def test_why_report_in_french(monkeypatch):
+    import utils.i18n
+    monkeypatch.setattr(utils.i18n, "lang", lambda: "fr")
+    f = fam(families=(("chem", "nitrates"), ("chem", "pesticides"), ("comfort", "indicators")))
+    params = pd.DataFrame([param(max_ratio=0.76, max_value=38.0)])
+    udi = S.udi_scores(micro(n=48), f, params, None).iloc[0]
+    rep = S.why_report(udi, params, f)
+    assert ("ok", "Les 48 prélèvements bactériologiques des douze derniers mois étaient tous conformes.") in rep
+    assert any("Nitrates : valeur la plus haute 38 mg/L" in t for _, t in rep)
