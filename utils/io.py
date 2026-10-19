@@ -29,14 +29,19 @@ def read_processed(name: str) -> pd.DataFrame:
     return pd.read_parquet(processed_path(name))
 
 
-try:  # The app caches loads; scripts and tests can import this module without a Streamlit runtime.
+def _streamlit_running() -> bool:
+    try:
+        from streamlit import runtime
+        return runtime.exists()
+    except ImportError:  # pragma: no cover
+        return False
+
+
+if _streamlit_running():  # the app caches loads; scripts and tests read directly
     import streamlit as st
 
-    @st.cache_data(show_spinner=False)
-    def load_table(name: str) -> pd.DataFrame:
-        return read_processed(name)
-
-except ImportError:  # pragma: no cover
+    load_table = st.cache_data(show_spinner=False)(read_processed)
+else:
     load_table = read_processed
 
 

@@ -54,6 +54,23 @@ CREATE OR REPLACE MACRO thr_unit(s) AS nullif(trim(regexp_extract(s, '<=\s*-?[0-
 
 -- Equivalent unit spellings: "mg(Mg)/L" == "mg/L", "µg(Se)/L" == "µg/L"
 CREATE OR REPLACE MACRO unit_norm(u) AS regexp_replace(trim(u), '^(mg|µg|ng)\([A-Za-z0-9]+\)/L$', '\1/L');
+
+-- Which threshold applies to a result row: the limit written on the row; else, for a metabolite classified
+-- non-relevant by Anses, the 0.9 µg/L indicative value; else the quality reference written on the row.
+CREATE OR REPLACE MACRO thr_kind(lim_max, non_relevant, ref_min, ref_max) AS CASE
+    WHEN lim_max IS NOT NULL THEN 'limit'
+    WHEN non_relevant THEN 'indicative'
+    WHEN ref_max IS NOT NULL OR ref_min IS NOT NULL THEN 'reference' END;
+
+-- Exceedance: above the maximum, below the minimum of an interval (pH...), or "uncountable" bacteria
+CREATE OR REPLACE MACRO is_exceed(status, value, kind, tmax, tmin) AS
+    coalesce((status = 'uncountable' AND kind IS NOT NULL)
+             OR (value IS NOT NULL AND tmax IS NOT NULL AND value > tmax)
+             OR (status = 'quantified' AND tmin IS NOT NULL AND value < tmin), false);
+
+-- Detected = quantified above zero (a "<LQ" result is not a detection)
+CREATE OR REPLACE MACRO is_detected(status, value) AS
+    coalesce((status IN ('quantified', 'above') AND value > 0) OR status IN ('present', 'uncountable'), false);
 """
 
 # Units that are not concentrations: thresholds expressed with them are ignored.

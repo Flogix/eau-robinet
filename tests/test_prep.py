@@ -92,3 +92,39 @@ def test_unit_norm(con, unit, expected):
 ])
 def test_classify_parameter(args, expected):
     assert classify_parameter(*args) == expected
+
+
+@pytest.mark.parametrize("lim_max, nonrel, ref_min, ref_max, expected", [
+    (0.1, False, None, None, "limit"),
+    (0.1, True, None, None, "limit"),          # a row that still carries a limit keeps it
+    (None, True, None, None, "indicative"),    # non-relevant metabolite without limit -> 0.9 µg/L
+    (None, False, 6.5, 9.0, "reference"),
+    (None, False, None, None, None),
+])
+def test_thr_kind(con, lim_max, nonrel, ref_min, ref_max, expected):
+    assert one(con, "thr_kind(?::DOUBLE, ?::BOOLEAN, ?::DOUBLE, ?::DOUBLE)", lim_max, nonrel, ref_min, ref_max) == expected
+
+
+@pytest.mark.parametrize("status, value, kind, tmax, tmin, expected", [
+    ("quantified", 38.0, "limit", 50.0, None, False),     # nitrates 38 mg/L under 50
+    ("quantified", 50.0, "limit", 50.0, None, False),     # "<=50": equal is conform
+    ("quantified", 51.0, "limit", 50.0, None, True),
+    ("quantified", 3.0, "limit", 0.0, None, True),        # E. coli 3/100 mL, limit 0
+    ("not_quantified", 0.0, "limit", 0.0, None, False),   # "<1" bacteria
+    ("uncountable", None, "limit", 0.0, None, True),      # INCOMPT.
+    ("quantified", 1.2, "indicative", 0.9, None, True),   # non-relevant metabolite above 0.9 µg/L
+    ("quantified", 0.5, "indicative", 0.9, None, False),
+    ("quantified", 6.2, "reference", 9.0, 6.5, True),     # pH below the interval
+    ("not_quantified", 0.0, "reference", 1100.0, 200.0, False),  # "<LQ" is not "below the minimum"
+    ("not_measured", None, "limit", 0.1, None, False),
+])
+def test_is_exceed(con, status, value, kind, tmax, tmin, expected):
+    assert one(con, "is_exceed(?, ?::DOUBLE, ?, ?::DOUBLE, ?::DOUBLE)", status, value, kind, tmax, tmin) is expected
+
+
+@pytest.mark.parametrize("status, value, expected", [
+    ("quantified", 0.02, True), ("quantified", 0.0, False), ("not_quantified", 0.0, False),
+    ("present", 1.0, True), ("not_measured", None, False),
+])
+def test_is_detected(con, status, value, expected):
+    assert one(con, "is_detected(?, ?::DOUBLE)", status, value) is expected

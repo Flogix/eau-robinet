@@ -36,6 +36,29 @@ Date de consultation indiquée entre crochets.
    https://bourgogne-franche-comte.ars.sante.fr/media/127554/download [19/10/2026]
    - Confirme : R471811 pertinent en 2023, classé non pertinent par l'avis Anses du 29/04/2024 ; depuis, valeur indicative de 0,9 µg/L.
 
-## Référentiels géographiques
+## À sourcer (ne pas afficher dans l'app sans source)
 
-*À compléter en phase 2 (`scripts/04_referentiels.py`).*
+- Limite de qualité du **sélénium** : les conclusions ARS 2016–2022 citent 10 µg/L, la colonne `limitequal` affiche 20 µg/L pour toutes
+  les années (et 30 µg/L « si conditions géologiques particulières » depuis 2023). Hypothèse : relèvement lors de la transposition de la
+  directive (UE) 2020/2184. Même question pour l'**antimoine**.
+
+## Référentiels géographiques (`scripts/04_referentiels.py`, fichiers en cache dans `data/raw/ref/`)
+
+6. **API Découpage administratif (geo.api.gouv.fr)** — Etalab / DINUM, Licence Ouverte 2.0 : communes actuelles (code INSEE, nom,
+   département, région, population, centre), communes associées/déléguées (code → commune actuelle), départements, régions.
+   https://geo.api.gouv.fr/communes?fields=code,nom,codeDepartement,codeRegion,population,centre&format=json ·
+   https://geo.api.gouv.fr/communes_associees_deleguees · https://geo.api.gouv.fr/departements · https://geo.api.gouv.fr/regions [19/10/2026]
+7. **Contours administratifs 2025 (Etalab)**, départements simplifiés à 1 km, GeoJSON, Licence Ouverte 2.0.
+   https://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2025/geojson/departements-1000m.geojson [19/10/2026]
+8. **INSEE, grille communale de densité** (grille 2025, géographie au 01/01/2026, mise en ligne le 15/05/2026) : urbain dense /
+   urbain intermédiaire / rural (3 niveaux) et 7 niveaux. https://www.insee.fr/fr/information/8571524 —
+   fichier https://www.insee.fr/fr/statistiques/fichier/8571524/fichier_diffusion_2026.xlsx [19/10/2026]
+9. **Cerema, « Application des dispositions d'urbanisme de la loi Montagne en France métropolitaine »**, tableau des communes 2019
+   (totalité / partie), Licence Ouverte 2.0, mis à jour le 18/11/2024.
+   https://www.data.gouv.fr/datasets/673319c4104ba60b2030ed4d — fichier
+   https://static.data.gouv.fr/resources/application-des-dispositions-durbanisme-de-la-loi-montagne-en-france-metropolitaine/20241112-091136/l-commune-loimontagne85-000-2019-.csv [19/10/2026]
+   - Codes 2019 fusionnés depuis : rattachés à leur commune actuelle via la source 6 (une commune est « montagne » si l'une de ses parties l'est).
+10. **Communes littorales (loi Littoral)** : la liste nationale référencée sur data.gouv.fr (« Communes de la loi littoral »,
+    fichier de l'Observatoire des territoires) renvoie une erreur 404 le 19/10/2026. **Repli documenté du cahier des charges** :
+    « départements côtiers méditerranéens » = communes des départements 06, 11, 13, 30, 34, 66, 83, 2A, 2B non classées montagne.
+    C'est une approximation (elle inclut des communes de l'arrière-pays) : à dire dans l'app.

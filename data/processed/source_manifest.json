@@ -1,0 +1,95 @@
+{
+ "dataset_page": "https://www.data.gouv.fr/datasets/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune",
+ "dataset_last_update": "2026-10-05T11:34:43.360000+00:00",
+ "license": "lov2",
+ "files": [
+  {
+   "file": "dis-2016.zip",
+   "size": 242496598,
+   "sha1": "b9e3602837dd224263c815ca7d9f52bb6640ae29",
+   "api_last_modified": "2023-08-17T06:37:36.003000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20230817-063654/dis-2016.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2017.zip",
+   "size": 261395007,
+   "sha1": "eb2df9b5b9afd47ece2348fcf4084bb0ea4d7908",
+   "api_last_modified": "2023-08-16T15:50:06.419000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20230816-154931/dis-2017.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2018.zip",
+   "size": 269372524,
+   "sha1": "2604cdb56efbf7e8328ab388cf640e741f32f55d",
+   "api_last_modified": "2023-08-16T14:54:27.722000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20230816-145307/dis-2018.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2019.zip",
+   "size": 270261277,
+   "sha1": "115b865e06b90a157f4fe1adf6e8d9d73b285751",
+   "api_last_modified": "2023-08-16T12:57:20.963000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20230816-125524/dis-2019.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2020.zip",
+   "size": 274406666,
+   "sha1": "7c4584f9cdd35943adbb603b16bbd8ea8a846135",
+   "api_last_modified": "2023-08-11T15:05:20.020000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20230811-150005/dis-2020.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2021.zip",
+   "size": 307743768,
+   "sha1": "6ce5ca8db0c00217784de1f76bf099b348eac1fa",
+   "api_last_modified": "2026-07-20T14:12:42.504000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20260720-141214/dis-2021.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2022.zip",
+   "size": 307961806,
+   "sha1": "b0747aa1de9643e8abbde290e8ade52bae867566",
+   "api_last_modified": "2026-07-17T16:27:43.031000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20260717-162714/dis-2022.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2023.zip",
+   "size": 292247398,
+   "sha1": "87006b72a4fc40fa2f755f1520bbdd1e5201d11a",
+   "api_last_modified": "2026-07-17T08:21:35.975000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20260717-082109/dis-2023.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2024.zip",
+   "size": 288286468,
+   "sha1": "c78a215cf84b2274155976ba1aa4aaf059aff7c2",
+   "api_last_modified": "2026-07-09T14:17:32.562000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20260709-140924/dis-2024.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2025.zip",
+   "size": 290571363,
+   "sha1": "3fbc71face187666ce7d4071957754089957e2fa",
+   "api_last_modified": "2026-07-10T07:32:59.348000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20260710-073229/dis-2025.zip",
+   "local_state": "up to date"
+  },
+  {
+   "file": "dis-2026.zip",
+   "size": 199658053,
+   "sha1": "5307085c71f27bbfb9b965006cb4e62171642e9b",
+   "api_last_modified": "2026-10-05T11:31:52.319000+00:00",
+   "url": "https://static.data.gouv.fr/resources/resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune/20261005-113134/dis-2026.zip",
+   "local_state": "up to date"
+  }
+ ]
+}

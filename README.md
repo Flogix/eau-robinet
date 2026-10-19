@@ -25,7 +25,19 @@ The score is an **educational indicator, not a health opinion**: the official op
   the small tables of `data/processed/`, which are committed so the app runs from a clean clone.
 
 ## Method
-*TODO (phases 2–3): pipeline, cleaning choices, score method, validation.*
+
+### Data pipeline (`make data`)
+| Step | What it does | Time on the dev machine* |
+|---|---|---|
+| `01_download.py` | Lists the yearly national zips on the data.gouv.fr API, checks size + SHA1, downloads only what is missing (never overwrites) | ~10 s when up to date |
+| `02_build_parquet.py` | One year at a time: extract → raw Parquet (row-count check) → clean tables: values parsed (`<LQ`, decimal commas, codes), thresholds parsed, one row per sample × parameter (lab measure kept), duplicates removed | ~10 min (11 years) |
+| `03_build_aggregates.py` | Parameter families; results × samples with the applicable threshold (quality limit, 0.9 µg/L indicative value for non-relevant pesticide metabolites, quality reference); small tables for the app; data-quality tables; 84 automatic checks | ~12 min first run, ~1 min when cached |
+| `04_referentiels.py` | Communes (population, centre), INSEE density grid, Mountain Act communes, department contours | < 1 min |
+
+\* Windows laptop, DuckDB limited to 3 GB of RAM and 4 threads. Every step is resumable: an interrupted run restarts
+where it stopped. Long steps can run in the background with a log: `.\scriptsun_logged.ps1 03_build_aggregates`.
+
+*TODO (phase 3): score method and validation.*
 
 ## Key insights
 *TODO (phase 5).*

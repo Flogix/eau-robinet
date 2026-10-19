@@ -32,8 +32,8 @@ WINDOW_MONTHS_SHORT = 12   # microbiology and comfort ("current situation")
 WINDOW_MONTHS_LONG = 36    # health-related chemistry (full analyses are rarer in small networks)
 
 # --- DuckDB --------------------------------------------------------------------
-DUCKDB_MEMORY_LIMIT = "4GB"
-DUCKDB_THREADS = 8
+DUCKDB_MEMORY_LIMIT = "3GB"   # ~4 GB free RAM on the dev machine: keep room for the OS and the app
+DUCKDB_THREADS = 4
 
 # --- Source dataset --------------------------------------------------------------
 DATASET_SLUG = "resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune"
