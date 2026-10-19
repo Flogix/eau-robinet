@@ -158,13 +158,17 @@ with t_pfas:
               "Few measurements before 2025: an absence of measurement is not an absence of PFAS.")
 with t_bact:
     nm = load_table("national_month")
-    nm = nm[nm["annee"].between(y0, min(y1, config.COMPLETE_YEARS[-1]))]
+    c_last = config.COMPLETE_YEARS[-1]
+    m0, m1 = min(y0, c_last), min(y1, c_last)   # complete years only (seasons need all 12 months)
+    if (m0, m1) != (y0, y1):
+        st.caption(f"Complete years only: {m0}–{m1} (2026 lacks September–December).")
+    nm = nm[nm["annee"].between(m0, m1)]
     mo = nm.groupby("month")[["n_bact", "n_bact_nc"]].sum()
     mo["rate"] = mo["n_bact_nc"] / mo["n_bact"]
     names_m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     hi_m, lo_m = mo["rate"].idxmax(), mo["rate"].idxmin()
     headline(f"Bacteriological non-compliance peaks in {names_m[hi_m - 1]} ({pct(mo.loc[hi_m, 'rate'], 2)}) and is "
-             f"lowest in {names_m[lo_m - 1]} ({pct(mo.loc[lo_m, 'rate'], 2)}), France, {y0}–{min(y1, 2025)}.")
+             f"lowest in {names_m[lo_m - 1]} ({pct(mo.loc[lo_m, 'rate'], 2)}), France, {m0}–{m1}.")
     fig = go.Figure(go.Bar(x=names_m, y=100 * mo["rate"].values, marker_color=PALETTE["vermillion"],
                            text=[f"{100 * v:.2f}%" for v in mo["rate"]], textposition="outside",
                            customdata=mo[["n_bact_nc", "n_bact"]].values,

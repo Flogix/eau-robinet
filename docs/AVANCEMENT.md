@@ -11,8 +11,8 @@ Rendu : **samedi 24/10/2026 à 12:00** — 1re remise visée jeudi 22 au soir.
 | 1. Setup | ✅ terminée (commit `0f7ab0b`) | 19/10 |
 | 2. Pipeline | ✅ validée | 19/10 |
 | 3. Score | ✅ validée (k = 5) | 19/10 |
-| 4. App | 🟡 version 1 en ligne sur GitHub, déploiement en cours | 19/10 |
-| 5. Finitions | ⏳ | prévu 22/10 |
+| 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
+| 5. Finitions | 🟡 première passe faite | 19/10 |
 | 6. Livraison | ⏳ | prévu 23/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) | — |
 
@@ -28,6 +28,17 @@ journal dans `data/interim/logs/`).
 - DuckDB : **`memory_limit=3GB`, `threads=4`** (dans `config.py`), `temp_directory=data/interim/duckdb_tmp`.
 - `C:\.git` supprimé par Florian le 19/10 ; le dépôt du projet est autonome (`git init` dans le dossier du projet).
 - Fichiers parasites de `data/raw/ref/` (`departements-100m.geojson`, `geo_arrondissements.json`) : **supprimés par Florian** (19/10).
+
+## Phase 5 — Finitions, première passe (19/10/2026)
+- App déployée par Florian sur Streamlit Community Cloud (Python 3.12) : https://eau-robinet.streamlit.app/ — les 8 pages
+  s'ouvrent en ligne sans erreur, en 2,6 à 4,8 s (chargement complet).
+- Accueil : encadré « pour qui / quelles questions » avec la page qui répond à chacune (critère narratif du barème).
+- KPIs : étiquettes courtes (plus de troncature sur écran étroit), aides détaillées.
+- Phrases-titres revues (Comprendre, nitrates = « moitié de la limite (25 mg/L) »), nombre de résultats calculé.
+- Thème : l'app suit le réglage clair/sombre du lecteur ; vérifié en sombre → corrigés : ligne noire invisible (devenue gris moyen),
+  fond blanc de la carte (transparent), aiguille de la jauge, ordre des sous-scores, « None » dans les quartiers.
+- Robustesse : tests des 8 pages avec des filtres extrêmes (Mayotte + PFAS + 2026 seule, Corse 2016, Guyane…) et recherche
+  d'homonymes ; un plantage trouvé et corrigé (saisonnalité sans année complète). **154 tests verts.**
 
 ## Phase 4 — App, version 1 (19/10/2026)
 
