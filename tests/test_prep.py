@@ -128,3 +128,13 @@ def test_is_exceed(con, status, value, kind, tmax, tmin, expected):
 ])
 def test_is_detected(con, status, value, expected):
     assert one(con, "is_detected(?, ?::DOUBLE)", status, value) is expected
+
+
+def test_dep_of_network_and_search_normalisation():
+    import pandas as pd
+
+    from utils.io import dep_of_network, normalize
+    codes = pd.Series(["001000003", "02A000123", "075000221", "971000001"])
+    assert dep_of_network(codes).tolist() == ["01", "2A", "75", "971"]
+    assert normalize("Saint-Étienne") == "saint etienne"
+    assert normalize("  L'Haÿ-les-Roses ") == "l hay les roses"

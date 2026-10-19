@@ -1,5 +1,7 @@
-"""Entry point: page config, navigation (order = order of the story), global sidebar."""
+"""Entry point: page config, navigation (order = order of the story), global sidebar filters."""
 import streamlit as st
+
+from utils.filters import sidebar
 
 st.set_page_config(page_title="Is my tap water good?", page_icon="💧", layout="wide")
 
@@ -15,8 +17,10 @@ pages = [
 ]
 
 nav = st.navigation(pages)
+sidebar()
 
 with st.sidebar:
+    st.divider()
     st.caption(
         "Educational indicator, not a health opinion. "
         "The official opinion on your water is the one of your Regional Health Agency (ARS)."

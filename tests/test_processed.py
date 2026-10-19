@@ -26,6 +26,7 @@ TABLES_KEYS = {
     "udi_scores": ["cdreseau"],
     "commune_scores": ["insee"],
     "score_sensitivity": ["variant"],
+    "dept_family_year": ["annee", "dep", "variable"],
     "dim_communes": ["insee"],
     "dim_departements": ["dep"],
     "dq_checks": ["check", "year"],
