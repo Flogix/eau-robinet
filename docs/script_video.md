@@ -35,8 +35,8 @@ and point at the red label "Above limit" for lead. Scroll to "Take the report wi
 
 **Voice.** "Here I can look up any town. Paris gets 84 out of 100, grade B. The score combines three marks: bacteria, health
 chemistry and comfort, and every number is explained in plain words. Paris loses most of its points in chemistry, because of
-one lead measurement above the limit in one of its four networks. Each network has its own report, and the whole page can be
-downloaded as a PDF, in English or in French. Every sentence is written by fixed rules from the data, so no number is
+one lead measurement above the limit in one of its four networks. And you can
+download it as a PDF, in English or in French. Every sentence is written by fixed rules from the data, so no number is
 invented."
 
 ## 1:20 to 1:45. Comparison and map (demo)
