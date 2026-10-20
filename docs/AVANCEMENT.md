@@ -16,6 +16,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
 | Session 5 | ✅ A, B, C, D, E faits : LinkedIn, page « Explorer les données », audit complet, push, vérification en ligne, zip | 20/10 |
 | Session 6 | ✅ doublon retiré, F (filtres masqués), G (PDF de comparaison), H (en-tête de la barre latérale), I (conclusions en 2e), E refaite | 20/10 |
+| Session 7 | ✅ en-tête (logos selon le thème), retours de l'utilisateur test (2a à 2g), chiffres harmonisés, tests, push, vérification en ligne, zip | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -612,3 +613,56 @@ et récit d'ouverture réécrit ; README (arc du récit, structure).
 0,67 s ; nuage de points : 0,24 à 0,27 s ; PDF de comparaison : 0,20 s ; seule « ajouter une ville » dépasse 1 s, frappe
 simulée comprise, navigateur non bloqué). En ligne après le push : les 11 pages en EN et FR sans erreur, en-tête présent,
 filtres exactement là où ils agissent, menu dans le nouvel ordre, PDF de comparaison valides ; pages réchauffées.
+
+## Session 7 : en-tête, retours d'un utilisateur test, cohérence des chiffres (20/10/2026)
+**1. En-tête de la barre latérale.** Plus de pastille : logo noir en thème clair, blanc en thème sombre, sur le fond de la
+barre. Choix du noir plutôt que du bleu : contraste mesuré sur le fond clair #ECE5D6 de 16,8:1 contre 3,6:1 pour le bleu
+(CMJN, sous le seuil de 4,5:1 du texte). PNG d'origine vérifiés (fond transparent pour le noir et le blanc) ; versions
+optimisées `assets/efrei-logo-black.png` (5,2 Ko) et `efrei-logo-white.png` (7,1 Ko), 400 px, 16 couleurs, fond
+transparent ; les originaux `assets/Logo-Efrei-*-scaled.png` sont dans le `.gitignore` (commit `a25539d`), restés sur le
+disque. Le thème vient de `st.context.theme` (testé dans Chrome : bon dès la première exécution ; un changement de thème
+en cours de session se voit au clic suivant, Streamlit ne relançant pas la page). Espacement : lignes séparées, liens et
+cours décollés, « coordinator: MATHEW Mano Joseph » sur sa ligne, 1,6 rem avant « The story ».
+
+**2. Retours de l'utilisateur test** (tous en EN et FR) :
+- a. Accueil : choisir une ville n'ouvre plus la page commune ; un aperçu s'affiche sous la recherche (carré de note,
+  score, note, confiance, la phrase « points perdus » de la page commune, fonction `town_report.points_lost` extraite de
+  l'explication) et un lien « See the full report » / « Voir le rapport complet » ouvre la page commune sur cette ville.
+- b. Sur-titres : marge basse négative remplacée par une vraie marge (0,75 rem) ; un titre juste sous un sur-titre garde
+  un écart serré (CSS `:has`). Vérifié en clair et en sombre.
+- c. Comparer : texte « pourquoi » réécrit en phrases courtes, un paragraphe chacune (la famille qui fait l'écart, puis
+  « Là où X perd des points : … » pour chacune des deux communes), sans répéter les scores déjà dans la phrase-titre ;
+  même fonction (`compare_report.why_lines`) sur la page et dans le PDF ; phrase de la médiane du PDF raccourcie ;
+  « un écart de 0,5 point » au singulier.
+- d. Comparer : la sélection survit à la navigation (clé gardée comme les filtres) et au rechargement (`?towns=` dans
+  l'URL, ce qui rend une comparaison partageable).
+- e. Filtres : encadré léger bordé de la couleur principale, titre en Fraunces ; sur les pages filtrables, une ligne en
+  haut dit qu'on peut affiner dans la barre latérale et avec quels filtres.
+- f. « Why, probably » / « Pourquoi, probablement » → « Possible explanations » / « Explications possibles » (une seule
+  clé, tous les blocs d'interprétation).
+- g. Carte des valeurs manquantes : phrase-titre calculée pour chaque fichier ; pour COM_UDI (aucune case vide) « 0 % de
+  cases vides » dans la phrase, la légende et chaque case ; couleur du zéro visible et cases séparées dans les deux thèmes.
+
+**3. Cohérence des chiffres** (relevé des chiffres de toutes les pages avec AppTest) :
+- Paramètres : 1 276 (2016) et 1 405 (2025) = tous les codes du fichier RESULT (data dictionary) ; 1 260 et 1 391 = la table
+  `param_year`, qui ne garde que les paramètres à résultat chiffré. La différence est exactement le nombre de codes à
+  résultat texte (odeur, aspect, salmonelles…), 12 à 17 selon l'année (vérifié pour les onze années, test). Ce n'est pas la
+  fusion des codes jumeaux (non fusionnés dans ces comptes). La page « What we look for » utilise désormais le décompte
+  du fichier. **Erreur corrigée** : « la plupart des nouveaux paramètres sont des pesticides » était faux ; calcul
+  (`explore_param_changes`, règles écrites dans le script 07) : 293 codes apparus et 164 disparus entre 2016 et 2025 ;
+  parmi les nouveaux, 86 pesticides et métabolites, 75 comptages de cyanobactéries, 22 PFAS, 110 autres.
+- Résultats : 133 474 398 lignes RESULT partout (12 630 636 en 2025) ; « 132 millions » (table nettoyée, terrain + labo
+  comptés une fois) et « 12,5 millions » (sans les non-mesurés) remplacés.
+- Réseaux : « plus de 25 000 » remplacé par les chiffres des données (23 130 réseaux prélevés en 2025, 24 461 codes depuis
+  2016).
+- Communes notées : 34 816 (communes actuelles avec un score) ; « Build your own score » comptait aussi 10 anciens codes
+  (34 826). « Explorer les données » parle des 34 812 communes du fichier de liens 2026, précisé dans le texte.
+- **Erreur corrigée** sur « Build your own score » : « seuls 5 726 des 23 708 réseaux ont eu une mesure de PFAS » ; la table
+  utilisée ne garde que les paramètres détectés : PFAS mesurés dans 17 642 des 23 733 réseaux notés, trouvés dans 5 726.
+- « chaîne de six scripts » → sept. Définitions ajoutées au README (section 2).
+
+**4.** 287 tests verts, aussi depuis un clone propre (nouveaux : `tests/test_feedback.py` pour 2a, 2d, 2g et les
+comptes ; logos ; filtres ; texte de comparaison). Audit Playwright local sans échec ni régression. En ligne après le
+push : 22 pages sans erreur (anglais en clair, français en sombre), logo noir en clair et blanc en sombre, filtres et
+phrase d'en-tête exactement sur les pages filtrables, aperçu de l'accueil, sélection de Comparer gardée, phrase 0 % de
+COM_UDI, « Possible explanations » ; pages réchauffées. Storyboard et README à jour ; zip reconstruit.
