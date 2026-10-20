@@ -123,6 +123,6 @@ T = {
               "2.0 ; toutes les autres sources sont listées dans [sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md)."},
     # interpretation under a chart
     "an.seen": {"en": "What we see.", "fr": "Ce qu'on observe."},
-    "an.why": {"en": "Why, probably.", "fr": "Pourquoi, probablement."},
+    "an.why": {"en": "Possible explanations.", "fr": "Explications possibles."},
     "an.limits": {"en": "Limits.", "fr": "Limites."},
 }
