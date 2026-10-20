@@ -94,3 +94,22 @@ def test_town_page_offers_the_pdf_in_both_languages(insee):
     assert not at.exception
     buttons = at.get("download_button")
     assert len(buttons) == 2
+
+
+@pytest.mark.parametrize("lang, label", [("en", "What the map shows"), ("fr", "Ce que montre la carte")])
+def test_map_variable_selection_is_in_the_sidebar(lang, label):
+    at = run_app(lang)
+    at.switch_page("sections/overview.py").run()
+    assert not at.exception
+    sidebar_keys = [s.key for s in at.sidebar.selectbox]
+    assert "map_view" in sidebar_keys
+    assert at.selectbox(key="map_view").label == label
+    at.selectbox(key="map_view").set_value("nitrates").run()
+    assert not at.exception
+    at.switch_page("sections/intro.py").run()     # other pages: no map selector in the sidebar
+    assert "map_view" not in [s.key for s in at.sidebar.selectbox]
+
+
+def test_license_file():
+    text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    assert text.startswith("MIT License") and "2026 Florian Giraud" in text

@@ -259,7 +259,7 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 198 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 203 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
 
@@ -292,6 +292,7 @@ assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PD
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
 docs/                   progress log, data dictionary, sources, storyboard, witness towns
+LICENSE                 MIT licence of the code (the data stays under Licence Ouverte 2.0)
 DATASET.md              citation and links of the dataset (the raw files are downloaded by make data)
 ```
 
@@ -302,6 +303,11 @@ above). Health and regulatory sources: WHO, Santé publique France, Anses, the r
 Légifrance, all listed in [docs/sources.md](docs/sources.md). Geography: geo.api.gouv.fr and Etalab contours (Licence
 Ouverte 2.0), INSEE density grid, Cerema list of Mountain Act towns. Fonts: Fraunces, IBM Plex Sans and IBM Plex Mono (SIL
 Open Font License 1.1). Built with Streamlit, pandas, DuckDB, PyArrow, Plotly and fpdf2.
+
+**Licences.** The code of this project is released under the MIT licence ([LICENSE](LICENSE), Florian Giraud, 2026). The data
+is not covered by it: the source dataset and the tables derived from it in `data/processed/` remain under the Licence Ouverte
+2.0 of their producer, which allows reuse provided the source and the date of update are cited. The fonts in `assets/fonts/`
+keep their SIL Open Font License.
 
 ## 9. Tools
 

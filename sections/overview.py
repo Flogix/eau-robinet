@@ -6,7 +6,7 @@ import streamlit as st
 
 import config
 from utils import metrics
-from utils.filters import OFFICIAL, dept_mask, get_filters
+from utils.filters import OFFICIAL, dept_mask, get_filters, page_controls
 from utils.i18n import lang, num, pct, t
 from utils.io import dep_of_network, departments, departments_geojson, load_table
 from utils.score import label
@@ -32,8 +32,9 @@ TREND_VAR = {"score_all": "chem_official", "score_micro": "bact_official", "scor
              "score_comfort": "comfort"}
 view_labels = {**{v: t(f"map.view.{v}") for v in SCORE_VIEWS},
                **{v: f"{t('var.' + v)}, {f.period_label}" for v in PERIOD_VIEWS}}
-view = st.selectbox(t("map.view"), SCORE_VIEWS + PERIOD_VIEWS, format_func=view_labels.get, key="map_view",
-                    help=t("map.view.help"))
+with page_controls():   # the brief's "variable selection" lives in the sidebar, with the other filters
+    view = st.selectbox(t("map.view"), SCORE_VIEWS + PERIOD_VIEWS, format_func=view_labels.get, key="map_view",
+                        help=t("map.view.help"))
 by_score = view in SCORE_VIEWS
 variable = TREND_VAR.get(view, view)
 if by_score:

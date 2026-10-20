@@ -43,13 +43,17 @@ T = {
               "updated on 5 October 2026. This licence allows reuse, including commercial, provided the source and the "
               "date of update are cited. The geographic references come from geo.api.gouv.fr, INSEE, Cerema and Etalab, "
               "under the same licence. Every other figure, threshold and date shown in the app is listed with its link in "
-              "[docs/sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md).",
+              "[docs/sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md). The code of the app is "
+              "released under the MIT licence ([LICENSE](https://github.com/Flogix/eau-robinet/blob/main/LICENSE)); the "
+              "data, raw or processed, stays under the Licence Ouverte 2.0 of its producer.",
         "fr": "Les données viennent du ministère de la Santé, *Résultats du contrôle sanitaire de l'eau distribuée commune "
               "par commune*, publiées sur data.gouv.fr sous Licence Ouverte 2.0 (Etalab), mise à jour le 5 octobre 2026. "
               "Cette licence autorise la réutilisation, y compris commerciale, à condition de citer la source et la date "
               "de mise à jour. Les référentiels géographiques viennent de geo.api.gouv.fr, de l'INSEE, du Cerema et "
               "d'Etalab, sous la même licence. Tous les autres chiffres, seuils et dates de l'application sont listés avec "
-              "leur lien dans [docs/sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md)."},
+              "leur lien dans [docs/sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md). Le code de "
+              "l'application est publié sous licence MIT ([LICENSE](https://github.com/Flogix/eau-robinet/blob/main/LICENSE)) ; "
+              "les données, brutes ou traitées, restent sous la Licence Ouverte 2.0 de leur producteur."},
     "about.dataset": {"en": "Open the dataset on data.gouv.fr", "fr": "Ouvrir le jeu de données sur data.gouv.fr"},
     "about.repo": {"en": "Open the GitHub repository", "fr": "Ouvrir le dépôt GitHub"},
     "about.sources.link": {"en": "Read the list of sources", "fr": "Lire la liste des sources"},

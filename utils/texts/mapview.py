@@ -181,7 +181,7 @@ T = {
     "map.col.worst": {"en": "Main chemical issue", "fr": "Principal souci chimique"},
     "map.col.nbact": {"en": "Bacterial samples", "fr": "Prélèvements bactério"},
 
-    # choice of the view, on the page
+    # choice of the view, in the sidebar (map page only)
     "map.view": {"en": "What the map shows", "fr": "Ce que montre la carte"},
     "map.view.help": {
         "en": "The four score views describe today's water (last 12 months for bacteria, 36 for chemistry). The other views "

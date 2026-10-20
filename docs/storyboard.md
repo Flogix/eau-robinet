@@ -10,6 +10,7 @@ shows, a caption that describes it (also used as alternative text), the source, 
 away. All numbers below come from the current version of the app (data up to 31 August 2026).
 
 The sidebar holds the language switch (English, official, or French), and three filters: period, region and kind of town.
+On the map page, it also holds the variable selection: what the map shows.
 A filter that does nothing on the open page is greyed out, and a short note says why, so that no control is decorative.
 
 ---
@@ -90,7 +91,9 @@ histogram of town scores, and the trend of the chosen family.
 correlation between the two failure rates is ρ = 0.05: almost none." H1: "networks tested fewer than 12 times a year carry 73%
 of the bacterial failures for 26% of the samples."
 
-**Interactions.** What the map shows, period, region, kind of town, number of departments at each end of the ranking;
+**Interactions.** In the sidebar, under the filters, the variable shown by the map ("What the map shows": score, one of
+the three marks, or one family over the period), then period, region and kind of town; on the page, the number of
+departments at each end of the ranking;
 hover on every department.
 
 ## 6. What we look for, what we find (`sections/deep_dives.py`)

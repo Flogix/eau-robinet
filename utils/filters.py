@@ -88,14 +88,20 @@ def sidebar(page: str) -> Filters:
         region = st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
                               format_func=reg_labels.get,
                               disabled="region" not in active)
-        variable = "bact_official"   # the family is chosen on the map page itself
+        variable = "bact_official"   # the variable of the map is chosen in page_controls() by the map page
         ctype = st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
                              help=t("side.ctype.help"), disabled="ctype" not in active)
+        st.session_state["_page_controls"] = st.container()   # filled by the open page (variable selection)
         st.divider()
         st.caption(t("side.disclaimer"))
     f = Filters(tuple(years), region, names.get(region, ""), variable, ctype)
     st.session_state["filters"] = f
     return f
+
+
+def page_controls():
+    """Sidebar slot, right under the filters, for a control that belongs to the open page (the map's variable)."""
+    return st.session_state.get("_page_controls") or st.sidebar
 
 
 def get_filters() -> Filters:
