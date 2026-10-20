@@ -1,9 +1,12 @@
 """07: Small tables for the page "Explore the data" (everything heavy is computed here, the page only reads).
 
-explore_volume        per year: size of the zip, of each text file in it and of its raw Parquet copy, rows of PLV / RESULT / COM_UDI, distinct samples,
+explore_volume        per year: size of the zip, of each text file in it and of its raw Parquet copy, number of
+                      parameter codes (all, and those with a text result such as odour or aspect), rows of PLV / RESULT / COM_UDI, distinct samples,
                       networks and towns (needs data/raw/dis/*.zip, only listed, and data/interim/raw_parquet/)
 explore_fanout        2025: number of networks each sample is attached to (a sample taken upstream is copied
                       for each network it feeds)
+explore_param_changes parameter codes that appeared or disappeared between the first and the last complete year, by group
+                      (pesticides and metabolites, PFAS, cyanobacteria, other): rules on the catalogue, see param_group()
 explore_links         last year of the town-network links: towns by number of networks, networks by number of towns
 explore_examples      the 10 example rows per raw file of docs/data_dictionary.md section 12 (already public in the
                       repository, drawn with seed 42 during phase 0) and 6 rows of the processed table udi_year
@@ -60,7 +63,9 @@ def volume() -> None:
         p = lambda kind: (RAW_PARQUET / kind / f"{kind.lower()}_{year}.parquet").as_posix()  # noqa: E731
         plv = con.sql(f"""SELECT count(*) AS plv_rows, count(DISTINCT referenceprel) AS samples,
                           count(DISTINCT cdreseau) AS networks FROM read_parquet('{p("PLV")}')""").fetchone()
-        res = con.sql(f"SELECT count(*) FROM read_parquet('{p('RESULT')}')").fetchone()[0]
+        res, n_params, n_text = con.sql(f"""SELECT count(*), count(DISTINCT cdparametresiseeaux),
+                count(DISTINCT cdparametresiseeaux) FILTER (WHERE qualitparam = 'O')
+                FROM read_parquet('{p('RESULT')}')""").fetchone()
         cu = con.sql(f"""SELECT count(*), count(DISTINCT inseecommune), count(DISTINCT cdreseau)
                          FROM read_parquet('{p("COM_UDI")}')""").fetchone()
         rows.append({"annee": year, "zip_mb": z.stat().st_size / 1e6,
@@ -68,6 +73,7 @@ def volume() -> None:
                      "com_udi_txt_mb": sizes.get("COM_UDI", 0) / 1e6,
                      "plv_rows": plv[0], "samples": plv[1], "networks_sampled": plv[2], "result_rows": res,
                      "com_udi_rows": cu[0], "communes": cu[1], "networks_linked": cu[2],
+                     "n_params": n_params, "n_params_text": n_text,
                      "raw_parquet_mb": sum(Path(p(k)).stat().st_size for k in ("PLV", "RESULT", "COM_UDI")) / 1e6})
     save(pd.DataFrame(rows), "explore_volume")
     fan = con.sql(f"""SELECT n_networks, count(*) AS n_samples FROM (
@@ -75,6 +81,41 @@ def volume() -> None:
                         FROM read_parquet('{(RAW_PARQUET / "PLV" / f"plv_{YEAR}.parquet").as_posix()}') GROUP BY 1)
                       GROUP BY 1 ORDER BY 1""").df()
     save(fan.astype({"n_networks": "int32", "n_samples": "int64"}), "explore_fanout")
+
+
+# --- parameters that appeared or disappeared ------------------------------------------------------------------------
+def param_group(row) -> str:
+    """Pesticides and their metabolites (with or without a limit: catalogue subfamily, or a metabolite code of the
+    usual pesticide families), PFAS (subfamily or 'perfluoro' in the name), cyanobacteria (counts of cells or volumes),
+    other."""
+    label, unit, sub = str(row["label"]).lower(), str(row["unit"]), str(row["subfamily"])
+    if sub in ("pesticides", "pesticide_metabolite_non_relevant") or any(
+            k in label for k in (" esa", " oxa", "cga ", "ampa", "desméthyl", "desethyl", "déséthyl", "desphényl")):
+        return "pesticides"
+    if sub == "pfas" or "perfluoro" in label or "pfas" in label:
+        return "pfas"
+    if unit in ("mm3/L", "n(cellules)/mL") or "cyano" in label:
+        return "cyanobacteria"
+    return "other"
+
+
+def param_changes() -> None:
+    if not RAW_PARQUET.exists():
+        print("explore_param_changes: raw files not found, existing table kept")
+        return
+    con = connect_duckdb()
+    y0, y1 = PERIOD
+    codes = {y: set(con.sql(f"""SELECT DISTINCT cdparametresiseeaux FROM
+                read_parquet('{(RAW_PARQUET / "RESULT" / f"result_{y}.parquet").as_posix()}')""").df().iloc[:, 0])
+             for y in (y0, y1)}
+    cat = read_processed("params_catalog").set_index("code")
+    rows = []
+    for change, s in (("new", codes[y1] - codes[y0]), ("gone", codes[y0] - codes[y1])):
+        d = cat.reindex(sorted(s)).reset_index()
+        d["group"] = d.apply(param_group, axis=1)
+        for g, n in d.groupby("group").size().items():
+            rows.append({"change": change, "group": g, "n": int(n), "y0": y0, "y1": y1})
+    save(pd.DataFrame(rows), "explore_param_changes")
 
 
 # --- town <-> network links ---------------------------------------------------------------------------------------
@@ -198,6 +239,7 @@ def spearman(a: pd.Series, b: pd.Series) -> float:
 
 def main() -> int:
     volume()
+    param_changes()
     links()
     examples()
     distributions()

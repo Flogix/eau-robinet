@@ -90,3 +90,34 @@ def test_heatmap_of_a_file_with_gaps_names_the_emptiest_column():
     at.button_group(key="dq_table").set_value("PLV").run()
     text = " ".join(m.value for m in at.main.markdown)
     assert "In the PLV files," in text and "columns are complete every year; the emptiest is" in text
+
+
+# --- 3. The same count everywhere --------------------------------------------------------------------------------
+def test_parameter_counts_explained():
+    """All codes of the file (data dictionary: 1,276 in 2016, 1,405 in 2025) minus the codes with a text result give
+    exactly the numeric parameters of the tables of figures (1,260 and 1,391)."""
+    from utils.io import read_processed
+    v = read_processed("explore_volume").set_index("annee")
+    assert v.loc[2016, "n_params"] == 1276 and v.loc[2025, "n_params"] == 1405
+    py = read_processed("param_year").groupby("annee")["code"].nunique()
+    assert ((v["n_params"] - v["n_params_text"]) == py).all()
+    ch = read_processed("explore_param_changes")
+    new, gone = ch.loc[ch["change"] == "new", "n"].sum(), ch.loc[ch["change"] == "gone", "n"].sum()
+    assert new - gone == 1405 - 1276
+
+
+@pytest.mark.parametrize("lang", ["en", "fr"])
+def test_pages_use_the_same_counts(lang):
+    import re
+    def page_text(page):
+        at = run_app(lang)
+        at.switch_page(f"sections/{page}.py").run()
+        assert not at.exception
+        return re.sub(r"<[^>]+>", " ", " ".join(m.value for m in at.main.markdown))
+    sep = "," if lang == "en" else " "
+    home, monitor, quality = page_text("intro"), page_text("deep_dives"), page_text("data_quality")
+    assert "133 " in home and ("133 million results" in quality or "133 millions de résultats" in quality)
+    assert f"1{sep}276" in monitor and f"1{sep}405" in monitor and f"1{sep}260" not in monitor
+    assert "25,000" not in home and "25 000" not in home
+    overview, mine = page_text("overview"), page_text("mon_score")
+    assert f"34{sep}816" in overview and f"34{sep}826" not in mine

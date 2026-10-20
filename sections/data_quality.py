@@ -16,7 +16,9 @@ lede(t("dq.lede"))
 
 checks = load_table("dq_checks")
 rs = load_table("dq_result_status")
-headline(t("dq.headline", ok=int(checks["ok"].sum()), n=len(checks), m=num(rs["n"].sum() / 1e6)))
+# the rows of the raw RESULT files (the count used on every page); rs holds them after cleaning, slightly fewer
+headline(t("dq.headline", ok=int(checks["ok"].sum()), n=len(checks),
+           m=num(load_table("explore_volume")["result_rows"].sum() / 1e6)))
 st.markdown(t("dq.pipeline"))
 
 # --- Missing values ---------------------------------------------------------------------------------------

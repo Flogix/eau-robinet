@@ -127,7 +127,9 @@ hover on every department.
 
 **Question.** Chemical non-compliance nearly doubled in 2021: did the water get worse?
 
-**Visuals.** Told as three clues. Clue 1, a line chart of the number of different parameters measured each year. Clue 2,
+**Visuals.** Told as three clues. Clue 1, a line chart of the number of different parameters in each yearly file
+(1,276 in 2016, 1,405 in 2025: 293 codes appeared, 164 disappeared; the new ones are first pesticides and metabolites, 86,
+then cyanobacteria counts, 75, and PFAS measured one by one, 22). Clue 2,
 stacked bars of limit exceedances by group of substances with the official non-compliant samples as a line, and annotations
 for each monitoring change (new metabolites, Anses reclassifications, PFAS in the routine control from 2026). Clue 3, one
 metabolite at a time, samples where it was found and above each threshold. Then four tabs: nitrates (histogram with the

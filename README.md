@@ -50,7 +50,7 @@ https://www.data.gouv.fr/datasets/resultats-du-controle-sanitaire-de-leau-distri
 
 The yearly national files `dis-2016.zip` to `dis-2026.zip` were checked against the data.gouv.fr API (same size, same SHA1)
 on 19 October 2026. Each year holds three tables: the samples (PLV), the analysis results (RESULT) and the link between towns
-and distribution networks (UDI_COM). A **distribution network** (UDI) is a set of pipes fed by the same source or plant,
+and distribution networks (COM_UDI). A **distribution network** (UDI) is a set of pipes fed by the same source or plant,
 inside which the water has the same quality; the agencies test networks, not towns, and a town can be served by several
 networks while a network can serve several towns.
 
@@ -63,8 +63,17 @@ networks while a network can serve several towns.
 | Town codes / network codes | 34,945 / 24,461 |
 | Raw size | about 3 GB of zips, 22 GB of text |
 
+**How the counts are defined, the same way on every page.** An *analysis result* is a row of the RESULT file (133,474,398;
+12,630,636 in 2025); after cleaning, a field and a laboratory measurement of the same parameter in one sample count once,
+which leaves 132.4 million. A *parameter* is a code of the RESULT file: 1,789 over the eleven years, 1,276 in 2016 and
+1,405 in 2025. Each year, 12 to 17 of them give a text rather than a number (odour, aspect, presence of
+salmonella), so the tables of figures used by the charts hold that many fewer (1,260 in 2016, 1,391 in 2025); twin codes of the same
+metabolite are not merged in these counts. A *scored town* is a current town with a score: 34,816 (ten former town codes
+also get a score but are not counted). The networks sampled in a year are about 23,000 (23,130 in 2025), and 24,461
+different network codes appear since 2016.
+
 The raw files are **not** in the repository. `make data` downloads them (with a cache that never overwrites a file) and
-rebuilds the small tables of `data/processed/` (31 files, 53 MB, largest 24 MB), which are committed so that the app runs
+rebuilds the small tables of `data/processed/` (41 files, 55 MB, largest 24 MB), which are committed so that the app runs
 from a clean clone without the raw data. Other sources (town referentials, INSEE density grid, Mountain Act towns,
 department contours, and 39 health and regulatory sources used in the texts) are listed with their URLs in
 [docs/sources.md](docs/sources.md). The columns and their formats are described in

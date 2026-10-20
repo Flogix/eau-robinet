@@ -4,10 +4,10 @@ what we see (computed placeholders), why it is probably so (with the source numb
 T = {
     # --- What we look for: clue 1, parameters measured -------------------------------------------------------------
     "an.mon.s1.seen": {
-        "en": "The number of parameters measured at least once a year went from {a} in 2016 to {b} in 2025, and pesticides "
-              "with their metabolites follow the same slow climb.",
-        "fr": "Le nombre de paramètres mesurés au moins une fois par an est passé de {a} en 2016 à {b} en 2025, et les "
-              "pesticides avec leurs métabolites suivent la même lente montée."},
+        "en": "The number of parameters in the yearly file went from {a} in 2016 to {b} in 2025, and pesticides with their "
+              "metabolites follow the same slow climb.",
+        "fr": "Le nombre de paramètres du fichier annuel est passé de {a} en 2016 à {b} en 2025, et les pesticides avec "
+              "leurs métabolites suivent la même lente montée."},
     "an.mon.s1.why": {
         "en": "Each regional health agency sets its own list of molecules to search, according to the pesticides sold and "
               "used locally and to past detections (ARS Grand Est, source 20), and the national campaigns of Anses recommend "

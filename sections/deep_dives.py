@@ -40,9 +40,14 @@ headline(t("mon.headline", before=num(nc.loc[2016:2020].mean()), during=num(nc.l
 # --- Clue 1 ------------------------------------------------------------------------------------------------------
 kicker(t("mon.s1.kicker"))
 st.header(t("mon.s1.title"))
-n_par = py[py["n_samples"] > 0].groupby("annee")["code"].nunique()
+# every parameter code of the yearly file (the same count as the data dictionary and Explore the data); the tables
+# of figures keep only the parameters with a numeric result, a dozen fewer each year (odour, aspect...)
+n_par = load_table("explore_volume").set_index("annee")["n_params"]
 n_pest = py[(py["n_samples"] > 0) & (py["subfamily"] == "pesticides")].groupby("annee")["code"].nunique()
-st.markdown(t("mon.s1.text", a=num(n_par.loc[2016]), b=num(n_par.loc[2025])))
+ch = load_table("explore_param_changes").pivot(index="group", columns="change", values="n").fillna(0).astype(int)
+st.markdown(t("mon.s1.text", a=num(n_par.loc[2016]), b=num(n_par.loc[2025]), new=num(ch["new"].sum()),
+              gone=num(ch["gone"].sum()), pest=num(ch.loc["pesticides", "new"]), cyano=num(ch.loc["cyanobacteria", "new"]),
+              pfas=num(ch.loc["pfas", "new"]), other=num(ch.loc["other", "new"])))
 fig = go.Figure()
 for s_, name, color, sym in ((n_par, t("mon.s1.all"), TEAL, "circle"), (n_pest, t("mon.s1.pest"), OCHRE, "square")):
     fig.add_trace(go.Scatter(x=s_.index, y=s_.values, name=name, mode="lines+markers", line=dict(color=color, width=2.2),

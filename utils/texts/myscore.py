@@ -185,13 +185,13 @@ T = {
               "parce qu'un réseau qui échoue dans une famille y perd beaucoup de points, quels que soient les poids."},
     "my.analysis.why": {
         "en": "Thresholds and severities only act on substances that were measured and found. Making PFAS twice as "
-              "severe changes nothing where PFAS were never measured: in the three years scored, only {pfas} of the "
-              "{nets} networks had a PFAS measurement, because PFAS joined the routine control on 1 January 2026 "
-              "(source 11).",
+              "severe changes nothing where none was found: in the three years scored, PFAS were measured in {pfas} of "
+              "the {nets} scored networks and found above the quantification limit in {found}; they joined the routine "
+              "control only on 1 January 2026 (source 11).",
         "fr": "Les seuils et les gravités n'agissent que sur les substances mesurées et trouvées. Rendre les PFAS deux "
-              "fois plus graves ne change rien là où ils n'ont jamais été mesurés : sur les trois années notées, seuls {pfas} "
-              "des {nets} réseaux ont eu une mesure de PFAS, parce que les PFAS ne sont entrés dans le contrôle courant "
-              "que le 1er janvier 2026 (source 11)."},
+              "fois plus graves ne change rien là où aucun n'a été trouvé : sur les trois années notées, les PFAS ont été "
+              "mesurés dans {pfas} des {nets} réseaux notés et trouvés au-dessus de la limite de quantification dans "
+              "{found} ; ils ne sont entrés dans le contrôle courant que le 1er janvier 2026 (source 11)."},
     "my.analysis.lim": {
         "en": "A personal score is a thought experiment. It does not say that a threshold is wrong, and an absence of "
               "measurement is not an absence of pollutant.",

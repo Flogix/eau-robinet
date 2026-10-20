@@ -113,14 +113,14 @@ T = {
         "en": "A **distribution network** (UDI in French, for *unité de distribution*) is a set of pipes in which the "
               "water has the same origin and the same quality. The health agency samples each network, not each town, "
               "so the network is the only level at which a measurement truly describes the water that flows. In "
-              "{year}, {t1} of the {tn} towns are served by a single network, {t2} by two and {t10} by ten or more; on "
+              "{year}, {t1} of the {tn} towns of that year's file are served by a single network, {t2} by two and {t10} by ten or more; on "
               "the other side, {n1} of the {nn} networks serve a single town and {n20} serve twenty or more. That is "
               "why every table of this app is first computed per network, and a town gets the average of its "
               "networks only at the end.",
         "fr": "Un **réseau de distribution** (UDI, pour *unité de distribution*) est un ensemble de tuyaux dans lequel "
               "l'eau a la même origine et la même qualité. L'agence de santé prélève dans chaque réseau, pas dans "
               "chaque commune : le réseau est donc le seul niveau où une mesure décrit vraiment l'eau qui coule. En "
-              "{year}, {t1} des {tn} communes sont desservies par un seul réseau, {t2} par deux et {t10} par dix ou "
+              "{year}, {t1} des {tn} communes du fichier de cette année sont desservies par un seul réseau, {t2} par deux et {t10} par dix ou "
               "plus ; dans l'autre sens, {n1} des {nn} réseaux desservent une seule commune et {n20} en desservent "
               "vingt ou plus. C'est pourquoi chaque table de cette application est d'abord calculée par réseau, et une "
               "commune ne reçoit la moyenne de ses réseaux qu'à la fin."},

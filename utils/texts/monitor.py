@@ -19,22 +19,28 @@ T = {
     "mon.s1.kicker": {"en": "Clue 1", "fr": "Indice 1"},
     "mon.s1.title": {"en": "Laboratories search for more and more molecules", "fr": "Les laboratoires cherchent de plus en plus de molécules"},
     "mon.s1.text": {
-        "en": "A substance can only be found if someone looks for it. The list of parameters measured in France grew "
-              "from {a} in 2016 to {b} in 2025, and most of the new ones are pesticides and their **metabolites**, the "
-              "molecules a pesticide turns into as it breaks down in soil and water.",
-        "fr": "On ne trouve une substance que si on la cherche. La liste des paramètres mesurés en France est passée de "
-              "{a} en 2016 à {b} en 2025, et la plupart des nouveaux sont des pesticides et leurs **métabolites**, les "
-              "molécules que devient un pesticide en se dégradant dans le sol et l'eau."},
-    "mon.s1.chart": {"en": "Number of different parameters measured at least once in the year",
-                     "fr": "Nombre de paramètres différents mesurés au moins une fois dans l'année"},
+        "en": "A substance can only be found if someone looks for it. The yearly file listed {a} different parameters in "
+              "2016 and {b} in 2025: {new} codes appeared and {gone} disappeared. The largest group of the new ones is "
+              "pesticides and their **metabolites**, the molecules a pesticide turns into as it breaks down in soil and "
+              "water ({pest}), ahead of counts of cyanobacteria ({cyano}) and of the PFAS measured one by one ({pfas}); "
+              "{other} others complete the list.",
+        "fr": "On ne trouve une substance que si on la cherche. Le fichier annuel comptait {a} paramètres différents en "
+              "2016 et {b} en 2025 : {new} codes sont apparus et {gone} ont disparu. Le premier groupe des nouveaux est "
+              "celui des pesticides et de leurs **métabolites**, les molécules en lesquelles un pesticide se transforme "
+              "en se dégradant dans le sol et l'eau ({pest}), devant les comptages de cyanobactéries ({cyano}) et les "
+              "PFAS mesurés un par un ({pfas}) ; {other} autres complètent la liste."},
+    "mon.s1.chart": {"en": "Number of different parameters in each yearly file",
+                     "fr": "Nombre de paramètres différents dans chaque fichier annuel"},
     "mon.s1.all": {"en": "All parameters", "fr": "Tous les paramètres"},
     "mon.s1.pest": {"en": "Pesticides and their metabolites with a limit", "fr": "Pesticides et métabolites avec une limite"},
-    "mon.s1.y": {"en": "Different parameters measured", "fr": "Paramètres différents mesurés"},
+    "mon.s1.y": {"en": "Different parameters", "fr": "Paramètres différents"},
     "mon.s1.hover": {"en": "{y}: {v} parameters", "fr": "{y} : {v} paramètres"},
     "mon.s1.caption": {
-        "en": "Two lines: all parameters (teal) and pesticides with their metabolites that carry a limit (ochre), per year.",
-        "fr": "Deux courbes : tous les paramètres (bleu-vert) et les pesticides avec leurs métabolites qui ont une limite "
-              "(ocre), par année."},
+        "en": "Two lines: all the parameter codes of each yearly file (teal), including the 12 to 17 codes, depending on the "
+              "year, whose result is a text such as odour or aspect, and the pesticides with their metabolites that carry a limit (ochre).",
+        "fr": "Deux courbes : tous les codes de paramètres de chaque fichier annuel (bleu-vert), y compris les 12 à 17 "
+              "codes, selon l'année, dont le résultat est un texte, comme l'odeur ou l'aspect, et les pesticides avec leurs métabolites qui ont "
+              "une limite (ocre)."},
 
     "mon.s2.kicker": {"en": "Clue 2", "fr": "Indice 2"},
     "mon.s2.title": {"en": "Three molecules make the curve", "fr": "Trois molécules font la courbe"},

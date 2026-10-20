@@ -41,9 +41,9 @@ lede(t("home.lede"))
 
 # --- Why it matters -------------------------------------------------------------------------------
 ny = load_table("national_year")
-rs = load_table("dq_result_status")
 last = config.COMPLETE_YEARS[-1]
-n_results = rs[(rs["annee"] == last) & (rs["status"] != "not_measured")]["n"].sum()
+vol = load_table("explore_volume").set_index("annee")      # rows of the yearly files: the counts used everywhere
+n_results = int(vol.loc[last, "result_rows"])
 n_samples = int(ny.loc[ny["annee"] == last, "n_samples"].iloc[0])
 
 kicker(t("home.why.kicker"))
@@ -69,7 +69,8 @@ with st.container(border=True):
 # --- Method and hypotheses -----------------------------------------------------------------------------
 kicker(t("home.method.kicker"))
 st.header(t("home.method.title"))
-st.markdown(t("home.method.p1"))
+st.markdown(t("home.method.p1", samples=num(vol["samples"].sum() / 1e6), results=num(vol["result_rows"].sum() / 1e6),
+               nets=num(vol.loc[last, "networks_sampled"]), year=last, codes=num(len(load_table("dim_udi")))))
 st.markdown(t("home.method.p2"))
 st.markdown(t("home.method.p3"))
 for h in ("home.h1", "home.h2", "home.h3", "home.h4"):

@@ -71,15 +71,16 @@ T = {
                           "fr": "Dix ans de contrôles, quatre questions à trancher"},
     "home.method.p1": {
         "en": "The data is the national file of the sanitary control, published by the Ministry of Health: about "
-              "**3 million samples** and **133 million results** from January 2016 to August 2026. Water reaches homes "
-              "through **distribution networks**: a network is a set of pipes in which the water has the same quality, "
-              "and France has more than 25,000 of them. A town can be served by several networks, and one network can "
-              "serve several towns.",
+              "**{samples} million samples** and **{results} million results** from January 2016 to August 2026. Water "
+              "reaches homes through **distribution networks**: a network is a set of pipes in which the water has the "
+              "same quality; {nets} of them were sampled in {year}, and {codes} different networks appear in the files "
+              "since 2016. A town can be served by several networks, and one network can serve several towns.",
         "fr": "Les données sont le fichier national du contrôle sanitaire, publié par le ministère de la Santé : environ "
-              "**3 millions de prélèvements** et **133 millions de résultats**, de janvier 2016 à août 2026. L'eau arrive "
-              "chez nous par des **réseaux de distribution** : un réseau est un ensemble de canalisations dans lequel "
-              "l'eau a la même qualité, et la France en compte plus de 25 000. Une commune peut être desservie par "
-              "plusieurs réseaux, et un réseau peut desservir plusieurs communes."},
+              "**{samples} millions de prélèvements** et **{results} millions de résultats**, de janvier 2016 à août 2026. "
+              "L'eau arrive chez nous par des **réseaux de distribution** : un réseau est un ensemble de canalisations "
+              "dans lequel l'eau a la même qualité ; {nets} d'entre eux ont été prélevés en {year}, et {codes} réseaux "
+              "différents apparaissent dans les fichiers depuis 2016. Une commune peut être desservie par plusieurs "
+              "réseaux, et un réseau peut desservir plusieurs communes."},
     "home.method.p2": {
         "en": "Each result is compared with a threshold. A **limit** is a health threshold: above it, the sample is "
               "declared non-compliant. A **reference** is a softer signal that the treatment or the pipes need "

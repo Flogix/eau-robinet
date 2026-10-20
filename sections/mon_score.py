@@ -101,7 +101,7 @@ if mine.is_official:
 
 # --- Results --------------------------------------------------------------------------------------------------------
 com = communes().set_index("insee")
-off = com.loc[com["score"].notna(), ["nom", "dep", "population", "score", *FAMS, "grade"]]
+off = com.loc[com["score"].notna() & com["is_current"], ["nom", "dep", "population", "score", *FAMS, "grade"]]   # as on the map
 per = _personal(weights, mine.micro_k, severity, thresholds)
 both = off.join(per, rsuffix="_mine", how="inner")
 n_towns = len(both)
@@ -172,9 +172,13 @@ st.dataframe(tbl, hide_index=True, column_config={
     t("my.col.off"): st.column_config.NumberColumn(format="%.1f")})
 st.caption(t("my.low.caption") + " " + t("common.source_short"))
 
-win = load_table("udi_param_window")
-n_pfas = win.loc[win["code"] == "SPFAS", "cdreseau"].nunique()
-analysis(t("my.analysis.seen"), t("my.analysis.why", pfas=num(n_pfas), nets=num(win["cdreseau"].nunique())),
+# PFAS measured (any result) and found (above the quantification limit) in the scored networks, three-year window
+pf = load_table("udi_family_window")
+pf = pf[pf["subfamily"] == "pfas"]
+scored = load_table("udi_scores")
+scored = scored[scored["score"].notna()]
+analysis(t("my.analysis.seen"), t("my.analysis.why", pfas=num(pf["cdreseau"].nunique()),
+                                  found=num((pf["n_detected"] > 0).sum()), nets=num(len(scored))),
          t("my.analysis.lim"))
 
 # --- Sensitivity (fourteen fixed variants computed by scripts/05_build_scores.py) ------------------------------------

@@ -15,12 +15,12 @@ T = {
         "fr": "{ok} des {n} contrôles automatiques passent : plus aucun doublon, aucun résultat sans son prélèvement, "
               "aucune ligne multipliée par une jointure, et les {m} millions de résultats lus."},
     "dq.pipeline": {
-        "en": "The raw files weigh about 22 GB of text for eleven years. A pipeline of six scripts turns them into small "
+        "en": "The raw files weigh about 22 GB of text for eleven years. A pipeline of seven scripts turns them into small "
               "tables: it extracts one year at a time, reads every value as text, then converts decimal commas, values "
               "written as \"<0.05\" and dates, keeps one result per sample and parameter, and attaches to each result the "
               "threshold written next to it. A **join** is the operation that links two tables, here the results to "
               "their samples and the samples to the towns; a careless join can multiply rows, which is why it is checked.",
-        "fr": "Les fichiers bruts pèsent environ 22 Go de texte pour onze ans. Une chaîne de six scripts les transforme "
+        "fr": "Les fichiers bruts pèsent environ 22 Go de texte pour onze ans. Une chaîne de sept scripts les transforme "
               "en petites tables : elle extrait une année à la fois, lit chaque valeur comme du texte, puis convertit "
               "les virgules décimales, les valeurs écrites « <0,05 » et les dates, garde un résultat par prélèvement et "
               "par paramètre, et rattache à chaque résultat le seuil écrit à côté de lui. Une **jointure** est "
