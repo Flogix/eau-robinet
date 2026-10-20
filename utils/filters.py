@@ -107,17 +107,18 @@ def sidebar(page: str) -> Filters:
     type_labels = {c: t(f"ctype.{c}") for c in COMMUNE_TYPES}
     with st.sidebar:
         if active:
-            st.markdown(f"**{t('side.filters')}**")
-            st.caption(t("side.intro"))
-        if "years" in active:
-            st.slider(t("side.years"), min_value=config.YEARS[0], max_value=config.YEARS[-1], key="f_years",
-                      help=t("side.years.help"))
-        if "region" in active:
-            st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
-                         format_func=reg_labels.get)
-        if "ctype" in active:
-            st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
-                         help=t("side.ctype.help"))
+            with st.container(border=True, key="ar_filters"):   # framed, so that the filters are seen
+                st.markdown(f"**{t('side.filters')}**")
+                st.caption(t("side.intro"))
+                if "years" in active:
+                    st.slider(t("side.years"), min_value=config.YEARS[0], max_value=config.YEARS[-1], key="f_years",
+                              help=t("side.years.help"))
+                if "region" in active:
+                    st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
+                                 format_func=reg_labels.get)
+                if "ctype" in active:
+                    st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
+                                 help=t("side.ctype.help"))
         st.session_state["_page_controls"] = st.container()   # filled by the open page (variable selection)
         st.divider()
         st.caption(t("side.disclaimer"))
@@ -127,6 +128,16 @@ def sidebar(page: str) -> Filters:
     f = Filters(tuple(years), region, names.get(region, ""), variable, st.session_state["f_ctype"])
     st.session_state["filters"] = f
     return f
+
+
+def filter_hint(page: str) -> None:
+    """At the top of a page that has filters: one line saying that it can be narrowed in the sidebar, and with what."""
+    active = PAGE_FILTERS.get(page, set())
+    if not active:
+        return
+    names = [t(f"side.hint.{k}") for k in ("years", "region", "ctype") if k in active]
+    listing = names[0] if len(names) == 1 else ", ".join(names[:-1]) + t("cmp.and") + names[-1]
+    st.markdown(f'<div class="ar-filter-hint">{t("side.hint", list=listing)}</div>', unsafe_allow_html=True)
 
 
 def page_controls():

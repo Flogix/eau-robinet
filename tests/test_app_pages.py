@@ -149,6 +149,11 @@ def test_filters_are_drawn_exactly_where_they_act(url):
     assert drawn == PAGE_FILTERS[url], (url, drawn)
     has_title = any(m.value == "**Filters**" for m in at.sidebar.markdown)
     assert has_title == bool(drawn), url
+    hint = [m.value for m in at.main.markdown if 'class="ar-filter-hint"' in m.value]   # line at the top of the page
+    assert bool(hint) == bool(drawn), url
+    if hint:
+        for name, word in (("years", "period"), ("region", "region"), ("ctype", "kind of town")):
+            assert (word in hint[0]) == (name in drawn), (url, hint[0])
     base, acting = _signature(at), set()
     for name, key in FILTER_WIDGETS.items():          # measured: does the page change when the filter changes?
         at2 = run_app()

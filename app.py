@@ -43,7 +43,7 @@ def _stamp_project_modules() -> None:
 
 _forget_stale_project_modules()
 
-from utils.filters import init_language, language_selector, sidebar  # noqa: E402
+from utils.filters import filter_hint, init_language, language_selector, sidebar  # noqa: E402
 from utils.i18n import t  # noqa: E402
 from utils.viz import footer, header, inject_css, sidebar_menu  # noqa: E402
 
@@ -83,6 +83,7 @@ sidebar_menu(SECTIONS)
 language_selector()
 sidebar(nav.url_path)
 header()
+filter_hint(nav.url_path)
 nav.run()
 footer()
 _stamp_project_modules()   # modules imported by the page are dated too

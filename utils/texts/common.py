@@ -34,6 +34,11 @@ T = {
         "fr": "Ces filtres restreignent les chiffres de cette page à une période, une région ou un type de commune. "
               "Seuls les filtres qui changent quelque chose ici sont affichés, et votre choix est gardé d'une page à "
               "l'autre."},
+    "side.hint": {"en": "You can narrow this page with the filters in the sidebar: {list}.",
+                  "fr": "Vous pouvez affiner cette page avec les filtres de la barre latérale : {list}."},
+    "side.hint.years": {"en": "period", "fr": "période"},
+    "side.hint.region": {"en": "region", "fr": "région"},
+    "side.hint.ctype": {"en": "kind of town", "fr": "type de commune"},
     "side.years": {"en": "Period (years)", "fr": "Période (années)"},
     "side.years.help": {
         "en": "Calendar years of the samples. 2026 only runs to 31 August 2026. The score of a town always uses the "

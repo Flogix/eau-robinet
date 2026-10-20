@@ -72,6 +72,10 @@ CSS = """
 .ar-side-course {margin-top:.7rem !important; opacity:.8;}
 .ar-side-course div {margin-top:.1rem;}
 .ar-side-head a {text-decoration:none; border-bottom:1px solid currentColor;}
+.st-key-ar_filters {border-color:rgba(14,124,134,.55) !important; background:rgba(14,124,134,.06);}
+.st-key-ar_filters strong {font-family:Fraunces, Georgia, serif; font-size:1.08rem; font-weight:600;}
+.ar-filter-hint {font-size:.86rem; margin:-.6rem 0 .2rem 0; padding:.15rem 0 .15rem .7rem;
+                  border-left:2px solid #0095A3; opacity:.88;}
 .ar-preview {margin:.8rem 0 .3rem 0; font-size:1.02rem;}
 .ar-grade {display:inline-block; min-width:1.6rem; text-align:center; color:#fff; font-family:Fraunces, Georgia, serif;
            font-weight:700; border-radius:.2rem; padding:0 .35rem; margin-right:.5rem;}
