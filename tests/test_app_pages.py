@@ -181,23 +181,35 @@ def test_region_filter_shows_all_of_france_by_default():
     assert box.value == "all" and box.index == 0 and box.options[0] == "All of France"
 
 
-@pytest.mark.parametrize("lang, program, course", [
-    ("en", "Data & AI, DAI group", "Data Analysis & Visualization, coordinator: MATHEW Mano Joseph"),
-    ("fr", "Data & AI, groupe DAI", "Data Analysis & Visualization, coordinateur : MATHEW Mano Joseph")])
-def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, course):
+@pytest.mark.parametrize("lang, program, coord", [
+    ("en", "Data & AI, DAI group", "<div>coordinator: MATHEW Mano Joseph</div>"),
+    ("fr", "Data & AI, groupe DAI", "<div>coordinateur : MATHEW Mano Joseph</div>")])
+def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord):
     import config
     at = run_app(lang)
     first = at.sidebar.markdown[0].value
     assert 'class="ar-side-head"' in first and "data:image/png;base64," in first and "Florian Giraud" in first
-    assert program in first and course in first
+    assert program in first and coord in first and "<div>Data Analysis & Visualization</div>" in first
+    assert 'class="ar-side-logo"' in first and "ar-side-plate" not in first      # no dark plate behind the logo
     assert f'href="{config.AUTHOR_LINKEDIN}" target="_blank"' in first
     assert f'href="{config.REPO_URL}" target="_blank"' in first
     links = [link.proto.page for link in at.sidebar.get("page_link")]
     assert len(links) == len(set(links)) == len(PAGE_FILES)          # every page in the menu, once
 
 
-def test_efrei_logo_is_small():
-    assert (ROOT / "assets" / "efrei-logo-white.png").stat().st_size < 10_000
+@pytest.mark.parametrize("name", ["efrei-logo-white.png", "efrei-logo-black.png"])
+def test_efrei_logos_are_small_and_transparent(name):
+    from PIL import Image
+    path = ROOT / "assets" / name
+    assert path.stat().st_size < 10_000
+    im = Image.open(path).convert("RGBA")
+    assert im.width == 400 and im.getpixel((0, 0))[3] == 0          # transparent background
+
+
+def test_logo_follows_the_theme():
+    from utils import viz
+    assert viz.LOGO_EFREI["light"] != viz.LOGO_EFREI["dark"]
+    assert viz.theme_type() == "light"                               # outside a browser: light by default
 
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
