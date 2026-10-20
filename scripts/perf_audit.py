@@ -206,6 +206,11 @@ def interactions(a: Audit, page: Page, lang: str) -> None:
         a.act(page, "compare", "remove a town (Lille)", lang, remove_town)
     except Exception as e:  # noqa: BLE001
         print("   remove town failed:", str(e)[:120])
+    def download_comparison():
+        with page.expect_download(timeout=60_000) as d:
+            page.get_by_role("button").filter(has_text="PDF").first.click()
+        d.value.path()
+    a.act(page, "compare", "download the comparison PDF", lang, download_comparison)
     # sidebar filters on the map page (all filters active there)
     a.goto(page, "map", lang, "open map")
     a.act(page, "map", "period slider (start year +1)", lang,
