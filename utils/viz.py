@@ -43,7 +43,10 @@ CSS = """
 .ar-brand {font-family:Fraunces, Georgia, serif; font-size:1.55rem; font-weight:700; letter-spacing:.01em; line-height:1;}
 .ar-tagline {font-size:.9rem; opacity:.8; font-style:italic; line-height:1.3;}
 .ar-kicker {font-family:"IBM Plex Mono", monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase;
-            opacity:.78; margin:1.8rem 0 -.4rem 0;}
+            opacity:.78; margin:2rem 0 .75rem 0; line-height:1.5;}
+/* a title right under a kicker: no extra space above the title, the kicker's own margin is enough */
+[data-testid="stElementContainer"]:has(.ar-kicker) + [data-testid="stElementContainer"] :is(h1, h2, h3) {
+    padding-top:0 !important;}
 .ar-kicker::before {content:""; display:inline-block; width:1.6rem; height:2px; background:#0095A3;
                     vertical-align:middle; margin-right:.6rem;}
 .ar-lede {font-family:Fraunces, Georgia, serif; font-size:1.28rem; line-height:1.45; margin:.4rem 0 1rem 0;}
