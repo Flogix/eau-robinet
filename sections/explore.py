@@ -183,14 +183,22 @@ kicker(t("ex.rows.kicker"))
 st.header(t("ex.rows.title"))
 ex = examples()
 st.markdown(t("ex.rows.text", year=ex["PLV"]["year"]))
-tables = ["PLV", "RESULT", "COM_UDI", "udi_year"]
-table_labels = {k: t(f"ex.rows.opt.{k}") for k in tables}   # labels computed once per run, as in the sidebar
-which = st.segmented_control(t("ex.rows.pick"), tables, default="PLV", key="ex_rows", format_func=table_labels.get,
-                             help=t("ex.rows.help")) or "PLV"
-e = ex[which]
-st.dataframe(pd.DataFrame(e["rows"], columns=e["columns"]), hide_index=True, width="stretch")
-st.caption(t("ex.rows.caption", n=len(e["rows"]), table=which, year=e["year"]) + " " + t("common.source_short"))
-st.markdown(t(f"ex.rows.{which}"))
+
+
+@st.fragment   # changing the table reruns this block only, not the seven charts of the page
+def rows_block() -> None:
+    tables = ["PLV", "RESULT", "COM_UDI", "udi_year"]
+    table_labels = {k: t(f"ex.rows.opt.{k}") for k in tables}   # labels computed once per run, as in the sidebar
+    which = st.segmented_control(t("ex.rows.pick"), tables, default="PLV", key="ex_rows", format_func=table_labels.get,
+                                 help=t("ex.rows.help")) or "PLV"
+    e = ex[which]
+    st.dataframe(pd.DataFrame(e["rows"], columns=e["columns"]), hide_index=True, width="stretch")
+    st.caption(t("ex.rows.caption", n=len(e["rows"]), table=which, year=e["year"]) + " " + t("common.source_short"))
+    st.markdown(t(f"ex.rows.{which}"))
+
+
+rows_block()
+
 
 # --- 3. Distributions -----------------------------------------------------------------------------------------------
 kicker(t("ex.dist.kicker"))
@@ -242,32 +250,39 @@ chart(fig, t("ex.top.title", n=len(top)), t("ex.top.caption"),
         pshare=pct(pest["n_results"].sum() / cat["n_results"].sum(), 0)))
 
 # typical values of key parameters
-vals = load_table("explore_values")
-value_labels = {c: param_name(c) for c in VALUE_CODES}
-code = st.segmented_control(t("ex.val.pick"), VALUE_CODES, default="NO3", key="ex_val", format_func=value_labels.get,
-                            help=t("ex.val.help")) or "NO3"
-v = vals[vals["code"] == code]
-unit = cat.set_index("code").loc[code, "unit"]
-first = v.iloc[0]
-k = 2 if first["p95"] < 1 else 1 if first["p95"] < 100 else 0
-fig = go.Figure(go.Bar(
-    x=(v["lo"] + v["hi"]) / 2, y=v["n_networks"], width=(v["hi"] - v["lo"]) * 0.92, marker_color=BLUE,
-    hoverinfo="text", hovertext=[t("ex.val.hover", lo=dec(a, k + 1), hi=dec(b, k + 1), unit=unit, n=num(n))
-                                 for a, b, n in zip(v["lo"], v["hi"], v["n_networks"])]))
-layout(fig, t("ex.val.x", year=YEAR, unit=unit), t("ex.smp.y"), height=360, legend=False)
-thr_txt = t("ex.val.nothr")
-if not pd.isna(first["threshold"]):
-    kind = "reference" if code in ("CL", "SO4") else "limit"
-    fig.add_vline(x=first["threshold"], line_dash="dash", line_color=BRICK, line_width=1.5,
-                  annotation_text=t(f"ex.val.{kind}", v=dec(first["threshold"], 1).rstrip("0").rstrip(",.") or "0",
-                                    unit=unit),
-                  annotation_position="top", annotation_font=dict(color=BRICK, size=12))
-    thr_txt = t("ex.val.thr", share=pct(first["share_above"]), kind=t(f"ex.val.kind.{kind}"),
-                v=dec(first["threshold"], 1).rstrip("0").rstrip(",."), unit=unit)
-chart(fig, t("ex.val.title", name=param_name(code), year=YEAR),
-      t("ex.val.caption", year=YEAR, top=dec(v["lo"].iloc[-1], k), unit=unit),
-      t("ex.val.take", n=num(first["n_total"]), p50=dec(first["p50"], k), p05=dec(first["p05"], k),
-        p95=dec(first["p95"], k), unit=unit, zero=pct(first["share_zero"], 0), thr=thr_txt))
+
+@st.fragment
+def values_block() -> None:
+    vals = load_table("explore_values")
+    value_labels = {c: param_name(c) for c in VALUE_CODES}
+    code = st.segmented_control(t("ex.val.pick"), VALUE_CODES, default="NO3", key="ex_val", format_func=value_labels.get,
+                                help=t("ex.val.help")) or "NO3"
+    v = vals[vals["code"] == code]
+    unit = cat.set_index("code").loc[code, "unit"]
+    first = v.iloc[0]
+    k = 2 if first["p95"] < 1 else 1 if first["p95"] < 100 else 0
+    fig = go.Figure(go.Bar(
+        x=(v["lo"] + v["hi"]) / 2, y=v["n_networks"], width=(v["hi"] - v["lo"]) * 0.92, marker_color=BLUE,
+        hoverinfo="text", hovertext=[t("ex.val.hover", lo=dec(a, k + 1), hi=dec(b, k + 1), unit=unit, n=num(n))
+                                     for a, b, n in zip(v["lo"], v["hi"], v["n_networks"])]))
+    layout(fig, t("ex.val.x", year=YEAR, unit=unit), t("ex.smp.y"), height=360, legend=False)
+    thr_txt = t("ex.val.nothr")
+    if not pd.isna(first["threshold"]):
+        kind = "reference" if code in ("CL", "SO4") else "limit"
+        fig.add_vline(x=first["threshold"], line_dash="dash", line_color=BRICK, line_width=1.5,
+                      annotation_text=t(f"ex.val.{kind}", v=dec(first["threshold"], 1).rstrip("0").rstrip(",.") or "0",
+                                        unit=unit),
+                      annotation_position="top", annotation_font=dict(color=BRICK, size=12))
+        thr_txt = t("ex.val.thr", share=pct(first["share_above"]), kind=t(f"ex.val.kind.{kind}"),
+                    v=dec(first["threshold"], 1).rstrip("0").rstrip(",."), unit=unit)
+    chart(fig, t("ex.val.title", name=param_name(code), year=YEAR),
+          t("ex.val.caption", year=YEAR, top=dec(v["lo"].iloc[-1], k), unit=unit),
+          t("ex.val.take", n=num(first["n_total"]), p50=dec(first["p50"], k), p05=dec(first["p05"], k),
+            p95=dec(first["p95"], k), unit=unit, zero=pct(first["share_zero"], 0), thr=thr_txt))
+
+
+values_block()
+
 
 # --- 4. Correlations -------------------------------------------------------------------------------------------------
 kicker(t("ex.cor.kicker"))
@@ -302,42 +317,47 @@ takeaway(t("ex.cor.take2", n=n_dep, crit=dec(crit)))
 # --- 5. Scatter plot of any two indicators ---------------------------------------------------------------------------
 kicker(t("ex.sc.kicker"))
 st.header(t("ex.sc.title"))
-c1, c2 = st.columns(2)
-ind_labels = {c: t(f"ex.ind.{c}") for c in INDICATORS}
-xv = c1.selectbox(t("ex.sc.x"), INDICATORS, index=INDICATORS.index("small_share"), key="ex_x",
-                  format_func=ind_labels.get, help=t("ex.sc.help"))
-yv = c2.selectbox(t("ex.sc.y"), INDICATORS, index=INDICATORS.index("bact_rate"), key="ex_y",
-                  format_func=ind_labels.get, help=t("ex.sc.help"))
 
 
 def fmt(c: str, x: float) -> str:
     return pct(x) if c in SHARES else num(x) if c in LOG_AXES else dec(x, 1)
 
 
-if xv == yv:
-    st.info(t("ex.sc.same"))
-else:
-    d = dept.dropna(subset=[xv, yv]).merge(departments(), on="dep", how="left")
-    scale = {c: (100 if c in SHARES else 1) for c in (xv, yv)}
-    ext = set(d.nlargest(5, yv)["dep"])
-    fig = go.Figure(go.Scatter(
-        x=d[xv] * scale[xv], y=d[yv] * scale[yv], mode="markers+text",
-        text=[nm if c in ext else "" for nm, c in zip(d["dep_nom"], d["dep"])], textposition="top center",
-        textfont=dict(size=10), marker=dict(size=9, color=TEAL, line=dict(color="rgba(127,127,127,0.8)", width=0.6),
-                                            opacity=0.85),
-        hoverinfo="text", hovertext=[f"{nm} ({c})<br>{t('ex.ind.' + xv)}: {fmt(xv, a)}<br>{t('ex.ind.' + yv)}: "
-                                     f"{fmt(yv, b)}" for nm, c, a, b in zip(d["dep_nom"], d["dep"], d[xv], d[yv])]))
-    layout(fig, t(f"ex.ax.{xv}", y0=Y0, y1=Y1, year=YEAR), t(f"ex.ax.{yv}", y0=Y0, y1=Y1, year=YEAR), height=540,
-           legend=False)
-    logs = [c for c in (xv, yv) if c in LOG_AXES]
-    if xv in LOG_AXES:
-        fig.update_xaxes(type="log")
-    if yv in LOG_AXES:
-        fig.update_yaxes(type="log")
-    rho = float(sp[(sp["x"] == xv) & (sp["y"] == yv)]["rho"].iloc[0])
-    n_pair = int(sp[(sp["x"] == xv) & (sp["y"] == yv)]["n"].iloc[0])
-    direction = t("ex.sc.up") if rho >= 0.15 else t("ex.sc.down") if rho <= -0.15 else t("ex.sc.flat")
-    log_txt = "".join(t("ex.sc.log", var=t(f"ex.ind.{c}").lower()) for c in logs)
-    chart(fig, t("ex.sc.chart", x=t(f"ex.ind.{xv}").lower(), y=t(f"ex.ind.{yv}")), t("ex.sc.caption", log=log_txt),
-          t("ex.sc.take", rho=dec(rho), n=n_pair, strength=t(f"ex.strength.{strength(rho)}"), direction=direction,
-            chance=t("ex.sc.chance") if abs(rho) < 1.96 / math.sqrt(n_pair - 1) else ""))
+@st.fragment
+def scatter_block() -> None:
+    c1, c2 = st.columns(2)
+    ind_labels = {c: t(f"ex.ind.{c}") for c in INDICATORS}
+    xv = c1.selectbox(t("ex.sc.x"), INDICATORS, index=INDICATORS.index("small_share"), key="ex_x",
+                      format_func=ind_labels.get, help=t("ex.sc.help"))
+    yv = c2.selectbox(t("ex.sc.y"), INDICATORS, index=INDICATORS.index("bact_rate"), key="ex_y",
+                      format_func=ind_labels.get, help=t("ex.sc.help"))
+    if xv == yv:
+        st.info(t("ex.sc.same"))
+    else:
+        d = dept.dropna(subset=[xv, yv]).merge(departments(), on="dep", how="left")
+        scale = {c: (100 if c in SHARES else 1) for c in (xv, yv)}
+        ext = set(d.nlargest(5, yv)["dep"])
+        fig = go.Figure(go.Scatter(
+            x=d[xv] * scale[xv], y=d[yv] * scale[yv], mode="markers+text",
+            text=[nm if c in ext else "" for nm, c in zip(d["dep_nom"], d["dep"])], textposition="top center",
+            textfont=dict(size=10), marker=dict(size=9, color=TEAL, line=dict(color="rgba(127,127,127,0.8)", width=0.6),
+                                                opacity=0.85),
+            hoverinfo="text", hovertext=[f"{nm} ({c})<br>{t('ex.ind.' + xv)}: {fmt(xv, a)}<br>{t('ex.ind.' + yv)}: "
+                                         f"{fmt(yv, b)}" for nm, c, a, b in zip(d["dep_nom"], d["dep"], d[xv], d[yv])]))
+        layout(fig, t(f"ex.ax.{xv}", y0=Y0, y1=Y1, year=YEAR), t(f"ex.ax.{yv}", y0=Y0, y1=Y1, year=YEAR), height=540,
+               legend=False)
+        logs = [c for c in (xv, yv) if c in LOG_AXES]
+        if xv in LOG_AXES:
+            fig.update_xaxes(type="log")
+        if yv in LOG_AXES:
+            fig.update_yaxes(type="log")
+        rho = float(sp[(sp["x"] == xv) & (sp["y"] == yv)]["rho"].iloc[0])
+        n_pair = int(sp[(sp["x"] == xv) & (sp["y"] == yv)]["n"].iloc[0])
+        direction = t("ex.sc.up") if rho >= 0.15 else t("ex.sc.down") if rho <= -0.15 else t("ex.sc.flat")
+        log_txt = "".join(t("ex.sc.log", var=t(f"ex.ind.{c}").lower()) for c in logs)
+        chart(fig, t("ex.sc.chart", x=t(f"ex.ind.{xv}").lower(), y=t(f"ex.ind.{yv}")), t("ex.sc.caption", log=log_txt),
+              t("ex.sc.take", rho=dec(rho), n=n_pair, strength=t(f"ex.strength.{strength(rho)}"), direction=direction,
+                chance=t("ex.sc.chance") if abs(rho) < 1.96 / math.sqrt(n_pair - 1) else ""))
+
+
+scatter_block()

@@ -71,7 +71,12 @@ class Audit:
 
     def act(self, page: Page, page_name: str, action: str, lang: str, fn) -> None:
         t0 = mark(page)
-        fn()
+        try:
+            fn()
+        except Exception as e:  # noqa: BLE001  one failed interaction is reported, the audit goes on
+            print(f"{page_name:12s} {lang} {action:52s} FAILED: {str(e).splitlines()[0][:100]}", flush=True)
+            self.record(page_name, action + " (failed)", lang, (float("nan"), float("nan")))
+            return
         self.record(page_name, action, lang, settle(page, t0, footer=False))
 
     def goto(self, page: Page, path: str, lang: str, action: str = "load") -> None:
@@ -239,10 +244,10 @@ def interactions(a: Audit, page: Page, lang: str) -> None:
     a.goto(page, "explore", lang, "open explore")
     for nm in ("RESULT", "COM_UDI", "udi_year"):
         a.act(page, "explore", f"rows: {nm}", lang,
-              lambda nm=nm: page.get_by_role("button").filter(has_text=nm).first.click())
+              lambda nm=nm: page.get_by_role("radio").filter(has_text=nm).first.click())
     for nm in (["Hardness", "Lead", "PFAS"] if not fr else ["Dureté", "Plomb", "PFAS"]):
         a.act(page, "explore", f"distribution: {nm}", lang,
-              lambda nm=nm: page.get_by_role("button").filter(has_text=nm).first.click())
+              lambda nm=nm: page.get_by_role("radio").filter(has_text=nm).first.click())
     for label, opt in ((("Horizontal axis", "Density"), ("Vertical axis", "Median score")) if not fr else
                        (("Axe horizontal", "Densité"), ("Axe vertical", "Score médian"))):
         a.act(page, "explore", f"scatter: {label} -> {opt}", lang, lambda label=label, opt=opt: select_option(page, label, opt))
@@ -271,15 +276,23 @@ def main() -> None:
         page = ctx.new_page()
         page.set_default_timeout(60_000)
         only = args.only.split(",")
-        if "loads" in only:
-            loads(a, page, langs, args.tag)
-        for lang in langs:
-            if "town" in only:
-                town_scenarios(a, page, lang)
-            if "interactions" in only:
-                interactions(a, page, lang)
-        browser.close()
-    out = Path(args.out)
+        try:
+            if "loads" in only:
+                loads(a, page, langs, args.tag)
+            for lang in langs:
+                if "town" in only:
+                    town_scenarios(a, page, lang)
+                if "interactions" in only:
+                    interactions(a, page, lang)
+        finally:                      # the measures already taken are written even if a scenario crashes
+            browser.close()
+            write(a, args.out)
+
+
+def write(a: Audit, path: str) -> None:
+    if not a.rows:
+        return
+    out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
     new = not out.exists()
     with out.open("a", newline="", encoding="utf-8") as fh:
