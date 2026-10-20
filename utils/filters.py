@@ -15,9 +15,9 @@ VARIABLES = ["bact_official", "chem_official", "nitrates", "pesticides", "pfas",
 OFFICIAL = {"bact_official", "chem_official"}
 COMMUNE_TYPES = ["all", "urban_dense", "urban_inter", "rural", "mountain", "med"]
 
-# Note shown when no filter is active, for the pages that do not show the score of a town
-NO_FILTER_NOTE = {"explore": "side.none.explore", "about": "side.none.about"}
-# Which filters change something on each page (url path -> filters). The others are greyed out.
+FILTER_KEYS = ("f_years", "f_region_code", "f_ctype", "map_view")   # map_view: the map's own control
+# Which filters change something on each page (url path -> filters), checked by tests/test_app_pages.py.
+# Only these are drawn; a page without any has no Filters section.
 PAGE_FILTERS = {
     "": {"years", "region", "ctype"},
     "reading": {"years"},
@@ -73,9 +73,23 @@ def language_selector() -> None:
         st.segmented_control(t("side.lang"), list(LANGS), format_func=LANGS.get, key="lang", required=True)
 
 
+def _keep_filter_values() -> None:
+    """A widget that is not drawn during a run loses its value at the end of that run. The filters are only drawn on the
+    pages where they act, so their values are re-assigned at every run (the pattern documented by Streamlit) to survive a
+    visit to a page without filters. Their defaults are set here once, never through the widgets' value= argument."""
+    st.session_state.setdefault("f_years", (config.YEARS[0], config.COMPLETE_YEARS[-1]))
+    st.session_state.setdefault("f_region_code", None)
+    st.session_state.setdefault("f_ctype", "all")
+    for key in FILTER_KEYS:
+        if key in st.session_state:
+            st.session_state[key] = st.session_state[key]
+
+
 def sidebar(page: str) -> Filters:
-    """Draw the filters; the ones that do nothing on `page` are disabled. Values are kept across pages."""
+    """Draw the filters that act on `page`, and only those; on a page where none acts, the Filters section is hidden.
+    Values are kept across pages."""
     active = PAGE_FILTERS.get(page, set())
+    _keep_filter_values()
     reg = regions()
     codes = [None] + reg["reg"].tolist()
     names = dict(zip(reg["reg"], reg["reg_nom"]))
@@ -83,21 +97,25 @@ def sidebar(page: str) -> Filters:
     reg_labels = {None: t("side.region.all"), **names}
     type_labels = {c: t(f"ctype.{c}") for c in COMMUNE_TYPES}
     with st.sidebar:
-        st.markdown(f"**{t('side.filters')}**")
-        st.caption(t("side.intro") if active else t(NO_FILTER_NOTE.get(page, "side.none")))
-        years = st.slider(t("side.years"), min_value=config.YEARS[0], max_value=config.YEARS[-1],
-                          value=(config.YEARS[0], config.COMPLETE_YEARS[-1]), key="f_years",
-                          help=t("side.years.help"), disabled="years" not in active)
-        region = st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
-                              format_func=reg_labels.get,
-                              disabled="region" not in active)
-        variable = "bact_official"   # the variable of the map is chosen in page_controls() by the map page
-        ctype = st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
-                             help=t("side.ctype.help"), disabled="ctype" not in active)
+        if active:
+            st.markdown(f"**{t('side.filters')}**")
+            st.caption(t("side.intro"))
+        if "years" in active:
+            st.slider(t("side.years"), min_value=config.YEARS[0], max_value=config.YEARS[-1], key="f_years",
+                      help=t("side.years.help"))
+        if "region" in active:
+            st.selectbox(t("side.region"), codes, key="f_region_code", help=t("side.region.help"),
+                         format_func=reg_labels.get)
+        if "ctype" in active:
+            st.selectbox(t("side.ctype"), COMMUNE_TYPES, format_func=type_labels.get, key="f_ctype",
+                         help=t("side.ctype.help"))
         st.session_state["_page_controls"] = st.container()   # filled by the open page (variable selection)
         st.divider()
         st.caption(t("side.disclaimer"))
-    f = Filters(tuple(years), region, names.get(region, ""), variable, ctype)
+    years = st.session_state["f_years"]
+    region = st.session_state["f_region_code"]
+    variable = "bact_official"   # the variable of the map is chosen in page_controls() by the map page
+    f = Filters(tuple(years), region, names.get(region, ""), variable, st.session_state["f_ctype"])
     st.session_state["filters"] = f
     return f
 

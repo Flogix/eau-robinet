@@ -25,23 +25,11 @@ T = {
     "side.lang": {"en": "Language", "fr": "Langue"},
     "side.filters": {"en": "Filters", "fr": "Filtres"},
     "side.intro": {
-        "en": "These filters narrow the national figures to a period, a region or a kind of town. "
-              "They act on the home page, the map, the comparison of groups and the data checks; the ones that do "
-              "nothing on the page you are reading are greyed out.",
-        "fr": "Ces filtres restreignent les chiffres nationaux à une période, une région ou un "
-              "type de commune. Ils agissent sur l'accueil, la carte, la comparaison des groupes et les contrôles des "
-              "données ; ceux qui ne changent rien à la page ouverte sont grisés."},
-    "side.none": {
-        "en": "None of the filters changes this page: it always shows the latest twelve months for bacteria and the "
-              "latest three years for chemistry.",
-        "fr": "Aucun filtre ne change cette page : elle montre toujours les douze derniers mois pour les bactéries et "
-              "les trois dernières années pour la chimie."},
-    "side.none.explore": {
-        "en": "None of the filters changes this page: it describes the files themselves, and each chart says which "
-              "years it covers.",
-        "fr": "Aucun filtre ne change cette page : elle décrit les fichiers eux-mêmes, et chaque graphique dit "
-              "quelles années il couvre."},
-    "side.none.about": {"en": "None of the filters changes this page.", "fr": "Aucun filtre ne change cette page."},
+        "en": "These filters narrow the figures of this page to a period, a region or a kind of town. Only the "
+              "filters that change something here are shown, and your choice is kept from one page to the next.",
+        "fr": "Ces filtres restreignent les chiffres de cette page à une période, une région ou un type de commune. "
+              "Seuls les filtres qui changent quelque chose ici sont affichés, et votre choix est gardé d'une page à "
+              "l'autre."},
     "side.years": {"en": "Period (years)", "fr": "Période (années)"},
     "side.years.help": {
         "en": "Calendar years of the samples. 2026 only runs to 31 August 2026. The score of a town always uses the "

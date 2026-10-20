@@ -12,7 +12,10 @@ away. All numbers below come from the current version of the app (data up to 31 
 
 The sidebar holds the language switch (English, official, or French), and three filters: period, region and kind of town.
 On the map page, it also holds the variable selection: what the map shows.
-A filter that does nothing on the open page is greyed out, and a short note says why, so that no control is decorative.
+Only the filters that change the open page are shown, so that no control is decorative: period, region and kind of town on
+the home page and the map, the period on *How to read a water test*, *What we look for, what we find* and *Behind the
+numbers*, the region on *Town against town*. The other pages have no Filters section at all. A choice is kept from one
+page to the next.
 
 ---
 

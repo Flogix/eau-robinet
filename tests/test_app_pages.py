@@ -122,3 +122,53 @@ def test_footer_and_about_link_to_linkedin(lang):
     footer = [m.value for m in at.markdown if m.value.startswith('<div class="ar-footer"')]
     assert footer and f'href="{config.AUTHOR_LINKEDIN}" target="_blank" rel="noopener noreferrer">Florian Giraud' in footer[0]
     assert any(b.proto.url == config.AUTHOR_LINKEDIN for b in at.get("link_button"))
+
+
+# --- Filters: drawn only where they act, values kept across pages -------------------------------------------------
+PAGE_FILES = {"": "intro", "reading": "comprendre", "town": "ma_commune", "compare": "comparer", "map": "overview",
+              "monitor": "deep_dives", "my-score": "mon_score", "conclusions": "conclusions", "explore": "explore",
+              "quality": "data_quality", "about": "about"}
+FILTER_WIDGETS = {"years": "f_years", "region": "f_region_code", "ctype": "f_ctype"}
+CHANGES = {"f_years": (2020, 2023), "f_region_code": "53", "f_ctype": "rural"}
+
+
+def _signature(at: AppTest) -> str:
+    parts = ([m.value for m in at.markdown] + [c.value for c in at.caption] + [str(x.proto) for x in at.get("metric")]
+             + [str(x.proto) for x in at.get("plotly_chart")])
+    return "".join(parts)
+
+
+@pytest.mark.parametrize("url", list(PAGE_FILES))
+def test_filters_are_drawn_exactly_where_they_act(url):
+    from utils.filters import PAGE_FILTERS
+    page = f"sections/{PAGE_FILES[url]}.py"
+    at = run_app()
+    at.switch_page(page).run()
+    drawn = {k for k, key in FILTER_WIDGETS.items()
+             if any(w.key == key for w in list(at.sidebar.slider) + list(at.sidebar.selectbox))}
+    assert drawn == PAGE_FILTERS[url], (url, drawn)
+    has_title = any(m.value == "**Filters**" for m in at.sidebar.markdown)
+    assert has_title == bool(drawn), url
+    base, acting = _signature(at), set()
+    for name, key in FILTER_WIDGETS.items():          # measured: does the page change when the filter changes?
+        at2 = run_app()
+        at2.session_state[key] = CHANGES[key]
+        at2.switch_page(page).run()
+        assert not at2.exception, at2.exception
+        if _signature(at2) != base:
+            acting.add(name)
+    assert acting == PAGE_FILTERS[url], (url, acting)
+
+
+def test_filter_values_survive_a_page_without_filters():
+    at = run_app()
+    at.switch_page("sections/overview.py").run()
+    at.slider(key="f_years").set_value((2019, 2022))
+    at.selectbox(key="f_region_code").set_value("53")
+    at.run()
+    at.switch_page("sections/ma_commune.py").run()            # no filter drawn here
+    assert not at.sidebar.slider and not any(m.value == "**Filters**" for m in at.sidebar.markdown)
+    at.switch_page("sections/conclusions.py").run()
+    at.switch_page("sections/overview.py").run()
+    assert at.slider(key="f_years").value == (2019, 2022)
+    assert at.selectbox(key="f_region_code").value == "53"
