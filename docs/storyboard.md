@@ -73,7 +73,8 @@ same content and the visual identity of the app.
 **Question.** Is a big city better than a village, a mountain town better than a seaside town?
 
 **Visuals.** Grouped bars give the three marks of two to six towns side by side; a generated paragraph explains the gap
-between the best and the weakest; a table gives key facts. Then box plots show how the scores of whole groups of towns spread
+between the best and the weakest; a table gives key facts; two buttons download the **comparison report** in PDF,
+in English or in French (each town, a comparative chart, the explanation of the gap, the national median, method and sources). Then box plots show how the scores of whole groups of towns spread
 (mountain against Mediterranean coast, urban against rural, size of the town), so that distributions are compared, not
 averages.
 

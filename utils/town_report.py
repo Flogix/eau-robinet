@@ -178,12 +178,12 @@ def build_pdf(insee: str, tables: dict, language: str, hist_code: str | None = N
         return _Report(gather(insee, tables), hist_code).render()
 
 
-class _Report:
-    def __init__(self, data: dict, hist_code: str | None):
+class _Doc:
+    """Shared look of the PDF reports: fonts, page footer, building blocks, masthead, method and sources."""
+
+    def __init__(self, doc_title: str):
         from fpdf import FPDF
 
-        self.d = data
-        self.hist_code = hist_code
         pdf = FPDF(format="A4", unit="mm")
         pdf.set_margins(18, 16, 18)
         pdf.set_auto_page_break(True, margin=20)
@@ -193,8 +193,7 @@ class _Report:
         pdf.add_font("Plex", "BI", FONTS / "IBMPlexSans-SemiBold.ttf")
         pdf.add_font("Mono", "", FONTS / "IBMPlexMono-Regular.ttf")
         pdf.add_font("Fraunces", "", FONTS / "Fraunces-SemiBold.ttf")
-        c = data["c"]
-        pdf.set_title(f"{t('pdf.doc_title')}: {c['nom']} ({c['dep']})")
+        pdf.set_title(doc_title)
         pdf.set_author("Au robinet (Florian Giraud, EFREI Paris)")
         pdf.set_subject(t("brand.tagline"))
         pdf.set_creator("Au robinet, " + APP_URL)
@@ -284,28 +283,10 @@ class _Report:
         pdf.multi_cell(self.width - bw - 3, 4.4, _clean(text), align="L", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(1)
 
-    # --- sections ------------------------------------------------------------------------------------------------
-    def render(self) -> bytes:
+    # --- shared sections ---------------------------------------------------------------------------------------
+    def brand(self) -> None:
+        """Band at the top of the first page: logo, name, tagline, date of the data."""
         pdf = self.pdf
-        pdf.add_page()
-        self.masthead()
-        c = self.d["c"]
-        if pd.isna(c.get("score")):
-            self.para(t("town.noscore"))
-        else:
-            self.score_block()
-            self.kicker(t("pdf.k.why"))
-            u_rows = self.d["udi"].reindex(self.d["nets"]["cdreseau"]).dropna(subset=["score"])
-            self.takeaway(explanation(c, u_rows, self.d["com_all"], self.d["labels"]))
-            self.position()
-            self.networks()
-            self.history()
-            self.method()
-        self.sources()
-        return bytes(pdf.output())
-
-    def masthead(self) -> None:
-        pdf, c = self.pdf, self.d["c"]
         pdf.set_fill_color(*PAPER)
         pdf.rect(0, 0, pdf.w, 40, style="F")
         pdf.set_draw_color(*RULE)
@@ -333,14 +314,9 @@ class _Report:
         pdf.cell(0, 4.5, t("pdf.generated", today=date_fr_en(date.today()), end=date_fr_en(config.DATA_END_DATE),
                            updated=date_fr_en(config.DATASET_UPDATED)), new_x="LMARGIN", new_y="NEXT")
         pdf.set_y(46)
-        self.kicker(t("pdf.doc_title"))
-        self.title(c["nom"], size=20)
-        facts = [t("pdf.dep", dep=f"{c.get('dep_nom', '')} ({c['dep']})"),
-                 t("town.facts.pop", n=num(c["population"])) if pd.notna(c.get("population")) else None,
-                 t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None,
-                 (tn("town.facts.nets", len(self.d["nets"]), n=len(self.d["nets"])) if len(self.d["nets"]) else t("town.facts.nets.zero"))]
-        self.para(" · ".join(x for x in facts if x), size=9, color=MUTED)
-        # warning box
+
+    def warning_box(self) -> None:
+        pdf = self.pdf
         pdf.set_fill_color(*PAPER)
         y0 = pdf.get_y()
         pdf.set_font("Plex", size=8.5)
@@ -356,6 +332,69 @@ class _Report:
         pdf.set_text_color(*INK)
         pdf.multi_cell(self.width - 8, 4.2, t("pdf.warning"), new_x="LMARGIN", new_y="NEXT")
         pdf.set_y(y0 + h + 2)
+
+    def method(self) -> None:
+        pdf = self.pdf
+        self.kicker(t("pdf.k.method"))
+        self.title(t("town.formula.title"), size=11.5)
+        self.para(t("town.formula.intro"), size=8.5)
+        for f, words in (("micro", "micro"), ("ratio", "ratio"), ("penalty", "penalty"), ("chem", "chem"),
+                         ("score", "score"), ("town", "town")):
+            self.need(16)
+            pdf.set_fill_color(*PAPER)
+            pdf.set_font("Mono", size=8)
+            pdf.set_text_color(*INK)
+            pdf.multi_cell(0, 5, t(f"pdf.formula.{f}"), fill=True, new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(0.8)
+            self.para(t(f"town.formula.{words}"), size=8.5)
+
+    def sources(self) -> None:
+        self.kicker(t("pdf.k.sources"))
+        self.para(t("pdf.sources", url=config.DATASET_PAGE, end=date_fr_en(config.DATA_END_DATE), repo=REPO_URL,
+                    app=APP_URL), size=8)
+        self.para(t("pdf.rules"), size=8, color=MUTED)
+        self.para(t("side.disclaimer"), size=8.5, color=BRICK)
+
+
+class _Report(_Doc):
+    """Report of one town."""
+
+    def __init__(self, data: dict, hist_code: str | None):
+        c = data["c"]
+        super().__init__(f"{t('pdf.doc_title')}: {c['nom']} ({c['dep']})")
+        self.d = data
+        self.hist_code = hist_code
+
+    def render(self) -> bytes:
+        pdf = self.pdf
+        pdf.add_page()
+        self.masthead()
+        c = self.d["c"]
+        if pd.isna(c.get("score")):
+            self.para(t("town.noscore"))
+        else:
+            self.score_block()
+            self.kicker(t("pdf.k.why"))
+            u_rows = self.d["udi"].reindex(self.d["nets"]["cdreseau"]).dropna(subset=["score"])
+            self.takeaway(explanation(c, u_rows, self.d["com_all"], self.d["labels"]))
+            self.position()
+            self.networks()
+            self.history()
+            self.method()
+        self.sources()
+        return bytes(pdf.output())
+
+    def masthead(self) -> None:
+        c = self.d["c"]
+        self.brand()
+        self.kicker(t("pdf.doc_title"))
+        self.title(c["nom"], size=20)
+        facts = [t("pdf.dep", dep=f"{c.get('dep_nom', '')} ({c['dep']})"),
+                 t("town.facts.pop", n=num(c["population"])) if pd.notna(c.get("population")) else None,
+                 t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None,
+                 (tn("town.facts.nets", len(self.d["nets"]), n=len(self.d["nets"])) if len(self.d["nets"]) else t("town.facts.nets.zero"))]
+        self.para(" · ".join(x for x in facts if x), size=9, color=MUTED)
+        self.warning_box()
 
     def score_block(self) -> None:
         from utils.viz import FAMILY_COLORS, GRADE_COLORS
@@ -604,28 +643,6 @@ class _Report:
         top = h.loc[h["max"].idxmax()]
         self.takeaway(t("town.hist.take", max=f"{top['max']:.3g}", unit=unit, year=int(top["annee"]),
                         thr_part=thr_part))
-
-    def method(self) -> None:
-        pdf = self.pdf
-        self.kicker(t("pdf.k.method"))
-        self.title(t("town.formula.title"), size=11.5)
-        self.para(t("town.formula.intro"), size=8.5)
-        for f, words in (("micro", "micro"), ("ratio", "ratio"), ("penalty", "penalty"), ("chem", "chem"),
-                         ("score", "score"), ("town", "town")):
-            self.need(16)
-            pdf.set_fill_color(*PAPER)
-            pdf.set_font("Mono", size=8)
-            pdf.set_text_color(*INK)
-            pdf.multi_cell(0, 5, t(f"pdf.formula.{f}"), fill=True, new_x="LMARGIN", new_y="NEXT")
-            pdf.ln(0.8)
-            self.para(t(f"town.formula.{words}"), size=8.5)
-
-    def sources(self) -> None:
-        self.kicker(t("pdf.k.sources"))
-        self.para(t("pdf.sources", url=config.DATASET_PAGE, end=date_fr_en(config.DATA_END_DATE), repo=REPO_URL,
-                    app=APP_URL), size=8)
-        self.para(t("pdf.rules"), size=8, color=MUTED)
-        self.para(t("side.disclaimer"), size=8.5, color=BRICK)
 
 
 def _heading_style():

@@ -158,7 +158,7 @@ the grades of all towns and the ten lowest large towns. A fast engine (`utils/cu
 networks in about 0.1 s and gives exactly the published scores with the official settings (tested). A clear warning says
 that these settings are personal and change nothing to the regulatory limits.
 
-### 3.6 Town report in PDF
+### 3.6 Reports in PDF: one town, or a comparison
 
 From the town page, a report can be downloaded in English or in French: score, grade, the three marks, the networks, the
 substances in question, ten years of a key substance, the position against the national and departmental medians, the
@@ -167,6 +167,14 @@ same rules as in the app, so no number can be invented; no AI writes or changes 
 (pure Python, installs on Streamlit Community Cloud without system packages) with the app's fonts embedded (IBM Plex and
 Fraunces, SIL Open Font License, in `assets/fonts/`), so accents and symbols such as µ, ≤ and × are drawn correctly. Charts
 are drawn directly with fpdf2 shapes, which avoids a headless browser on the server.
+
+The page *Town against town* offers the same kind of report for the towns compared (2 to 6), in English or in French
+(`utils/compare_report.py`): each town with its score, grade, confidence and three marks, bars that put the score and the
+marks side by side (town name on the left of each bar, value on the right, so colour is never needed), why the best town
+does better than the weakest (family and substances in question), the position of each town against the national median,
+then the formulas, the sources, the date of the data and the warning. The paragraph on the gap is the same function on
+the page and in the PDF; a town without score is named and set aside. Both reports share one layout class
+(`town_report._Doc`).
 
 ## 4. What we found
 
@@ -299,7 +307,8 @@ utils/
   prep.py               parsing macros, thresholds, parameter families
   score.py              score, sub-scores, grade, confidence, rule-based report
   custom_score.py       fast recomputation of the score with the reader's settings
-  town_report.py        generated explanation and the PDF report (fpdf2)
+  town_report.py        generated explanation and the PDF report of a town (fpdf2)
+  compare_report.py     texts of the comparison and its PDF report (same rules on the page and in the PDF)
   town_search.py        town search box shared by the pages (server-side matches, see section 6)
   filters.py, metrics.py, viz.py, i18n.py, texts/   sidebar, KPIs, chart style, translation (English and French)
 scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -> 04_referentiels -> 05_build_scores

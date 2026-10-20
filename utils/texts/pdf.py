@@ -99,4 +99,49 @@ T = {
     "pdf.formula.town": {"en": "Score of the town = mean of the scores of its networks",
                          "fr": "Score de la commune = moyenne des scores de ses réseaux"},
     "pdf.filename": {"en": "tap-water-report-{slug}-en.pdf", "fr": "rapport-eau-{slug}-fr.pdf"},
+
+    # comparison report (utils/compare_report.py), page "Town against town"
+    "pdf.cmp.section": {"en": "Take the comparison with you", "fr": "Emportez la comparaison"},
+    "pdf.cmp.section.text": {
+        "en": "The towns compared above fit in a PDF you can print or send, in English or in French: each town with its "
+              "score, grade and three marks, a chart that puts them side by side, why the best does better than the "
+              "worst, the position of each against the national median, the method and the sources.",
+        "fr": "Les communes comparées ci-dessus tiennent dans un PDF à imprimer ou à envoyer, en anglais ou en français : "
+              "chaque commune avec son score, sa note et ses trois notes, un graphique qui les met côte à côte, pourquoi "
+              "la meilleure fait mieux que la moins bonne, la position de chacune face à la médiane nationale, la méthode "
+              "et les sources."},
+    "pdf.cmp.button": {"en": "Download the comparison (PDF, English)", "fr": "Télécharger la comparaison (PDF, anglais)"},
+    "pdf.cmp.button.fr": {"en": "Download the comparison (PDF, French)",
+                          "fr": "Télécharger la comparaison (PDF, français)"},
+    "pdf.cmp.button.help": {
+        "en": "A report of two to four pages on the towns compared. Every sentence is written by fixed rules from the "
+              "data, without artificial intelligence.",
+        "fr": "Un rapport de deux à quatre pages sur les communes comparées. Chaque phrase est écrite par des règles "
+              "fixes à partir des données, sans intelligence artificielle."},
+    "pdf.cmp.doc_title": {"en": "Tap water comparison", "fr": "Comparaison de l'eau du robinet"},
+    "pdf.cmp.title": {"en": "{first} and {last}", "fr": "{first} et {last}"},
+    "pdf.cmp.facts": {"en": "{n} towns compared, each with the score of its networks over the latest tests.",
+                      "fr": "{n} communes comparées, chacune avec le score de ses réseaux sur les derniers contrôles."},
+    "pdf.cmp.k.towns": {"en": "The towns, one by one", "fr": "Les communes, une par une"},
+    "pdf.cmp.marks": {"en": "The three marks: {marks}", "fr": "Les trois notes : {marks}"},
+    "pdf.cmp.unscored": {
+        "en": "{town} has no score: none of its networks had enough tests in the windows of the score, so it is left "
+              "out of the comparison.",
+        "fr": "{town} n'a pas de score : aucun de ses réseaux n'a eu assez de contrôles dans les fenêtres du score, elle "
+              "est donc laissée hors de la comparaison."},
+    "pdf.cmp.k.chart": {"en": "Side by side", "fr": "Côte à côte"},
+    "pdf.cmp.score": {"en": "Score out of 100", "fr": "Score sur 100"},
+    "pdf.cmp.chart.caption": {
+        "en": "Bars: the score, then each of the three marks, on the same scale from 0 to 100; the name of the town is on "
+              "the left of its bar and the value on the right; \"n/a\" when the family was not measured.",
+        "fr": "Barres : le score, puis chacune des trois notes, sur la même échelle de 0 à 100 ; le nom de la commune est "
+              "à gauche de sa barre et la valeur à droite ; « n.d. » quand la famille n'a pas été mesurée."},
+    "pdf.cmp.k.why": {"en": "Why one town does better than the other", "fr": "Pourquoi une commune fait mieux que l'autre"},
+    "pdf.cmp.k.position": {"en": "Against the national median", "fr": "Face à la médiane nationale"},
+    "pdf.cmp.pos.text": {"en": "Half of the French towns score {nat} or more. {list}.",
+                         "fr": "La moitié des communes françaises a {nat} ou plus. {list}."},
+    "pdf.cmp.pos.town": {"en": "{town} is {pos} the national middle", "fr": "{town} est {pos} du milieu national"},
+    "pdf.cmp.more": {"en": "and-{n}-more", "fr": "et-{n}-autres"},
+    "pdf.cmp.more.one": {"en": "and-{n}-more", "fr": "et-{n}-autre"},
+    "pdf.cmp.filename": {"en": "tap-water-comparison-{slug}-en.pdf", "fr": "comparaison-eau-{slug}-fr.pdf"},
 }

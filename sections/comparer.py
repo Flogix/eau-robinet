@@ -6,11 +6,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-import config
-from utils import metrics
-from utils import score as S
+from utils import compare_report as CR
 from utils.filters import commune_mask, get_filters
-from utils.i18n import lang, num, pct, t, tn
+from utils.i18n import lang, num, pct, t
 from utils.io import EXAMPLE_TOWNS, commune_network_links, communes, load_table, town_options
 from utils.town_search import town_search
 from utils.viz import SERIES, chart, headline, kicker, layout, lede, takeaway
@@ -41,9 +39,7 @@ sel = sel[sel["score"].notna()]
 if len(sel) < 2:
     st.info(t("cmp.need2"))
 else:
-    best, worst = sel.loc[sel["score"].idxmax()], sel.loc[sel["score"].idxmin()]
-    headline(t("cmp.headline", best=best["nom"], bs=fmt1(best["score"]), bg=best["grade"], worst=worst["nom"],
-               ws=fmt1(worst["score"]), wg=worst["grade"], gap=fmt1(best["score"] - worst["score"])))
+    headline(CR.headline_text(sel))
     cols = st.columns(len(sel))
     for col, (_, r) in zip(cols, sel.iterrows()):
         col.metric(r["label"], f"{fmt1(r['score'])}/100",
@@ -59,38 +55,12 @@ else:
                              hovertemplate="%{x}: %{y:.1f}/100<extra>" + r["label"] + "</extra>"))
     layout(fig, None, t("cmp.y"), height=380)
     fig.update_yaxes(range=[0, 112])
-    spread = {k: sel[k].max() - sel[k].min() for k in fams if sel[k].notna().sum() >= 2}
-    fam_gap = max(spread, key=spread.get)
-    hi, lo = sel.loc[sel[fam_gap].idxmax()], sel.loc[sel[fam_gap].idxmin()]
-    chart(fig, t("cmp.bars.title"), t("cmp.bars.caption"),
-          t("cmp.bars.take", fam=t(f"fam.{fam_gap}").lower(), hi=hi["nom"], vhi=f"{hi[fam_gap]:.0f}", lo=lo["nom"],
-            vlo=f"{lo[fam_gap]:.0f}"))
+    chart(fig, t("cmp.bars.title"), t("cmp.bars.caption"), CR.spread_text(sel) or None)
 
     # --- Why the best town does better than the worst one --------------------------------------------------------
     st.markdown(f'<div class="ar-chart-title">{t("cmp.why.title")}</div>', unsafe_allow_html=True)
     cat = load_table("params_catalog")
-    cat_labels = dict(zip(cat["code"], cat["label"]))
-    if best["score"] - worst["score"] < 1:
-        why = t("cmp.why.same", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]))
-    else:
-        gaps = {k: (best[k] - worst[k]) * config.WEIGHTS[k] for k in fams if pd.notna(best[k]) and pd.notna(worst[k])}
-        fam_w = max(gaps, key=gaps.get) if gaps else "micro"
-        why = t("cmp.why.lead", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]),
-                fam=t(f"fam.{fam_w}").lower(), vb=f"{best[fam_w]:.0f}", vw=f"{worst[fam_w]:.0f}")
-    for town_row in (worst, best):
-        causes = metrics.town_causes(town_row["insee"])
-        items = []
-        k_nc, n_b = causes["micro"]
-        if k_nc:
-            items.append(tn("cmp.cause.micro", k_nc, k=num(k_nc), n=num(n_b)))
-        for k in ("chem", "comfort"):
-            if causes[k]:
-                items.append(t(f"cmp.cause.{k}", param=S.label(causes[k], cat_labels)))
-        why += " " + (t("cmp.why.town", town=town_row["nom"], causes=t("town.why.gen.join").join(items)) if items
-                      else t("cmp.why.clean", town=town_row["nom"]))
-    if len(sel) > 2:
-        why += " " + t("cmp.why.end")
-    takeaway(why)
+    takeaway(CR.why_text(sel, dict(zip(cat["code"], cat["label"]))))   # same rules as the PDF below
 
     links = commune_network_links()
     w = load_table("udi_param_window")
@@ -116,6 +86,17 @@ else:
                  column_config={k: st.column_config.NumberColumn(format="%.3g")
                                 for k in (t("cmp.col.no3"), t("cmp.col.pfas"), t("cmp.col.th"))})
     st.caption(t("cmp.table.caption"))
+
+    # --- PDF report of the comparison (rule-based text, English or French, identity of the app) -------------------
+    st.markdown(f'<div class="ar-chart-title">{t("pdf.cmp.section")}</div>', unsafe_allow_html=True)
+    st.markdown(t("pdf.cmp.section.text"))
+    compared = list(sel["insee"])
+    b1, b2 = st.columns(2)
+    for col, code_lang, key in ((b1, "en", "pdf.cmp.button"), (b2, "fr", "pdf.cmp.button.fr")):
+        col.download_button(
+            t(key), data=lambda lg=code_lang: CR.build_pdf(compared, lg),
+            file_name=CR.file_name(list(sel["nom"]), code_lang), mime="application/pdf",
+            icon=":material/picture_as_pdf:", on_click="ignore", help=t("pdf.cmp.button.help"), key=f"cmp_pdf_{code_lang}")
 
 # --- Groups ------------------------------------------------------------------------------------------------
 kicker(t("cmp.groups.kicker"))

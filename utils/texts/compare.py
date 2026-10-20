@@ -34,7 +34,7 @@ T = {
         "en": "The largest gap between these towns is in {fam}: {hi} gets {vhi} and {lo} gets {vlo}. Two towns can share "
               "the same grade for very different reasons, which is why the report of each town matters more than its "
               "letter.",
-        "fr": "Le plus grand écart entre ces communes porte sur {fam} : {hi} obtient {vhi} et {lo} {vlo}. Deux communes "
+        "fr": "Le plus grand écart entre ces communes porte sur la famille {fam} : {hi} obtient {vhi} et {lo} {vlo}. Deux communes "
               "peuvent avoir la même note pour des raisons très différentes : c'est pourquoi le rapport de chaque "
               "commune compte plus que sa lettre."},
     "cmp.na": {"en": "n/a", "fr": "n.d."},
