@@ -159,6 +159,11 @@ T = {
         "fr": "{changed} des communes changent de note, mais l'ordre des communes garde une corrélation de rang de "
               "{rho} avec l'ordre officiel (1 voudrait dire exactement le même ordre, 0 aucun lien). Une corrélation de "
               "rang compare les positions dans les deux classements, pas les scores eux-mêmes."},
+    "my.dist.take.same": {
+        "en": "With the official settings, every town keeps its grade. Move a weight, a severity or a threshold above and "
+              "the blue bars will show how the grades of all French towns shift.",
+        "fr": "Avec les réglages officiels, chaque commune garde sa note. Déplacez un poids, une gravité ou un seuil "
+              "ci-dessus et les barres bleues montreront comment les notes de toutes les communes se déplacent."},
     "my.low.title": {"en": "The ten lowest-scoring towns of more than 10,000 inhabitants with your settings",
                      "fr": "Les dix communes de plus de 10 000 habitants au score le plus bas avec vos réglages"},
     "my.low.caption": {

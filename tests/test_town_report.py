@@ -92,6 +92,13 @@ def test_history_codes_put_key_parameters_first():
     h = pd.DataFrame({"code": ["TH", "ZZZ", "NO3", "ZZZ"], "n": [5, 50, 3, 50]})
     assert R.history_codes(h)[:2] == ["NO3", "TH"]
     assert R.history_codes(pd.DataFrame()) == []
+    # the substance that costs the most points comes first; a single pesticide is followed through the total
+    u = pd.DataFrame({"worst_chem_code": ["QMRC"], "worst_chem_penalty": [80.0]})
+    h2 = pd.DataFrame({"code": ["NO3", "PESTOT"], "n": [9, 3]})
+    assert R.history_codes(h2, u, {"QMRC"})[0] == "PESTOT"
+    assert R.history_codes(h2, u, set())[0] == "NO3"            # not a pesticide: usual order
+    u = pd.DataFrame({"worst_chem_code": ["PB"], "worst_chem_penalty": [20.0]})
+    assert R.history_codes(pd.DataFrame({"code": ["NO3", "PB"], "n": [9, 1]}), u)[0] == "PB"
 
 
 def test_markdown_is_cleaned_for_the_pdf():

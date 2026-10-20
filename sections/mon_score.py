@@ -68,12 +68,12 @@ insee = st.session_state["my_town"]
 st.button(t("my.reset"), on_click=_reset, help=t("my.reset.help"), icon=":material/restart_alt:")
 c1, c2, c3 = st.columns(3, gap="large")
 with c1:
-    st.subheader(t("my.set.weights"))
+    st.markdown(f'<div class="ar-chart-title">{t("my.set.weights")}</div>', unsafe_allow_html=True)
     st.caption(t("my.set.weights.text"))
     for k in FAMS:
         st.slider(t(f"mon.w.{k}"), 0.0, 1.0, step=0.05, key=W_KEYS[k], help=t(f"my.w.{k}.help"))
 with c2:
-    st.subheader(t("my.set.severity"))
+    st.markdown(f'<div class="ar-chart-title">{t("my.set.severity")}</div>', unsafe_allow_html=True)
     st.caption(t("my.set.severity.text"))
     for g in C.SEVERITY_GROUPS:
         st.select_slider(t(f"my.sev.{g}"), C.SEVERITY_CHOICES, key=f"my_sev_{g}", help=t("my.sev.help"),
@@ -81,7 +81,7 @@ with c2:
     st.select_slider(t("my.k"), C.MICRO_K_CHOICES, key="my_k", help=t("my.k.help"),
                      format_func=lambda v: t(f"my.k.{v:.1f}"))
 with c3:
-    st.subheader(t("my.set.thr"))
+    st.markdown(f'<div class="ar-chart-title">{t("my.set.thr")}</div>', unsafe_allow_html=True)
     st.caption(t("my.set.thr.text"))
     for k, v in C.THRESHOLDS.items():
         digits = 2 if v["step"] < 1 else 0
@@ -156,8 +156,9 @@ for col, name, color, pat in (("off", t("my.official"), NEUTRAL, "/"), ("mine", 
 layout(fig, t("mon.whatif.x"), t("my.dist.y"), height=340)
 rho = both["rank_off"].corr(both["rank_mine"])
 rho_txt = num(rho, 3)
-chart(fig, t("my.dist.title"), t("my.dist.caption"),
-      t("my.dist.take", changed=pct((both["grade"] != both["grade_mine"]).mean(), 0), rho=rho_txt))
+take = (t("my.dist.take.same") if mine.is_official else
+        t("my.dist.take", changed=pct((both["grade"] != both["grade_mine"]).mean(), 0), rho=rho_txt))
+chart(fig, t("my.dist.title"), t("my.dist.caption"), take)
 
 # lowest large towns
 big = both[both["population"] > 10_000].copy()

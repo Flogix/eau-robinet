@@ -3,3 +3,4 @@
 *.pdf binary
 *.parquet binary
 *.png binary
+*.ttf binary

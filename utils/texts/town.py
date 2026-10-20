@@ -19,6 +19,8 @@ T = {
     "town.facts.med": {"en": "Mediterranean coastal department, outside mountain areas",
                        "fr": "département du littoral méditerranéen, hors montagne"},
     "town.facts.nets": {"en": "served by {n} distribution networks", "fr": "desservie par {n} réseaux de distribution"},
+    "town.facts.nets.zero": {"en": "no distribution network linked in 2025 or 2026",
+                             "fr": "aucun réseau de distribution rattaché en 2025 ou 2026"},
     "town.facts.nets.one": {"en": "served by one distribution network", "fr": "desservie par un seul réseau de distribution"},
     "town.noscore": {"en": "No score for this town: none of its networks has samples in the last twelve to thirty-six "
                            "months.",

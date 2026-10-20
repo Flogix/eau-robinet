@@ -99,37 +99,75 @@ def prepare(micro_win: pd.DataFrame, fam_win: pd.DataFrame, params: pd.DataFrame
     def has(f):
         return (measured[f].reindex(nets).fillna(0) > 0).to_numpy() if f in measured else np.zeros(len(nets), bool)
 
-    d = params[params["family"].isin(["chem", "comfort"])].copy()
-    for c in ("cdreseau", "code", "family", "subfamily"):
-        d[c] = d[c].astype(str)
+    # Integer keys everywhere (the big tables are categorical): no copy of 500,000 strings, a small memory peak.
+    d = params.loc[params["family"].isin(["chem", "comfort"]),
+                   ["cdreseau", "code", "family", "subfamily", "n", "n_exceed", "max_ratio", "threshold"]]
+    vocab = pd.Index(sorted(set(_values(d["code"])) | (set(_values(p95["code"])) if p95 is not None else set())))
+    net = _position(d["cdreseau"], nets)
+    code = _position(d["code"], vocab)
+    width = len(vocab)
+    n_ratio = np.full(len(d), np.nan)
+    p95_ratio = np.full(len(d), np.nan)
     if p95 is not None and len(p95):
-        q = p95[["cdreseau", "code", "n_ratio", "p95_ratio"]].copy()
-        q["cdreseau"], q["code"] = q["cdreseau"].astype(str), q["code"].astype(str)
-        d = d.merge(q, on=["cdreseau", "code"], how="left")
-    else:
-        d["n_ratio"], d["p95_ratio"] = np.nan, np.nan
-    use_p95 = (s.use_p95 & (d["n_ratio"] >= s.p95_min_n) & d["p95_ratio"].notna()).to_numpy()
-    ratio = np.where(use_p95, d["p95_ratio"], d["max_ratio"]).astype(float)
-    by_share = ((np.isnan(ratio) & (d["threshold"].fillna(-1) == 0).to_numpy())
-                | d["code"].isin(list(ranges or {})).to_numpy())
+        q_net, q_code = _position(p95["cdreseau"], nets), _position(p95["code"], vocab)
+        ok = q_net >= 0
+        pos = pd.Index(q_net[ok].astype(np.int64) * width + q_code[ok]).get_indexer(net.astype(np.int64) * width + code)
+        hit = pos >= 0
+        n_ratio[hit] = p95["n_ratio"].to_numpy(float)[ok][pos[hit]]
+        p95_ratio[hit] = p95["p95_ratio"].to_numpy(float)[ok][pos[hit]]
+    max_ratio = d["max_ratio"].to_numpy(float)
+    threshold = d["threshold"].to_numpy(float)
+    use_p95 = s.use_p95 & (n_ratio >= s.p95_min_n) & ~np.isnan(p95_ratio)
+    ratio = np.where(use_p95, p95_ratio, max_ratio)
+    in_ranges = vocab.isin(list(ranges or {}))[code]
+    by_share = (np.isnan(ratio) & (np.nan_to_num(threshold, nan=-1) == 0)) | in_ranges
     share_pen = np.where(by_share, S.frequency_penalty(d["n"], d["n_exceed"], s.comfort_cap, s.micro_k), np.nan)
     ratio[by_share] = np.nan
-    merged = d["code"].map(lambda c: S.SAME_ITEM.get(c, c))
-    item = pd.factorize(d["cdreseau"] + "|" + merged)[0]
-    groups = np.where(d["family"].to_numpy() == "chem", d["subfamily"].to_numpy(), "")
-    keys = [threshold_key(c, sf, thr) for c, sf, thr in zip(d["code"], d["subfamily"], d["threshold"].fillna(np.inf))]
+    merged_pos = pd.factorize(np.array([S.SAME_ITEM.get(c, c) for c in vocab], dtype=object))[0]
+    item = pd.factorize(net.astype(np.int64) * width + merged_pos[code])[0]
+    family = _strings(d["family"])
+    subfamily = _strings(d["subfamily"])
+    is_chem = family == "chem"
+    groups = _index_of(np.where(is_chem, subfamily, ""), SEVERITY_GROUPS)
+    keys = np.full(len(d), -1, dtype=np.int8)
+    for i, k in enumerate(THRESHOLDS):
+        if k in vocab:
+            keys[code == vocab.get_loc(k)] = i
+    pest = (subfamily == "pesticides") & (np.nan_to_num(threshold, nan=np.inf) <= THRESHOLDS["PEST"]["official"] + 1e-6)
+    keys[pest & (keys < 0)] = list(THRESHOLDS).index("PEST")
     lk = links[["insee", "cdreseau"]].astype(str)
     return Prepared(
         nets=nets,
         n_bact=m["n_bact"].reindex(nets).fillna(0).to_numpy(float),
         n_bact_nc=m["n_bact_nc"].reindex(nets).fillna(0).to_numpy(float),
         measured_chem=has("chem"), measured_comfort=has("comfort"),
-        row_net=nets.get_indexer(d["cdreseau"]), row_chem=(d["family"] == "chem").to_numpy(),
-        row_item=item.astype(np.int32), row_group=_index_of(groups, SEVERITY_GROUPS),
-        row_key=_index_of(keys, list(THRESHOLDS)),
-        ratio=ratio, max_ratio=d["max_ratio"].to_numpy(float), exceeded=(d["n_exceed"] > 0).to_numpy(),
+        row_net=net, row_chem=is_chem,
+        row_item=item.astype(np.int32), row_group=groups, row_key=keys,
+        ratio=ratio, max_ratio=max_ratio, exceeded=(d["n_exceed"] > 0).to_numpy(),
         share_pen=share_pen, n_items=int(item.max()) + 1 if len(item) else 0,
         link_insee=lk["insee"].to_numpy(), link_net=nets.get_indexer(lk["cdreseau"]))
+
+
+def _values(col: pd.Series) -> list:
+    """Distinct values of a column as strings (categories when the column is categorical)."""
+    if isinstance(col.dtype, pd.CategoricalDtype):
+        return [str(c) for c in col.cat.categories]
+    return [str(c) for c in col.unique()]
+
+
+def _position(col: pd.Series, index: pd.Index) -> np.ndarray:
+    """Position of each value of `col` in `index` (-1 if absent), through the categories when possible."""
+    if isinstance(col.dtype, pd.CategoricalDtype):
+        per_cat = np.append(index.get_indexer(col.cat.categories.astype(str)), -1)
+        return per_cat[col.cat.codes.to_numpy()]          # code -1 (missing) -> last entry, -1
+    return index.get_indexer(col.astype(str))
+
+
+def _strings(col: pd.Series) -> np.ndarray:
+    if isinstance(col.dtype, pd.CategoricalDtype):
+        cats = np.append(col.cat.categories.astype(str).to_numpy(dtype=object), "")
+        return cats[col.cat.codes.to_numpy()]
+    return col.astype(str).to_numpy(dtype=object)
 
 
 def _index_of(values, choices) -> np.ndarray:

@@ -74,13 +74,25 @@ def medians(c: pd.Series, com_all: pd.DataFrame) -> tuple[float, float]:
     return float(com_all["score"].median()), float(com_all.loc[com_all["dep"] == c["dep"], "score"].median())
 
 
-def history_codes(hist: pd.DataFrame) -> list[str]:
-    """Key parameters measured on the networks, the most telling first."""
+def history_codes(hist: pd.DataFrame, u_rows: pd.DataFrame | None = None,
+                  pesticides: set | None = None) -> list[str]:
+    """Key parameters measured on the networks, the most telling first: the substance that costs the most points to
+    the town when its history exists (total pesticides standing for a single pesticide), then the usual key ones."""
     if hist.empty:
         return []
     avail = hist.groupby("code")["n"].sum().sort_values(ascending=False)
     pref = [k for k in HISTORY_PREFERENCE if k in avail.index]
-    return pref + [k for k in avail.index if k not in pref]
+    focus = []
+    if u_rows is not None and len(u_rows) and "worst_chem_code" in u_rows:
+        w = u_rows.sort_values("worst_chem_penalty", ascending=False).iloc[0]
+        code = w["worst_chem_code"]
+        if isinstance(code, str) and w["worst_chem_penalty"] > 0:
+            merged = S.SAME_ITEM.get(code, code)
+            if merged in avail.index:
+                focus = [merged]
+            elif "PESTOT" in avail.index and code in (pesticides or set()):
+                focus = ["PESTOT"]
+    return focus + [k for k in pref if k not in focus] + [k for k in avail.index if k not in pref and k not in focus]
 
 
 # --- Data gathered for one town ----------------------------------------------------------------------------------
@@ -292,7 +304,7 @@ class _Report:
         facts = [t("pdf.dep", dep=f"{c.get('dep_nom', '')} ({c['dep']})"),
                  t("town.facts.pop", n=num(c["population"])) if pd.notna(c.get("population")) else None,
                  t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None,
-                 tn("town.facts.nets", len(self.d["nets"]), n=len(self.d["nets"]))]
+                 (tn("town.facts.nets", len(self.d["nets"]), n=len(self.d["nets"])) if len(self.d["nets"]) else t("town.facts.nets.zero"))]
         self.para(" · ".join(x for x in facts if x), size=9, color=MUTED)
         # warning box
         pdf.set_fill_color(*PAPER)
@@ -450,7 +462,9 @@ class _Report:
     def history(self) -> None:
         from utils.viz import SERIES
         pdf, hist = self.pdf, self.d["history"]
-        codes = history_codes(hist)
+        u_rows = self.d["udi"].reindex(self.d["nets"]["cdreseau"]).dropna(subset=["score"])
+        cat = self.d["cat"]
+        codes = history_codes(hist, u_rows, set(cat.loc[cat["subfamily"] == "pesticides", "code"]))
         if not codes:
             return
         code = self.hist_code if self.hist_code in codes else codes[0]
@@ -460,8 +474,8 @@ class _Report:
         unit = self.d["cat"].set_index("code")["unit"].get(code)
         unit = unit if isinstance(unit, str) else ""
         town = self.d["c"]["nom"]
+        self.need(130)
         self.kicker(t("pdf.k.history"))
-        self.need(118)
         self.title(t("town.hist.title", param=lab, town=town), size=11.5)
         top_nets = h.groupby("name")["n"].sum().sort_values(ascending=False).index[:6]
         thr = h["threshold"].dropna()

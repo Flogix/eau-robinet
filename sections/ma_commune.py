@@ -43,7 +43,7 @@ names = load_table("dim_udi").set_index("cdreseau")["nomreseau"]
 
 facts = [t("town.facts.pop", n=num(c["population"])) if pd.notna(c["population"]) else None,
          t(f"dens7.{int(c['density7'])}") if pd.notna(c.get("density7")) else None, t("town.facts.mountain") if c.get("mountain") else None,
-         t("town.facts.med") if c.get("mediterranean_coast") else None, tn("town.facts.nets", len(nets), n=len(nets))]
+         t("town.facts.med") if c.get("mediterranean_coast") else None, (tn("town.facts.nets", len(nets), n=len(nets)) if len(nets) else t("town.facts.nets.zero"))]
 st.caption(" · ".join(str(x) for x in facts if x))
 
 if pd.isna(c.get("score")):
@@ -188,7 +188,7 @@ kicker(t("town.hist.kicker"))
 if hist.empty:
     st.info(t("town.hist.none"))
 else:
-    codes = R.history_codes(hist)
+    codes = R.history_codes(hist, u_rows, set(cat.loc[cat["subfamily"] == "pesticides", "code"]))
     code_labels = {k: S.label(k, cat_labels) for k in codes}
     code = st.selectbox(t("town.hist.pick"), codes, format_func=code_labels.get, help=t("town.hist.pick.help"),
                         key="hist_code")
