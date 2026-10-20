@@ -17,8 +17,9 @@ and three filters: period, region and kind of town.
 On the map page, it also holds the variable selection: what the map shows.
 Only the filters that change the open page are shown, so that no control is decorative: period, region and kind of town on
 the home page and the map, the period on *How to read a water test*, *What we look for, what we find* and *Behind the
-numbers*, the region on *Town against town*. The other pages have no Filters section at all. A choice is kept from one
-page to the next.
+numbers*, the region on *Town against town*. They sit in a light frame with a clear title, and these pages say at the top
+that they can be narrowed in the sidebar, and with which filters. The other pages have no Filters section at all. A
+choice is kept from one page to the next.
 
 ---
 
@@ -29,14 +30,16 @@ page to the next.
 **Visuals.** Four indicators (KPIs) tied to the filters: the share of bacteriological and of chemical samples that met the
 health limits, with the change against the previous year, the number of towns with at least one non-compliance, and the
 median score. A line chart shows the share of samples that failed a health limit, year by year, with the partial year 2026
-shaded. A town search box sends the reader straight to their town.
+shaded. A town search box shows, right under it, a preview of the chosen town (score, grade, confidence, the points lost)
+and a link to its full report: the reader stays on the home page and does not miss the rest of it.
 
 **Insight.** "Over 2016 to 2025 in all of France, 98.0% of bacteriological samples and 97.0% of chemical samples met the
 health limits." The hook comes first: the WHO and Santé publique France figures show that waterborne outbreaks still happen,
 and the page says honestly that there is no official count of deaths in France. Then the page states the four hypotheses
 the app will test.
 
-**Interactions.** Period, region and kind of town change the KPIs and the curve. The search box opens the town page.
+**Interactions.** Period, region and kind of town change the KPIs and the curve. The search box shows a preview; the link
+under it opens the town page on that town.
 
 ## 2. What it all means (`sections/conclusions.py`)
 
@@ -94,8 +97,9 @@ same content and the visual identity of the app.
 
 **Question.** Is a big city better than a village, a mountain town better than a seaside town?
 
-**Visuals.** Grouped bars give the three marks of two to six towns side by side; a generated paragraph explains the gap
-between the best and the weakest; a table gives key facts; two buttons download the **comparison report** in PDF,
+**Visuals.** Grouped bars give the three marks of two to six towns side by side; a generated text explains the gap between
+the best and the weakest in short sentences, one paragraph each (the family behind the gap, then where each of the two
+towns loses points); a table gives key facts; two buttons download the **comparison report** in PDF,
 in English or in French (each town, a comparative chart, the explanation of the gap, the national median, method and sources). Then box plots show how the scores of whole groups of towns spread
 (mountain against Mediterranean coast, urban against rural, size of the town), so that distributions are compared, not
 averages.
@@ -103,7 +107,8 @@ averages.
 **Insight.** "Marseille scores 98.7 (A) and Lille 57.4 (D): a gap of 41.3 points." For groups: "the median score is 95.8 for
 the Mediterranean coast (approximation) and 88.7 for mountain towns; 6% of mountain towns are graded D or E, against 2%."
 
-**Interactions.** Choice of towns, choice of grouping, region filter.
+**Interactions.** Choice of towns (kept when the reader leaves the page and comes back, and in the link, `?towns=`, so that a
+comparison can be shared), choice of grouping, region filter.
 
 ## 6. The map of France (`sections/overview.py`)
 
@@ -181,10 +186,11 @@ Everything is precomputed by `scripts/07_build_explore_tables.py`: each interact
 
 **Question.** Can we trust the data and our processing?
 
-**Visuals.** A heatmap of empty cells column by column and year by year, results by kind of value, official verdict against
+**Visuals.** A heatmap of empty cells column by column and year by year, opened by a computed sentence (for COM_UDI, which
+has no empty cell: "0% of empty cells in every column", also written in each cell), results by kind of value, official verdict against
 our recomputation, a histogram of samples per network, and the list of biases and limits.
 
-**Insight.** "88 of the 88 automatic checks pass." "66% of the results are below the quantification limit." "For bacteria,
+**Insight.** "88 of the 88 automatic checks pass, and all 133 million results read." "66% of the results are below the quantification limit." "For bacteria,
 our recomputation finds 100.0% of the samples declared non-compliant; for chemistry the two differ in 2016 to 2022, for
 reasons we could trace" (derogations, old selenium and antimony limits).
 
