@@ -24,6 +24,7 @@ PAGE_FILTERS = {
     "map": {"years", "region", "ctype"},
     "monitor": {"years"},
     "quality": {"years"},
+    "my-score": set(),
     "conclusions": set(),
     "about": set(),
 }

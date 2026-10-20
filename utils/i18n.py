@@ -6,6 +6,9 @@ falls back to English, a missing key raises (caught by the tests). Numbers are f
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+from contextvars import ContextVar
+
 import streamlit as st
 
 from utils.texts import TEXTS
@@ -14,7 +17,24 @@ LANGS = {"en": "EN", "fr": "FR"}
 NBSP = " "   # narrow no-break space: French thousands separator and space before %
 
 
+_FORCED: ContextVar[str | None] = ContextVar("forced_lang", default=None)
+
+
+@contextmanager
+def forced_lang(code: str):
+    """Write in `code` whatever the language of the interface (the PDF report exists in both languages).
+    A context variable, so that other sessions served by other threads are not affected."""
+    token = _FORCED.set(code)
+    try:
+        yield
+    finally:
+        _FORCED.reset(token)
+
+
 def lang() -> str:
+    forced = _FORCED.get()
+    if forced:
+        return forced
     try:
         return st.session_state.get("lang", "en")
     except Exception:   # outside a Streamlit run (scripts, tests)

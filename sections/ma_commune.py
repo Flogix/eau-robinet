@@ -5,6 +5,7 @@ import streamlit as st
 
 import config
 from utils import score as S
+from utils import town_report as R
 from utils.i18n import lang, num, t, tn
 from utils.io import commune_network_links, communes, load_table, network_history, town_options
 from utils.viz import (BRICK, FAMILY_COLORS, GRADE_COLORS, SERIES, badge, chart, headline, kicker, layout, lede,
@@ -96,43 +97,25 @@ st.markdown(f'<div class="ar-chart-title">{t("town.why.gen.title")}</div>', unsa
 cat_all = load_table("params_catalog")
 lab_all = dict(zip(cat_all["code"], cat_all["label"]))
 u_rows = udi.reindex(nets["cdreseau"]).dropna(subset=["score"])
-w_measured = {k: config.WEIGHTS[k] for k, v in zip(fams, vals) if pd.notna(v)}
-norm = sum(w_measured.values())
-losses = {k: w_measured[k] * (100 - float(c[k])) / norm for k in w_measured}
-parts = []
-for k, pts in sorted(losses.items(), key=lambda kv: -kv[1]):
-    if pts < 0.5:
-        continue
-    fam_name = t(f"fam.{k}") if not parts else t(f"fam.{k}").lower()
-    piece = tn("town.why.gen.fam", 1 if (lang() == "fr" and pts < 2) else 2, fam=fam_name, pts=fmt1(pts),
-               mark=f"{float(c[k]):.0f}")
-    if k == "micro":
-        nc_, n_ = int(u_rows["n_bact_nc"].sum()), int(u_rows["n_bact"].sum())
-        if nc_:
-            piece += t("town.why.gen.colon") + tn("town.why.gen.cause.micro", nc_, nc=num(nc_), n=num(n_))
-    else:
-        col_code, col_pen = f"worst_{k}_code", f"worst_{k}_penalty"
-        worst = u_rows.sort_values(col_pen, ascending=False)
-        if len(worst) and isinstance(worst[col_code].iloc[0], str):
-            piece += ", " + t(f"town.why.gen.cause.{k}", param=S.label(worst[col_code].iloc[0], lab_all))
-    parts.append(piece)
-loss = 100 - score
-if loss < 0.05 or not parts:
-    gen = t("town.why.gen.perfect", town=town)
-else:
-    gen = t("town.why.gen.loss", town=town, loss=fmt1(loss)) + t("town.why.gen.join").join(parts) + "."
-dep_med = communes().loc[lambda d: d["dep"] == c["dep"], "score"].median()
+takeaway(R.explanation(c, u_rows, communes(), lab_all))
 
+# --- PDF report (rule-based text, English or French, identity of the app) -------------------------------------------
+hist = network_history(tuple(nets["cdreseau"]))
+pdf_tables = {"communes": communes(), "udi_scores": load_table("udi_scores"), "links": links,
+              "dim_udi": load_table("dim_udi"), "udi_param_window": load_table("udi_param_window"),
+              "udi_family_window": load_table("udi_family_window"), "udi_param_p95": load_table("udi_param_p95"),
+              "params_catalog": cat_all, "history": hist}
+hist_choice = st.session_state.get("hist_code")
+st.markdown(f'<div class="ar-chart-title">{t("pdf.section")}</div>', unsafe_allow_html=True)
+st.markdown(t("pdf.section.text"))
+b1, b2 = st.columns(2)
+for col, code_lang, key in ((b1, "en", "pdf.button"), (b2, "fr", "pdf.button.fr")):
+    col.download_button(
+        t(key), data=lambda lg=code_lang: R.build_pdf(insee, pdf_tables, lg, hist_choice),
+        file_name=R.file_name(town, code_lang),
+        mime="application/pdf", icon=":material/picture_as_pdf:", on_click="ignore", help=t("pdf.button.help"),
+        key=f"pdf_{code_lang}")
 
-def _pos(diff: float) -> str:
-    if abs(diff) < 0.05:
-        return t("town.pos.at")
-    return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
-
-
-gen += " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})", depm=fmt1(dep_med),
-               town=town, pos_nat=_pos(score - median), pos_dep=_pos(score - dep_med))
-takeaway(gen)
 
 # --- Report per network ---------------------------------------------------------------------------------
 kicker(t("town.why.kicker"))
@@ -202,13 +185,10 @@ st.markdown(t("town.formula.town"))
 
 # --- History ----------------------------------------------------------------------------------------------
 kicker(t("town.hist.kicker"))
-hist = network_history(tuple(n["cdreseau"]))
 if hist.empty:
     st.info(t("town.hist.none"))
 else:
-    avail = hist.groupby("code")["n"].sum().sort_values(ascending=False)
-    pref = [k for k in ("NO3", "PESTOT", "SPFAS", "ECOLI", "TH", "CLDZ_D", "PB", "AS") if k in avail.index]
-    codes = pref + [k for k in avail.index if k not in pref]
+    codes = R.history_codes(hist)
     code_labels = {k: S.label(k, cat_labels) for k in codes}
     code = st.selectbox(t("town.hist.pick"), codes, format_func=code_labels.get, help=t("town.hist.pick.help"),
                         key="hist_code")

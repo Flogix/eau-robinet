@@ -65,3 +65,32 @@ def test_compare_defaults_to_five_cities():
     at = run_app()
     at.switch_page("sections/comparer.py").run()
     assert at.multiselect(key="cmp_sel").value == ["75056", "69123", "13055", "33063", "59350"]
+
+
+def test_my_score_changes_and_resets():
+    at = run_app()
+    at.switch_page("sections/mon_score.py").run()
+    assert not at.exception
+    official = {m.label: m.value for m in at.metric}
+    assert official["Official score"] == official["Your score"]
+    at.select_slider(key="my_sev_pesticides").set_value(3.0)
+    at.slider(key="my_thr_NO3").set_value(20.0)
+    at.slider(key="my_w_comfort").set_value(0.0)
+    at.run()
+    assert not at.exception
+    changed = {m.label: m.value for m in at.metric}
+    assert changed["Your score"] != changed["Official score"]
+    assert changed["Towns changing grade"] != "0%"
+    at.button[0].click().run()                    # back to the official settings
+    assert at.session_state["my_thr_NO3"] == 50.0 and at.session_state["my_sev_pesticides"] == 1.0
+    assert {m.label: m.value for m in at.metric} == official
+
+
+@pytest.mark.parametrize("insee", ["75056", "97411", "01001"])   # Paris, Saint-Denis (Réunion), a small town
+def test_town_page_offers_the_pdf_in_both_languages(insee):
+    at = run_app()
+    at.switch_page("sections/ma_commune.py").run()
+    at.selectbox(key="town_pick").set_value(insee).run()
+    assert not at.exception
+    buttons = at.get("download_button")
+    assert len(buttons) == 2

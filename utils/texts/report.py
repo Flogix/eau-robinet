@@ -45,7 +45,7 @@ T = {
         "fr": "{lab} : {k} mesures sur {n} au-dessus de la valeur indicative de 0,9 µg/L. Selon les autorités "
               "sanitaires, cela n'empêche pas de boire l'eau, mais le distributeur doit mettre en place un plan "
               "d'actions."},
-    "rep.comf_close": {"en": "{lab}: highest value {max} {unit}, for a {kind} of {thr} {unit}.",
+    "rep.comf_close": {"en": "{lab}: highest value {max} {unit}, under the {kind} of {thr} {unit}.",
                        "fr": "{lab} : valeur la plus haute {max} {unit}, pour une {kind} de {thr} {unit}."},
     "rep.nonrel": {"en": "{lab} was found, at {max} µg/L at most. Health authorities judge this pesticide residue "
                          "\"non-relevant\" and compare it with a 0.9 µg/L indicative value, which it stays under.",

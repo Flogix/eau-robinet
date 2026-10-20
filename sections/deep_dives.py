@@ -177,48 +177,8 @@ with t_hard:
     analysis(t("an.mon.hard.seen", lo_v=f"{med.iloc[0]:.0f}", lo=med.index[0], hi_v=f"{med.iloc[-1]:.0f}",
                hi=med.index[-1]), t("an.mon.hard.why"), t("an.mon.hard.lim"))
 
-# --- What if ---------------------------------------------------------------------------------------------------------
+# --- What if: the interactive version lives on the page "Build your own score" ----------------------------------------
 kicker(t("mon.whatif.kicker"))
 st.header(t("mon.whatif.title"))
-st.markdown(t("mon.whatif.text"))
-u = load_table("udi_scores")
-c1, c2, c3 = st.columns(3)
-w_micro = c1.slider(t("mon.w.micro"), 0.0, 1.0, config.WEIGHTS["micro"], 0.05, key="w_micro")
-w_chem = c2.slider(t("mon.w.chem"), 0.0, 1.0, config.WEIGHTS["chem"], 0.05, key="w_chem")
-w_comf = c3.slider(t("mon.w.comfort"), 0.0, 1.0, config.WEIGHTS["comfort"], 0.05, key="w_comf")
-if w_micro + w_chem + w_comf == 0:
-    st.warning(t("mon.w.zero"))
-else:
-    tot = w_micro + w_chem + w_comf
-    w = {"micro": w_micro / tot, "chem": w_chem / tot, "comfort": w_comf / tot}
-    new = S.global_score(u, w)
-    elig = u["n_bact"] >= config.MIN_SAMPLES_RANKING
-    rho = u.loc[elig, "score"].rank().corr(new[elig].rank())
-    g_new = new.map(S.grade)
-    changed = (u["grade"] != g_new)[u["score"].notna()].mean()
-    wtxt = " / ".join(pct(w[k], 0) for k in ("micro", "chem", "comfort"))
-    rho_txt = f"{rho:.3f}".replace(".", ",") if lang() == "fr" else f"{rho:.3f}"
-    headline(t("mon.whatif.headline", w=wtxt, changed=pct(changed, 0), rho=rho_txt))
-    dist = pd.DataFrame({"default": u["grade"].value_counts(normalize=True),
-                         "yours": g_new.value_counts(normalize=True)}).reindex(list("ABCDE")).fillna(0)
-    fig = go.Figure()
-    for col, color, pat in (("default", NEUTRAL, "/"), ("yours", BLUE, "")):
-        name = t(f"mon.whatif.{col}")
-        fig.add_trace(go.Bar(x=dist.index, y=100 * dist[col], name=name, marker_color=color, marker_pattern_shape=pat,
-                             text=[pct(v, 0) for v in dist[col]], textposition="outside",
-                             hovertemplate="%{x}: %{y:.1f}%<extra>" + name + "</extra>"))
-    layout(fig, t("mon.whatif.x"), t("mon.whatif.y"), height=340)
-    chart(fig, t("mon.whatif.chart"), t("mon.whatif.caption"))
-    analysis(t("an.mon.whatif.seen", changed=pct(changed, 0), rho=rho_txt), t("an.mon.whatif.why"),
-             t("an.mon.whatif.lim"))
-with st.expander(t("mon.sens.title")):
-    sens = load_table("score_sensitivity")
-    tbl = sens[["variant", "spearman_networks", "spearman_communes", "share_grade_changed", "bottom10_overlap",
-                "median_score"]].copy()
-    tbl["variant"] = tbl["variant"].map(lambda v: t(f"variant.{v}"))
-    tbl.columns = [t("mon.sens.variant"), t("mon.sens.rho_n"), t("mon.sens.rho_c"), t("mon.sens.changed"),
-                   t("mon.sens.bottom"), t("mon.sens.median")]
-    st.dataframe(tbl, hide_index=True,
-                 column_config={t("mon.sens.changed"): st.column_config.NumberColumn(format="percent"),
-                                t("mon.sens.bottom"): st.column_config.NumberColumn(format="percent")})
-    st.caption(t("mon.sens.caption"))
+st.markdown(t("mon.whatif.link.text"))
+st.page_link("sections/mon_score.py", label=t("mon.whatif.link"), icon=":material/tune:")

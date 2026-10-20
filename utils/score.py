@@ -285,6 +285,14 @@ def _fmt(v: float) -> str:
     return s.replace(".", ",") if _lang() == "fr" else s
 
 
+def _date(d) -> str:
+    from utils.i18n import date_fr_en
+    try:
+        return date_fr_en(d)
+    except (ValueError, TypeError):
+        return str(d)
+
+
 def _pct1(x: float) -> str:
     s = f"{100 * x:.1f}"
     return f"{s.replace('.', ',')} %" if _lang() == "fr" else f"{s}%"
@@ -328,7 +336,7 @@ def why_report(udi_row: pd.Series, params: pd.DataFrame, fam: pd.DataFrame, p95:
     issues = chem[chem["penalty"] > 0]
     for _, r in issues.head(max_items).iterrows():
         lab, unit = label(r["code"], catalog_labels), unit_of(r)
-        date = _tr("rep.on_date", date=r["date_max"]) if pd.notna(r.get("date_max")) else ""
+        date = _tr("rep.on_date", date=_date(r["date_max"])) if pd.notna(r.get("date_max")) else ""
         if r["n_exceed"] > 0:
             out.append(("limit", _trn("rep.chem_exceed", r["n_exceed"], lab=lab, k=int(r["n_exceed"]), n=int(r["n"]),
                                      thr=_fmt(r["threshold"]), unit=unit, max=_fmt(r["max_value"]), date=date)))
