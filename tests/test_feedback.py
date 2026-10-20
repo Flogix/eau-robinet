@@ -40,3 +40,24 @@ def test_home_shows_a_preview_and_a_link_to_the_town_page(lang, insee, expected,
     links = [(x.proto.page, x.proto.label) for x in at.main.get("page_link")]
     assert ("town", link) in links
     assert at.session_state["insee"] == insee        # the town page will open on this town
+
+
+# --- 2d. Town against town: the towns compared survive navigation ---------------------------------------------------
+def test_towns_compared_survive_a_visit_to_other_pages():
+    at = run_app()
+    at.switch_page("sections/comparer.py").run()
+    at.multiselect(key="cmp_sel").set_value(["69123", "13055"]).run()     # two of the options shown
+    assert not at.exception
+    for page in ("ma_commune", "overview", "conclusions"):          # pages without this widget
+        at.switch_page(f"sections/{page}.py").run()
+    at.switch_page("sections/comparer.py").run()
+    assert at.multiselect(key="cmp_sel").value == ["69123", "13055"]
+    assert at.query_params["towns"] in ("69123,13055", ["69123,13055"])
+
+
+def test_towns_compared_can_come_from_the_link():
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
+    at.query_params["towns"] = "13055,59350,zzzzz"                  # an unknown code is ignored
+    at.run()
+    at.switch_page("sections/comparer.py").run()
+    assert at.multiselect(key="cmp_sel").value == ["13055", "59350"]

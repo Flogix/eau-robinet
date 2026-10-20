@@ -20,8 +20,9 @@ lede(t("cmp.lede"))
 fmt1 = (lambda v: f"{v:.1f}".replace(".", ",")) if lang() == "fr" else (lambda v: f"{v:.1f}")
 
 _, labels = town_options()
-if "cmp_sel" not in st.session_state:
-    st.session_state["cmp_sel"] = list(EXAMPLE_TOWNS)
+if "cmp_sel" not in st.session_state:   # first visit: the towns of a shared link (?towns=), else the examples
+    from_url = [i for i in str(st.query_params.get("towns", "")).split(",") if i in labels][:6]
+    st.session_state["cmp_sel"] = from_url or list(EXAMPLE_TOWNS)
 added = st.session_state.pop("_cmp_add", None)          # chosen in the search box below, during the last run
 if added and added not in st.session_state["cmp_sel"] and len(st.session_state["cmp_sel"]) < 6:
     st.session_state["cmp_sel"] = st.session_state["cmp_sel"] + [added]
@@ -29,6 +30,7 @@ if added and added not in st.session_state["cmp_sel"] and len(st.session_state["
 small = list(dict.fromkeys(st.session_state["cmp_sel"] + EXAMPLE_TOWNS))
 chosen = st.multiselect(t("cmp.pick"), small, format_func=labels.get, max_selections=6, key="cmp_sel",
                         help=t("cmp.pick.help"))
+st.query_params["towns"] = ",".join(chosen)   # the comparison can be shared, and survives a reload
 full = len(chosen) >= 6
 town_search(t("cmp.add"), "cmp_search", lambda i: st.session_state.update(_cmp_add=i), disabled=full,
             placeholder=t("cmp.add.full") if full else None)

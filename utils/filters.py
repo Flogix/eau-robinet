@@ -16,7 +16,9 @@ OFFICIAL = {"bact_official", "chem_official"}
 COMMUNE_TYPES = ["all", "urban_dense", "urban_inter", "rural", "mountain", "med"]
 
 ALL_FRANCE = "all"   # value of the region filter for the whole country (the Filters object says None)
-FILTER_KEYS = ("f_years", "f_region_code", "f_ctype", "map_view")   # map_view: the map's own control
+# values kept across pages although their widget is drawn on one page only: the filters, the map's own control, and
+# the towns compared on "Town against town"
+FILTER_KEYS = ("f_years", "f_region_code", "f_ctype", "map_view", "cmp_sel")
 # Which filters change something on each page (url path -> filters), checked by tests/test_app_pages.py.
 # Only these are drawn; a page without any has no Filters section.
 PAGE_FILTERS = {
