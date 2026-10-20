@@ -216,7 +216,7 @@ else:
     if h["annee"].max() == config.PARTIAL_YEAR:
         partial_year(fig, config.PARTIAL_YEAR, t("common.partial2026"))
     layout(fig, t("common.year"), f"{lab} ({unit})" if unit else lab, height=400)
-    fig.update_xaxes(dtick=1)
+    fig.update_xaxes(dtick=1, range=[h["annee"].min() - 0.5, config.PARTIAL_YEAR + 0.5])
     top = h.loc[h["max"].idxmax()]
     chart(fig, t("town.hist.title", param=lab, town=town), t("town.hist.caption"),
           t("town.hist.take", max=f"{top['max']:.3g}", unit=unit, year=int(top["annee"]), thr_part=thr_part))

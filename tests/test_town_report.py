@@ -67,9 +67,27 @@ def test_language_is_forced_then_restored():
     assert t("grade") == "Grade"
 
 
-def test_explanation_uses_the_published_numbers(tables):
+def test_paris_is_not_compared_with_its_own_department(tables):
     c = tables["communes"].set_index("insee").loc["75056"].copy()
     nets = tables["links"].loc[tables["links"]["insee"] == "75056", "cdreseau"]
+    u = tables["udi_scores"].set_index("cdreseau").reindex(nets).dropna(subset=["score"])
+    txt = R.explanation(c, u, tables["communes"], {})
+    assert "department" not in txt and "national middle" in txt
+    with forced_lang("fr"):
+        txt = R.explanation(c, u, tables["communes"], {})
+        assert "département" not in txt and "en cause : plomb" in txt
+
+
+def test_lower_name_keeps_acronyms():
+    assert R.lower_name("Plomb") == "plomb"
+    assert R.lower_name("Total des pesticides") == "total des pesticides"
+    for keep in ("PFAS (somme de 20)", "ESA-métolachlore", "E. coli", "pH", "NOA-métolachlore"):
+        assert R.lower_name(keep) == keep
+
+
+def test_explanation_uses_the_published_numbers(tables):
+    c = tables["communes"].set_index("insee").loc["69123"].copy()   # Lyon: department with many towns
+    nets = tables["links"].loc[tables["links"]["insee"] == "69123", "cdreseau"]
     u = tables["udi_scores"].set_index("cdreseau").reindex(nets).dropna(subset=["score"])
     txt = R.explanation(c, u, tables["communes"], {})
     loss = 100 - float(c["score"])

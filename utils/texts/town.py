@@ -180,6 +180,9 @@ T = {
               "national middle and {pos_dep} the middle of its department.",
         "fr": "La moitié des communes françaises a {nat} ou plus ; dans le département {dep}, la moitié a {depm} ou plus. "
               "{town} est {pos_nat} du milieu national et {pos_dep} du milieu de son département."},
+    "town.why.gen.medians.nat": {
+        "en": "Half of the French towns score {nat} or more. {town} is {pos_nat} the national middle.",
+        "fr": "La moitié des communes françaises a {nat} ou plus. {town} est {pos_nat} du milieu national."},
     "town.pos.above": {"en": "{d} points above", "fr": "{d} points au-dessus"},
     "town.pos.below": {"en": "{d} points below", "fr": "{d} points en dessous"},
     "town.pos.at": {"en": "right at", "fr": "pile au niveau"},

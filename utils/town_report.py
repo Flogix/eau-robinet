@@ -19,6 +19,7 @@ from utils.i18n import date_fr_en, forced_lang, lang, num, t, tn
 FONTS = config.ROOT / "assets" / "fonts"
 APP_URL = "https://eau-robinet.streamlit.app/"
 REPO_URL = "https://github.com/Flogix/eau-robinet"
+MIN_TOWNS_DEP_MEDIAN = 5   # below this many scored towns, no comparison with the departmental median
 HISTORY_PREFERENCE = ("NO3", "PESTOT", "SPFAS", "ECOLI", "TH", "CLDZ_D", "PB", "AS")
 
 
@@ -51,7 +52,8 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
             col_code, col_pen = f"worst_{k}_code", f"worst_{k}_penalty"
             worst = u_rows.sort_values(col_pen, ascending=False)
             if len(worst) and isinstance(worst[col_code].iloc[0], str):
-                piece += ", " + t(f"town.why.gen.cause.{k}", param=S.label(worst[col_code].iloc[0], labels))
+                param = S.label(worst[col_code].iloc[0], labels)
+                piece += ", " + t(f"town.why.gen.cause.{k}", param=lower_name(param) if lang() == "fr" else param)
         parts.append(piece)
     loss = 100 - score
     if loss < 0.05 or not parts:
@@ -65,8 +67,19 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
             return t("town.pos.at")
         return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
 
+    n_dep = int(com_all.loc[com_all["dep"] == c["dep"], "score"].notna().sum())
+    if n_dep < MIN_TOWNS_DEP_MEDIAN:   # Paris: a single town, its "departmental median" is itself
+        return gen + " " + t("town.why.gen.medians.nat", nat=fmt1(median), town=town, pos_nat=pos(score - median))
     return gen + " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})",
                          depm=fmt1(dep_med), town=town, pos_nat=pos(score - median), pos_dep=pos(score - dep_med))
+
+
+def lower_name(name: str) -> str:
+    """'Plomb' -> 'plomb' after 'en cause :', but acronyms and species names stay: PFAS, ESA-métolachlore, E. coli."""
+    first = name.split(" ")[0]
+    if sum(ch.isupper() for ch in first) >= 2 or first.endswith("."):
+        return name
+    return name[:1].lower() + name[1:]
 
 
 def medians(c: pd.Series, com_all: pd.DataFrame) -> tuple[float, float]:
