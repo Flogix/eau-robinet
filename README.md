@@ -261,7 +261,7 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 219 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 241 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
 
@@ -272,7 +272,9 @@ when its field was emptied: the browser drew every option. The town search now r
 (`utils/town_search.py`, built on `streamlit-searchbox`): the browser only receives the five examples or the 20 best
 matches, the box lives in a fragment so that typing does not rerun the page, and the report of each network is cached.
 `tests/test_performance.py` fails if a widget sends more than 2,000 options to the browser, if a key interaction takes more
-than 3 seconds on the server, or if emptying the town field freezes a real browser for more than 1 second.
+than 3 seconds on the server, or if emptying the town field freezes a real browser for more than 1 second. The page *Explore the data* reads only small precomputed tables, and its three controls live in fragments, so
+that changing one redraws one chart: `tests/test_explore.py` fails if any of its controls takes more than 1.5 seconds
+on the server (measured 0.1 to 0.3 s; 0.2 to 0.4 s in Chrome).
 
 ## 7. Project structure
 
