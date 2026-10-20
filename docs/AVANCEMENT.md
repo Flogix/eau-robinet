@@ -17,6 +17,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | Session 5 | ✅ A, B, C, D, E faits : LinkedIn, page « Explorer les données », audit complet, push, vérification en ligne, zip | 20/10 |
 | Session 6 | ✅ doublon retiré, F (filtres masqués), G (PDF de comparaison), H (en-tête de la barre latérale), I (conclusions en 2e), E refaite | 20/10 |
 | Session 7 | ✅ en-tête (logos selon le thème), retours de l'utilisateur test (2a à 2g), chiffres harmonisés, tests, push, vérification en ligne, zip | 20/10 |
+| Session 8 | ✅ logo qui suit le thème instantanément, espacement du menu | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -666,3 +667,30 @@ comptes ; logos ; filtres ; texte de comparaison). Audit Playwright local sans �
 push : 22 pages sans erreur (anglais en clair, français en sombre), logo noir en clair et blanc en sombre, filtres et
 phrase d'en-tête exactement sur les pages filtrables, aperçu de l'accueil, sélection de Comparer gardée, phrase 0 % de
 COM_UDI, « Possible explanations » ; pages réchauffées. Storyboard et README à jour ; zip reconstruit.
+
+## Session 8 : logo selon le thème, espacement du menu (20/10/2026)
+**Problème signalé par Florian** : en thème clair, le logo blanc restait affiché. Cause : le logo était choisi côté
+serveur avec `st.context.theme`, que Streamlit ne met à jour qu'à l'exécution suivante ; un changement de thème (menu de
+Streamlit ou système) ne relance pas la page, donc le logo restait celui de l'ancien thème jusqu'au clic suivant (et
+dans le cas « système sombre, thème Clair choisi dans le menu », il pouvait rester blanc).
+
+**Méthode retenue** : Streamlit écrit la propriété CSS `color-scheme` (light ou dark) sur l'application et la change
+dès que le thème actif change, quelle qu'en soit la cause. La fonction CSS `light-dark(#000000, #FFFFFF)` lit cette
+propriété. Le logo est donc une forme (la transparence du PNG noir, `assets/efrei-logo-black.png`, 5,2 Ko) utilisée comme
+masque CSS et peinte en noir pur en clair, en blanc pur en sombre : le rendu est celui des deux PNG, et le navigateur
+bascule tout seul, sans exécution serveur. Repli pour un navigateur sans `light-dark()` : la couleur du texte du thème.
+Pourquoi pas deux images et une règle CSS : aucun sélecteur CSS ne connaît le thème choisi dans Streamlit ; seul
+`prefers-color-scheme` (le thème du système) serait disponible, et il se trompe quand on choisit un thème dans le menu.
+`efrei-logo-white.png` retiré du dépôt (inutile) ; le PNG d'origine blanc reste sur le disque, ignoré par git.
+
+**Preuve (Playwright, Chrome)** : 4 cas, en local puis en ligne, couleur calculée du logo avant et 0,4 s après le
+changement, sans clic : A clair puis Sombre par le menu, B sombre puis Clair par le menu, C clair puis système sombre,
+D sombre puis système clair ; à chaque fois noir (0, 0, 0) sur le fond clair et blanc (255, 255, 255) sur le fond sombre.
+Captures assemblées dans `dist/preuve-logo-theme.png` (non versionné). Test navigateur ajouté
+(`tests/test_performance.py::test_logo_switches_with_the_theme_at_once`, 4 cas, ignoré sans Chrome).
+
+**Menu** : espace sous chaque titre de groupe (« The story », « Method and credits ») et écart plus grand avant le second
+groupe ; vérifié en clair et en sombre, en anglais et en français.
+
+**Vérifications** : 290 tests verts ; push ; en ligne, 11 pages × 2 langues × 2 thèmes sans erreur, logo de la bonne
+couleur partout ; zip reconstruit.
