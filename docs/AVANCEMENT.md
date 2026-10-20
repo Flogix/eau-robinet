@@ -309,3 +309,10 @@ journal dans `data/interim/logs/`).
   527 Mo avec le score personnalisé. Temps de chargement local : 0,8 à 4,2 s à la première visite, 1 à 3 s ensuite.
 - Livraison : README complet en anglais (rapport), `docs/storyboard.md`, `docs/script_video.md` (3 min, 436 mots), `DATASET.md`,
   `docs/sources.md` (polices embarquées, fpdf2).
+- **En ligne (après le push du 20/10)** : les 10 pages s'ouvrent sans erreur, en 1,5 à 5,9 s (chargement complet, premier passage) ;
+  le rapport PDF est généré sur Streamlit Cloud (Cayenne, anglais : PDF valide de 59 Ko, polices Plex et Fraunces embarquées),
+  donc fpdf2 s'installe bien. La mémoire en ligne n'est pas visible depuis l'extérieur : l'app n'a pas redémarré pendant le
+  parcours complet ; la mesure locale (527 Mo) reste sous la limite basse annoncée (environ 690 Mo).
+- Zip `dist/StApp26_20230851_GIRAUD_DAI.zip` (dossier ignoré par git), construit avec `git archive` depuis le dernier commit :
+  environ 52 Mo, 124 fichiers (code, README, docs sans les consignes, `data/processed`, `DATASET.md`), aucune donnée brute ni
+  `data/interim`. Tests : 198 verts, y compris depuis un clone propre.
