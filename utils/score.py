@@ -1,6 +1,6 @@
 """Score /100 per distribution network (UDI) and per commune, and the rule-based "why" report.
 
-Method (docs/CAHIER_DES_CHARGES.md §4, decisions in docs/AVANCEMENT.md phase 3)
+Method (decisions in docs/AVANCEMENT.md, phase 3)
   Unit: network (UDI) over the "current situation" windows ending on config.DATA_END_DATE:
   12 months for microbiology and comfort, 36 months for health-related chemistry.
 

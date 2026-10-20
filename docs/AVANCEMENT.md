@@ -226,6 +226,9 @@ journal dans `data/interim/logs/`).
 - ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
+- 20/10, **Repo nettoyé avant la présentation** (choix de Florian) : `CLAUDE.md`, `docs/CAHIER_DES_CHARGES.md` et `.devcontainer/`
+  retirés du suivi git (gardés sur le disque, ajoutés au `.gitignore`, historique non réécrit). Les mentions ci-dessous
+  de ces documents sont l'historique du projet.
 - 19/10, `docs/consignes.pdf` (sujet du prof, avec son e-mail) **retiré de l’historique git** avant la publication (choix de Florian),
   gardé sur le disque et ajouté au `.gitignore`. Les hash des commits ont changé (phase 1 = `0f7ab0b`).
 - 19/10, **Phase 3 validée par Florian** : option k = 5 pour les petits réseaux, note sur score arrondi. Phases 4–5 enchaînées,

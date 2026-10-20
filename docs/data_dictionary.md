@@ -206,7 +206,7 @@ Paramètres quantitatifs (`qualitparam = N`, 123,2 M lignes), classes de `rqana`
 → Bactériologie : le recalcul retrouve **quasi exactement** la conclusion officielle. Chimie : proche mais pas identique ;
 écart **non encore expliqué**, pistes à tester en phase 2 : dérogations (`D` = conforme officiellement malgré un dépassement),
 limites qui dépendent du point de prélèvement, paramètres sans limite chiffrée. Recalcul simplifié (limites `<=x` seulement,
-`N.M.` exclus). Bonne base pour le score et pour la validation demandée par le cahier des charges.
+`N.M.` exclus). Bonne base pour le score et pour sa validation.
 
 ## 10. Paramètres : top 40 (2025) et paramètres clés
 

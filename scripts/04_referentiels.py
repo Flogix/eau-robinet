@@ -6,8 +6,8 @@ Downloads (cached in data/raw/ref/, never overwritten):
   * Etalab administrative contours 2025, departments simplified at 1 km (GeoJSON);
   * INSEE density grid (geography at 01/01/2026): urban / intermediate / rural;
   * Cerema: communes subject to the Mountain Act (loi Montagne), geography 2019.
-The national list of "loi Littoral" communes is no longer downloadable (dead link): documented fallback of
-the project specification -> "Mediterranean coast" = communes of the coastal Mediterranean departments
+The national list of "loi Littoral" communes is no longer downloadable (dead link): documented fallback
+(docs/sources.md, source 16) -> "Mediterranean coast" = communes of the coastal Mediterranean departments
 (06, 11, 13, 30, 34, 66, 83, 2A, 2B) that are not classified as mountain.
 
 Outputs (data/processed/): dim_communes.parquet, dim_departements.parquet, departements.geojson

@@ -291,7 +291,7 @@ scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -
 assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PDF report
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
-docs/                   specification, progress log, data dictionary, sources, storyboard, video script, witness towns
+docs/                   progress log, data dictionary, sources, storyboard, video script, witness towns
 DATASET.md              citation and links of the dataset (the raw files are downloaded by make data)
 ```
 

@@ -24,3 +24,8 @@ docs/consignes.pdf
 
 # submission zip (built locally)
 dist/
+
+# Internal working documents (kept on disk, not published)
+CLAUDE.md
+docs/CAHIER_DES_CHARGES.md
+.devcontainer/

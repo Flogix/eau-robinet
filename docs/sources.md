@@ -97,7 +97,7 @@ La date de consultation est indiquée entre crochets. Les numéros sont cités d
     Les codes 2019 fusionnés depuis sont rattachés à leur commune actuelle via la source 12 (une commune est « montagne » si l'une de ses
     parties l'est).
 16. **Communes littorales (loi Littoral)** : la liste nationale référencée sur data.gouv.fr (« Communes de la loi littoral », fichier de
-    l'Observatoire des territoires) renvoie une erreur 404 le 19/10/2026. **Repli documenté du cahier des charges, validé par Florian** :
+    l'Observatoire des territoires) renvoie une erreur 404 le 19/10/2026. **Repli validé par Florian** (voir `docs/AVANCEMENT.md`, phase 2) :
     « littoral méditerranéen » = communes des départements 06, 11, 13, 30, 34, 66, 83, 2A et 2B non classées montagne. C'est une
     approximation (elle inclut des communes de l'arrière-pays), présentée comme telle dans l'app.
 

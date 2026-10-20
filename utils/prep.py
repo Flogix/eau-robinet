@@ -93,7 +93,7 @@ PESTICIDE_TOTAL_CODES = {"PESTOT", "ATRZMET", "TBZMETA"}
 # Limit of 0.1 µg/L but not pesticides (materials, hydrocarbons, PFAS sum)
 NOT_PESTICIDE_01 = {"ACRYL", "EPICL", "BKFLUO", "BGPERY", "BBFLUO", "HPAT4", "SPFAS"}
 
-# Explicit choices that follow the project specification (CAHIER_DES_CHARGES §4)
+# Explicit project choices (decisions in docs/AVANCEMENT.md, phase 2)
 FAMILY_OVERRIDES = {
     "TURBNFU": ("comfort", "turbidity"),       # has a limit at the plant outlet, but is an operating indicator
     "TEAU": ("info", "temperature"),
