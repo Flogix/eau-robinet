@@ -26,13 +26,24 @@ table = st.segmented_control(t("dq.missing.file"), ["PLV", "RESULT", "COM_UDI"],
                              help=t("dq.missing.help")) or "RESULT"
 m = mi[mi["table"] == table].pivot(index="column", columns="annee", values="share_missing")
 m = m.loc[m.max(axis=1).sort_values(ascending=False).index]
-fig = go.Figure(go.Heatmap(z=100 * m.values, x=m.columns, y=m.index, zmin=0, zmax=100,
-                           colorscale=[[0, "rgba(127,127,127,0.06)"], [1, "#0E5A61"]],
-                           colorbar=dict(title=t("dq.missing.cb")), hovertemplate=t("dq.missing.hover") + "<extra></extra>"))
+complete = int((m.max(axis=1) == 0).sum())
+none_missing = complete == len(m)          # COM_UDI: not a single empty cell, the heatmap is uniform on purpose
+if none_missing:
+    headline(t("dq.missing.headline.none", file=table, n=len(m)))
+else:
+    worst = m.max(axis=1).idxmax()
+    headline(t("dq.missing.headline", file=table, k=complete, n=len(m), col=worst, share=pct(m.loc[worst].max(), 0)))
+fig = go.Figure(go.Heatmap(z=100 * m.values, x=m.columns, y=m.index, zmin=0, zmax=100, xgap=1, ygap=1,
+                           colorscale=[[0, "rgba(14,124,134,0.13)"], [0.001, "#BFDCDF"], [1, "#0E5A61"]],
+                           colorbar=dict(title=t("dq.missing.cb")), hovertemplate=t("dq.missing.hover") + "<extra></extra>",
+                           texttemplate="%{z:.0f}%" if none_missing else None, textfont=dict(color=NEUTRAL, size=11)))
 layout(fig, t("dq.missing.x"), None, height=max(320, 22 * len(m)), legend=False)
 fig.update_xaxes(dtick=1)
-chart(fig, t("dq.missing.title", file=table), t("dq.missing.caption"))
-analysis(t("an.dq.missing.seen"), t("an.dq.missing.why"), t("an.dq.missing.lim"))
+fig.update_yaxes(showgrid=False)
+caption = t("dq.missing.caption") + (" " + t("dq.missing.caption.none") if none_missing else "")
+chart(fig, t("dq.missing.title", file=table), caption)
+analysis(t("an.dq.missing.seen.none" if none_missing else "an.dq.missing.seen"), t("an.dq.missing.why"),
+         t("an.dq.missing.lim"))
 
 # --- Kinds of results ---------------------------------------------------------------------------------------
 kicker(t("dq.status.kicker"))

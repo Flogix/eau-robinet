@@ -61,3 +61,32 @@ def test_towns_compared_can_come_from_the_link():
     at.run()
     at.switch_page("sections/comparer.py").run()
     assert at.multiselect(key="cmp_sel").value == ["13055", "59350"]
+
+
+# --- 2g. Behind the numbers: a file without missing values says so -------------------------------------------------
+@pytest.mark.parametrize("lang, headline, caption", [
+    ("en", "In the COM_UDI files, 0% of the cells are empty", "0% of empty cells in every column"),
+    ("fr", "Dans les fichiers COM_UDI, 0 % de cases vides", "0 % de cases vides dans toutes les colonnes")])
+def test_heatmap_of_a_complete_file_says_zero_percent(lang, headline, caption):
+    import json
+    at = run_app(lang)
+    at.switch_page("sections/data_quality.py").run()
+    at.button_group(key="dq_table").set_value("COM_UDI").run()
+    assert not at.exception
+    text = " ".join(m.value for m in at.main.markdown)
+    captions = " ".join(c.value for c in at.main.caption)
+    expected = headline.replace(" ", " ") if lang == "fr" else headline
+    assert headline in text or expected in text
+    assert caption in captions or caption.replace(" ", " ") in captions
+    heat = json.loads(at.get("plotly_chart")[0].proto.spec)["data"][0]
+    assert heat["type"] == "heatmap" and heat["texttemplate"] == "%{z:.0f}%"      # 0% written in each cell
+    zero = heat["colorscale"][0][1]
+    assert not zero.startswith("rgba") or float(zero.rstrip(")").split(",")[-1]) >= 0.1   # the zero colour is visible
+
+
+def test_heatmap_of_a_file_with_gaps_names_the_emptiest_column():
+    at = run_app()
+    at.switch_page("sections/data_quality.py").run()
+    at.button_group(key="dq_table").set_value("PLV").run()
+    text = " ".join(m.value for m in at.main.markdown)
+    assert "In the PLV files," in text and "columns are complete every year; the emptiest is" in text

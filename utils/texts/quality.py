@@ -35,6 +35,19 @@ T = {
                               "communes et réseaux."},
     "dq.missing.title": {"en": "Share of empty cells, column by column and year by year, in the {file} files",
                          "fr": "Part de cases vides, colonne par colonne et année par année, dans les fichiers {file}"},
+    "dq.missing.headline": {
+        "en": "In the {file} files, {k} of the {n} columns are complete every year; the emptiest is {col} (up to {share} "
+              "empty).",
+        "fr": "Dans les fichiers {file}, {k} des {n} colonnes sont complètes chaque année ; la plus vide est {col} "
+              "(jusqu'à {share} de cases vides)."},
+    "dq.missing.headline.none": {
+        "en": "In the {file} files, 0% of the cells are empty, in all {n} columns and every year: the heatmap is uniform "
+              "because nothing is missing.",
+        "fr": "Dans les fichiers {file}, 0 % de cases vides, dans les {n} colonnes et chaque année : la carte est uniforme "
+              "parce que rien ne manque."},
+    "dq.missing.caption.none": {
+        "en": "Here, 0% of empty cells in every column: each cell shows 0%.",
+        "fr": "Ici, 0 % de cases vides dans toutes les colonnes : chaque case affiche 0 %."},
     "dq.missing.x": {"en": "Year of the file", "fr": "Année du fichier"},
     "dq.missing.cb": {"en": "% empty", "fr": "% vide"},
     "dq.missing.hover": {"en": "%{y}, %{x}: %{z:.1f}% empty", "fr": "%{y}, %{x} : %{z:.1f} % vide"},

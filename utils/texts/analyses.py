@@ -164,6 +164,10 @@ T = {
     "an.dq.missing.seen": {
         "en": "Most columns are complete every year; a few rows are dark from top to bottom.",
         "fr": "La plupart des colonnes sont complètes chaque année ; quelques lignes sont foncées de haut en bas."},
+    "an.dq.missing.seen.none": {
+        "en": "Not a single cell is empty in this file, in any column or year: the town-network link is always filled in.",
+        "fr": "Aucune case n'est vide dans ce fichier, quelles que soient la colonne et l'année : le lien entre communes et "
+              "réseaux est toujours renseigné."},
     "an.dq.missing.why": {
         "en": "Some columns are left empty by the producer, and an empty limit or reference simply means that the parameter "
               "has no threshold (producer documentation, source 2).",
