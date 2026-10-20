@@ -13,7 +13,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 3. Score | ✅ validée (k = 5) | 19/10 |
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
 | 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
-| 6. Livraison | 🟡 livrables prêts (README, storyboard, script vidéo, zip) ; reste la vidéo à enregistrer et la remise | 20/10 |
+| 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -226,6 +226,8 @@ journal dans `data/interim/logs/`).
 - ✅ Évolution des limites sélénium/antimoine sourcée (EUR-Lex + Légifrance), 19/10.
 
 ## Journal des décisions
+- 20/10, `docs/script_video.md` retiré du suivi git (choix de Florian) : gardé sur le disque, ajouté au `.gitignore`,
+  historique non réécrit.
 - 20/10, **Repo nettoyé avant la présentation** (choix de Florian) : `CLAUDE.md`, `docs/CAHIER_DES_CHARGES.md` et `.devcontainer/`
   retirés du suivi git (gardés sur le disque, ajoutés au `.gitignore`, historique non réécrit). Les mentions ci-dessous
   de ces documents sont l'historique du projet.
@@ -310,7 +312,7 @@ journal dans `data/interim/logs/`).
   langues. Relecture automatique des 819 textes : aucun tiret cadratin, aucun emoji, aucune liste, toutes les clés traduites.
 - Mémoire en local (serveur neuf, toutes les pages ouvertes) : 437 Mo pour les 8 pages historiques, 518 Mo avec la commune,
   527 Mo avec le score personnalisé. Temps de chargement local : 0,8 à 4,2 s à la première visite, 1 à 3 s ensuite.
-- Livraison : README complet en anglais (rapport), `docs/storyboard.md`, `docs/script_video.md` (3 min, 436 mots), `DATASET.md`,
+- Livraison : README complet en anglais (rapport), `docs/storyboard.md`, `docs/script_video.md` (3 min, 436 mots ; retiré du dépôt le 20/10, gardé en local), `DATASET.md`,
   `docs/sources.md` (polices embarquées, fpdf2).
 - **En ligne (après le push du 20/10)** : les 10 pages s'ouvrent sans erreur, en 1,5 à 5,9 s (chargement complet, premier passage) ;
   le rapport PDF est généré sur Streamlit Cloud (Cayenne, anglais : PDF valide de 59 Ko, polices Plex et Fraunces embarquées),
