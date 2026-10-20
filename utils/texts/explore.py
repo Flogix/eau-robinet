@@ -213,7 +213,7 @@ T = {
 
     # --- distributions -------------------------------------------------------------------------------------------
     "ex.dist.kicker": {"en": "How the values are spread", "fr": "Comment les valeurs se répartissent"},
-    "ex.dist.title": {"en": "Four distributions that explain the rest", "fr": "Quatre distributions qui expliquent le reste"},
+    "ex.dist.title": {"en": "Three distributions that explain the rest", "fr": "Trois distributions qui expliquent le reste"},
     "ex.dist.text": {
         "en": "A **distribution** shows how often each value occurs. Two words come back below: the **median**, the "
               "value that splits a group into two halves of equal size, and the **percentiles**: the 95th percentile "
@@ -221,27 +221,15 @@ T = {
         "fr": "Une **distribution** montre à quelle fréquence chaque valeur apparaît. Deux mots reviennent plus bas : "
               "la **médiane**, la valeur qui coupe un groupe en deux moitiés de même taille, et les **centiles** : le "
               "95e centile est la valeur sous laquelle restent 95 % du groupe."},
-    "ex.smp.title": {"en": "Half of the networks were sampled {median} times or fewer in {year}",
-                     "fr": "La moitié des réseaux a été prélevée {median} fois ou moins en {year}"},
-    "ex.smp.x": {"en": "Samples taken in the year (classes)", "fr": "Prélèvements dans l'année (classes)"},
-    "ex.smp.y": {"en": "Networks", "fr": "Réseaux"},
-    "ex.smp.more": {"en": "{lo} or more", "fr": "{lo} ou plus"},
-    "ex.smp.hover": {"en": "%{x} samples: %{y} networks", "fr": "%{x} prélèvements : %{y} réseaux"},
-    "ex.smp.caption": {
-        "en": "Bars: number of networks in each class of number of samples taken in {year}; the classes get wider to "
-              "the right, so that small and big networks fit on the same chart.",
-        "fr": "Barres : nombre de réseaux dans chaque classe de nombre de prélèvements faits en {year} ; les classes "
-              "s'élargissent vers la droite, pour que petits et grands réseaux tiennent sur le même graphique."},
-    "ex.smp.take": {
-        "en": "Most networks are small. {share} of them had fewer than twelve bacteriological tests in {year}, the size "
-              "that hypothesis H1 calls a small network, while {big} networks, those of the big cities, were sampled "
-              "{lo} times or more. A "
-              "score built on five samples is less certain than one built on five hundred, which is why the town page "
-              "always shows a confidence level.",
-        "fr": "La plupart des réseaux sont petits. {share} d'entre eux ont eu moins de douze analyses bactériologiques "
-              "en {year}, la taille que l'hypothèse H1 appelle un petit réseau, tandis que {big} réseaux, ceux des "
-              "grandes villes, ont été prélevés {lo} fois ou plus. Un score construit sur cinq prélèvements est moins sûr qu'un "
-              "score construit sur cinq cents, c'est pourquoi la page commune affiche toujours un niveau de confiance."},
+    "ex.smp.see": {
+        "en": "How many samples each network gets in a year, and why half of the networks are tested only a few times, "
+              "is shown on the page *Behind the numbers*, with the period of your choice; this page does not repeat it. "
+              "The three distributions below are those that page does not show.",
+        "fr": "Combien de prélèvements chaque réseau reçoit dans l'année, et pourquoi la moitié des réseaux n'est "
+              "analysée que quelques fois, est montré sur la page *Les coulisses des chiffres*, pour la période de votre "
+              "choix ; cette page ne le répète pas. Les trois distributions ci-dessous sont celles que cette page-là ne "
+              "montre pas."},
+    "ex.val.y": {"en": "Networks", "fr": "Réseaux"},
 
     "ex.lq.title": {"en": "For most groups of substances, nearly every result says \"not found\"",
                     "fr": "Pour la plupart des groupes de substances, presque chaque résultat dit « pas trouvé »"},

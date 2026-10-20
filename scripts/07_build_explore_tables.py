@@ -8,7 +8,6 @@ explore_links         last year of the town-network links: towns by number of ne
 explore_examples      the 10 example rows per raw file of docs/data_dictionary.md section 12 (already public in the
                       repository, drawn with seed 42 during phase 0) and 6 rows of the processed table udi_year
                       drawn with config.SEED: no new raw row is added to the repository
-explore_samples_hist  2025: networks by number of samples in the year (bins)
 explore_lq            2025: share of results below the quantification limit, by group of parameters
 explore_top_params    the 15 parameters with the most results, 2016 to 2026
 explore_values        2025: distribution of the yearly mean of each network for 8 key parameters (bins + quantiles)
@@ -20,7 +19,6 @@ Usage: python scripts/07_build_explore_tables.py   (a few seconds; the volume pa
 from __future__ import annotations
 
 import json
-import math
 import re
 import sys
 import zipfile
@@ -112,19 +110,6 @@ def examples() -> None:
 
 # --- distributions ------------------------------------------------------------------------------------------------
 def distributions() -> None:
-    uy = read_processed("udi_year")
-    u = uy[(uy["annee"] == YEAR) & (uy["n_samples"] > 0)]
-    edges = [1, 2, 3, 6, 12, 24, 52, 104, 260, 520, math.inf]
-    cut = pd.cut(u["n_samples"], edges, right=False)
-    h = u.groupby(cut, observed=False).size().reset_index(name="n_networks")
-    h["lo"] = [int(iv.left) for iv in h["n_samples"]]
-    h["hi"] = [None if math.isinf(iv.right) else int(iv.right) - 1 for iv in h["n_samples"]]
-    h = h.drop(columns="n_samples")
-    h["median"] = float(u["n_samples"].median())
-    h["n_total"] = len(u)
-    h["share_below_12"] = float((u["n_bact"] < SMALL_NETWORK).mean())
-    save(h, "explore_samples_hist")
-
     py = read_processed("param_year")
     p = py[(py["annee"] == YEAR) & (py["family"] != "info")]
     g = p.groupby(["family", "subfamily"], as_index=False)[["n_samples", "n_detected"]].sum()

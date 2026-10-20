@@ -15,7 +15,7 @@ from utils.io import read_processed
 
 ROOT = Path(__file__).resolve().parents[1]
 RERUN_S = 1.5        # one rerun of the page after an interaction (measured 0.1 to 0.3 s on the dev laptop)
-TABLES = ["explore_volume", "explore_fanout", "explore_links", "explore_samples_hist", "explore_lq",
+TABLES = ["explore_volume", "explore_fanout", "explore_links", "explore_lq",
           "explore_top_params", "explore_values", "explore_dept", "explore_spearman"]
 
 

@@ -151,12 +151,12 @@ and the lower lead limit.
 
 **Visuals.** A diagram of the three yearly files (PLV, RESULT, COM_UDI) with their two keys, `referenceprel` and `cdreseau`,
 and the row counts of 2025; the number of results per year; real rows of each file (the thirty rows of the data dictionary,
-drawn with seed 42, and six rows of the processed table `udi_year`); four distributions (samples per network, share of
+drawn with seed 42, and six rows of the processed table `udi_year`); three distributions (share of
 results below the quantification limit by group, the fifteen most measured parameters, the networks' 2025 averages of eight
 key parameters with their threshold); a Spearman matrix of eight department indicators; a scatter plot of any two of them.
 
 **Insight.** "From 2016 to 2026: 2,991,181 samples, 133,474,398 analysis results and 22 GB of text. Each sample brings about
-43 results." "Half of the networks were sampled 9 times or fewer in 2025." "99% of the pesticide results are below the
+43 results." "99% of the pesticide results are below the
 quantification limit." Across the 96 departments of mainland France, bacterial and chemical failures are unrelated
 (ρ = 0.05, H2), the share of small networks goes with bacterial failures (ρ = 0.93) but says little about the median score
 (ρ = −0.14); a correlation is not a cause, and with 96 departments a ρ under 0.20 in absolute value can come from chance.

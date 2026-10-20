@@ -205,18 +205,9 @@ kicker(t("ex.dist.kicker"))
 st.header(t("ex.dist.title"))
 st.markdown(t("ex.dist.text"))
 
-# samples per network
-sh = load_table("explore_samples_hist")
-lab = [str(lo) if hi == lo else (t("ex.smp.more", lo=lo) if pd.isna(hi) else f"{lo}–{int(hi)}")
-       for lo, hi in zip(sh["lo"], sh["hi"])]
-fig = go.Figure(go.Bar(x=lab, y=sh["n_networks"], marker_color=TEAL, text=[num(v) for v in sh["n_networks"]],
-                       textposition="outside", hovertemplate=t("ex.smp.hover") + "<extra></extra>"))
-layout(fig, t("ex.smp.x"), t("ex.smp.y"), height=360, legend=False)
-fig.update_yaxes(range=[0, sh["n_networks"].max() * 1.15])
-big = sh.iloc[-2:]
-chart(fig, t("ex.smp.title", median=num(sh["median"].iloc[0]), year=YEAR), t("ex.smp.caption", year=YEAR),
-      t("ex.smp.take", share=pct(sh["share_below_12"].iloc[0], 0), year=YEAR, big=num(big["n_networks"].sum()),
-        lo=int(big["lo"].iloc[0])))
+# samples per network: shown on "Behind the numbers" (with the period filter), not repeated here
+st.markdown(t("ex.smp.see"))
+st.page_link("sections/data_quality.py", label=t("nav.quality"), icon=":material/fact_check:")
 
 # below the quantification limit
 st.markdown(t("ex.lq.text"))
@@ -265,7 +256,7 @@ def values_block() -> None:
         x=(v["lo"] + v["hi"]) / 2, y=v["n_networks"], width=(v["hi"] - v["lo"]) * 0.92, marker_color=BLUE,
         hoverinfo="text", hovertext=[t("ex.val.hover", lo=dec(a, k + 1), hi=dec(b, k + 1), unit=unit, n=num(n))
                                      for a, b, n in zip(v["lo"], v["hi"], v["n_networks"])]))
-    layout(fig, t("ex.val.x", year=YEAR, unit=unit), t("ex.smp.y"), height=360, legend=False)
+    layout(fig, t("ex.val.x", year=YEAR, unit=unit), t("ex.val.y"), height=360, legend=False)
     thr_txt = t("ex.val.nothr")
     if not pd.isna(first["threshold"]):
         kind = "reference" if code in ("CL", "SO4") else "limit"
