@@ -76,6 +76,17 @@ def test_town_search_is_fast_and_correct(monkeypatch):
     assert results["zzzz"] == []
 
 
+def test_town_options_carry_their_code_not_their_position():
+    """The browser sends back the value of the clicked option: it must be the INSEE code, valid whatever list the server
+    holds at that moment (a click on an example while the search results arrive opened the wrong town)."""
+    from utils.town_search import _options_js, _options_py, town_matches
+    examples, results = town_matches(""), town_matches("lyon")
+    assert [o["value"] for o in _options_js(examples)] == [code for _, code in examples]
+    server_side = _options_py(results)                  # the server already holds the results for "lyon"...
+    assert server_side["69123"] == "69123"              # ...and the click on "Lyon (69)" in the examples still opens Lyon
+    assert server_side["59350"] == "59350"              # even for a town that is not in the current results
+
+
 def test_choosing_towns_reruns_the_town_page_quickly():
     at = run_app()
     at.switch_page("sections/ma_commune.py").run()
@@ -161,4 +172,11 @@ def test_town_field_does_not_freeze_the_browser(live_app):
         total, blocked = pa.settle(page, t0)
         assert total < BROWSER_CHOOSE_S, f"choosing Lyon took {total:.1f} s"
         assert page.locator(".ar-headline").first.inner_text().startswith("Lyon")
+        # a quick click on an example while the search results arrive must open that town, not another one
+        for text, name in (("Lille", "Lille"), ("Bordeaux", "Bordeaux"), ("Lille", "Lille")):
+            pa.town_input(page, "Town").click()
+            page.keyboard.type(text, delay=40)
+            pa.option(page, f"{name} (").click()
+            pa.settle(page, pa.mark(page))
+            assert page.locator(".ar-headline").first.inner_text().startswith(name + ":"), text
         browser.close()

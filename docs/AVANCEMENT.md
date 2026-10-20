@@ -349,7 +349,8 @@ a 16 réseaux : 0,98 s au premier passage, 0,18 s ensuite) ; décision de cache 
 **Tests ajoutés** (`tests/test_performance.py`, 15 tests) : aucun widget de l'app n'envoie plus de 2 000 options ; recherche
 rapide et correcte ; rerun serveur sous 3 s pour la page commune (Lyon, Marseille, Mamoudzou, Saint-Denis, commune sans
 score), les curseurs du score personnel et Comparer à six villes ; test dans un vrai Chrome : vider le champ bloque moins
-d'1 s et choisir Lyon prend moins de 4 s (ignoré si Playwright ou Chrome manquent). **218 tests verts.**
+d'1 s, choisir Lyon prend moins de 4 s et un clic rapide ouvre la bonne commune (ignoré si Playwright ou Chrome manquent).
+**219 tests verts.**
 Outils de développement dans `requirements-dev.txt` (Playwright), pas dans `requirements.txt`.
 
 **Tableau (secondes, anglais / français ; « total » = jusqu'à ce que l'app soit de nouveau utilisable)**. Local : machine
@@ -392,6 +393,12 @@ jamais le navigateur.
 | conclusions | load (warm) | 0,97 / 0,97 | 0,91 / 1,04 | 2,72 / 2,54 | 2,18 / 2,20 |
 | quality | load (warm) | 1,02 / 0,99 | 1,06 / 1,30 | 2,14 / 2,10 | 2,04 / 3,03 |
 | about | load (warm) | 0,86 / 0,93 | 0,85 / 0,85 | 1,91 / 1,93 | 1,71 / 1,70 |
+
+**Bug trouvé pendant la vérification en ligne, puis corrigé** : le composant renvoie la *position* de l'option cliquée,
+et le serveur la traduisait avec sa dernière liste. Un clic sur « Lyon (69) » parmi les exemples, fait pendant que les
+résultats de « Lyon » arrivaient, ouvrait le 2e résultat (Lyons-la-Forêt) : 5 mauvaises communes sur 8 clics rapides,
+reproduit en local. Correction : chaque option porte son code INSEE (`town_search._options_js`), lu tel quel par le
+serveur ; 8 bonnes communes sur 8 ensuite, test unitaire et test navigateur ajoutés.
 
 **Ce qui dépasse encore 1 s, et pourquoi** :
 - Chargement d'une page (1 à 2,5 s en ligne) : envoi de la page, dessin de 3 à 8 graphiques Plotly et des formules ; la

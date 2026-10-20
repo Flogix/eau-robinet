@@ -20,6 +20,29 @@ from utils.io import EXAMPLE_TOWNS, search_communes, town_options
 MAX_MATCHES = 20
 
 
+class _SameCode(dict):
+    """Server side of the options: INSEE code -> INSEE code, whatever list the browser showed when the person clicked."""
+    def __missing__(self, key):
+        return key
+
+
+def _options_js(options) -> list[dict]:
+    """Browser side: each option carries its INSEE code, not its position in the list. The component sends back the
+    value of the clicked option; with positions, a click on "Lyon (69)" in the list of examples, made while the results
+    of "Lyon" were arriving, opened the second result (Lyons-la-Forêt): 5 wrong towns in 8 quick clicks, measured."""
+    return [{"label": str(label), "value": str(code)} for label, code in options]
+
+
+def _options_py(options) -> dict:
+    return _SameCode((str(code), str(code)) for _, code in options)
+
+
+def _install_stable_values() -> None:
+    import streamlit_searchbox as sb
+    sb._list_to_options_js = _options_js
+    sb._list_to_options_py = _options_py
+
+
 def town_matches(term: str) -> list[tuple[str, str]]:
     """(label, INSEE code) of the towns matching `term`; the five examples when the field is empty."""
     _, labels = town_options()
@@ -46,6 +69,7 @@ def _box(label: str, key: str, on_pick, current: str | None, help: str | None, p
          disabled: bool) -> None:
     from streamlit_searchbox import _set_defaults, st_searchbox
 
+    _install_stable_values()
     if disabled:
         st.text_input(label, value="", placeholder=placeholder or "", disabled=True, help=help, key=f"{key}_off")
         return

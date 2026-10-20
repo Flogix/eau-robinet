@@ -259,7 +259,7 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 218 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 219 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
 
