@@ -1,9 +1,9 @@
 # Storyboard: Is my tap water good?
 
 The app is read like an investigation, in the order of the sidebar. It opens on a hook (water that makes people ill is not a
-thing of the past), gives the reader the tools to read a water test, answers their personal question (my town), widens the
-view (other towns, the map), digs into what the curves really mean, lets the reader question our own method, and ends on
-what it all means. Three pages stand apart, "Explore the data", "Behind the numbers" and "About", for readers who want the
+thing of the past) and gives the answers straight away (what it all means: the four hypotheses and their verdicts). The
+pages that follow are the evidence: the tools to read a water test, the reader's personal question (my town), a wider
+view (other towns, the map), what the curves really mean, and a score the reader can rebuild to question our method. Three pages stand apart, "Explore the data", "Behind the numbers" and "About", for readers who want the
 data itself, the method and the credits.
 
 Every page opens with a sentence that states its insight, computed from the data. Every chart has a title that says what it
@@ -38,7 +38,26 @@ the app will test.
 
 **Interactions.** Period, region and kind of town change the KPIs and the curve. The search box opens the town page.
 
-## 2. How to read a water test (`sections/comprendre.py`)
+## 2. What it all means (`sections/conclusions.py`)
+
+**Question.** So, is my tap water good, and what should we do?
+
+**Visuals.** Each hypothesis restated in a box (hypothesis, what the data says, verdict), one summary chart of limit
+exceedances with and without the three metabolite families, then implications and limits.
+
+**Insight.** "In 2025, 98.3% of bacterial samples and 97.0% of chemical samples met the health limits. French tap water is
+good in the vast majority of places; the problems exist, but they are concentrated and, for a large part, explainable." H1,
+H2, H3 and H4 are confirmed, with their numbers. For a resident: read the report, not only the grade, and watch the
+confidence. For local authorities: small networks first, read curves with the history of the monitoring, prepare for PFAS
+and the lower lead limit.
+
+**Place in the story.** Second in the menu, right after the hook: the reader gets the answers first, then each page that
+follows brings the evidence. The page says so in its opening paragraph, with links to the six pages of evidence, and each
+hypothesis links to the page that tests it (H1 and H2: the map; H3 and H4: what we look for, what we find).
+
+**Interactions.** Links only: this page sums up.
+
+## 3. How to read a water test (`sections/comprendre.py`)
 
 **Question.** What does a water test say, and what is serious?
 
@@ -53,7 +72,7 @@ limit is not a detection.
 
 **Interactions.** Search as you type; the period filter changes the year of the chart.
 
-## 3. The water of my town (`sections/ma_commune.py`)
+## 4. The water of my town (`sections/ma_commune.py`)
 
 **Question.** Is the water of my town good, and why?
 
@@ -71,7 +90,7 @@ of one lead measurement above the limit, and sits 5.1 points below the national 
 history; a shareable link (`?insee=`); two buttons download the **PDF report** of the town, in English or in French, with the
 same content and the visual identity of the app.
 
-## 4. Town against town (`sections/comparer.py`)
+## 5. Town against town (`sections/comparer.py`)
 
 **Question.** Is a big city better than a village, a mountain town better than a seaside town?
 
@@ -86,7 +105,7 @@ the Mediterranean coast (approximation) and 88.7 for mountain towns; 6% of mount
 
 **Interactions.** Choice of towns, choice of grouping, region filter.
 
-## 5. The map of France (`sections/overview.py`)
+## 6. The map of France (`sections/overview.py`)
 
 **Question.** Where are the problems?
 
@@ -104,7 +123,7 @@ the three marks, or one family over the period), then period, region and kind of
 departments at each end of the ranking;
 hover on every department.
 
-## 6. What we look for, what we find (`sections/deep_dives.py`)
+## 7. What we look for, what we find (`sections/deep_dives.py`)
 
 **Question.** Chemical non-compliance nearly doubled in 2021: did the water get worse?
 
@@ -120,7 +139,7 @@ exceedances of 2021 to 2024." What we look for changes what we find.
 
 **Interactions.** Choice of molecule in clue 3; tabs; period filter for the seasons.
 
-## 7. Build your own score (`sections/mon_score.py`)
+## 8. Build your own score (`sections/mon_score.py`)
 
 **Question.** Our score rests on choices. What if I made them differently?
 
@@ -136,21 +155,6 @@ says that these settings are personal and change nothing to the regulatory limit
 
 **Interactions.** Every slider recomputes the 23,000 networks and 35,000 towns in about a tenth of a second; a button goes
 back to the official settings; the town is shared with the town page.
-
-## 8. What it all means (`sections/conclusions.py`)
-
-**Question.** So, is my tap water good, and what should we do?
-
-**Visuals.** Each hypothesis restated in a box (hypothesis, what the data says, verdict), one summary chart of limit
-exceedances with and without the three metabolite families, then implications and limits.
-
-**Insight.** "In 2025, 98.3% of bacterial samples and 97.0% of chemical samples met the health limits. French tap water is
-good in the vast majority of places; the problems exist, but they are concentrated and, for a large part, explainable." H1,
-H2, H3 and H4 are confirmed, with their numbers. For a resident: read the report, not only the grade, and watch the
-confidence. For local authorities: small networks first, read curves with the history of the monitoring, prepare for PFAS
-and the lower lead limit.
-
-**Interactions.** None on purpose: this page concludes.
 
 ## 9. Explore the data (`sections/explore.py`)
 

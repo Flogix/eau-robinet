@@ -74,8 +74,8 @@ def page(path: str) -> st.Page:
 
 
 SECTIONS = {   # the menu, drawn by sidebar_menu() under the author block (Streamlit's own menu is hidden)
-    t("nav.section.story"): [page(p) for p in ("", "reading", "town", "compare", "map", "monitor", "my-score",
-                                                     "conclusions")],
+    t("nav.section.story"): [page(p) for p in ("", "conclusions", "reading", "town", "compare", "map", "monitor",
+                                                     "my-score")],   # the findings first, then the evidence
     t("nav.section.more"): [page(p) for p in ("explore", "quality", "about")],
 }
 nav = st.navigation(SECTIONS, position="hidden")

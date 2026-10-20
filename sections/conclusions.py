@@ -20,6 +20,18 @@ st.title(t("con.title"))
 lede(t("con.lede", year=last, bact=pct(1 - ny.loc[last, "n_bact_nc"] / ny.loc[last, "n_bact"]),
        chem=pct(1 - ny.loc[last, "n_chem_nc"] / ny.loc[last, "n_chem"])))
 
+# This page comes second in the menu: the summary of the findings, before the pages that prove them.
+EVIDENCE = [("sections/comprendre.py", "nav.reading", ":material/science:"),
+            ("sections/ma_commune.py", "nav.town", ":material/home_pin:"),
+            ("sections/comparer.py", "nav.compare", ":material/compare_arrows:"),
+            ("sections/overview.py", "nav.map", ":material/map:"),
+            ("sections/deep_dives.py", "nav.monitor", ":material/search_insights:"),
+            ("sections/mon_score.py", "nav.myscore", ":material/tune:")]
+st.markdown(t("con.preview"))
+cols = st.columns(2)
+for i, (file, key, icon) in enumerate(EVIDENCE):
+    cols[i % 2].page_link(file, label=t(key), icon=icon)
+
 # H1: small networks
 uy = load_table("udi_year")
 u = uy[uy["annee"].between(*Y) & (uy["n_bact"] > 0)]
@@ -62,12 +74,15 @@ blocks = {
                w0=num(without.loc[2016]), w1=num(without.loc[last]), a0=num(allx.loc[2016]), a1=num(allx.loc[last])),
     "h4": dict(lo=f"{th.quantile(0.05):.0f}", hi=f"{th.quantile(0.95):.0f}"),
 }
+PROOF = {"h1": EVIDENCE[3], "h2": EVIDENCE[3], "h3": EVIDENCE[4], "h4": EVIDENCE[4]}   # the page that tests each
 for h, kw in blocks.items():
     with st.container(border=True):
         st.subheader(t(f"con.{h}.title"))
         st.markdown(f"**{t('con.lab.hyp')}** {t(f'con.{h}.hyp')}")
         st.markdown(f"**{t('con.lab.data')}** {t(f'con.{h}.data', **kw)}")
         st.markdown(f"**{t('con.lab.verdict')}** {t(f'con.{h}.verdict')}")
+        file, key, icon = PROOF[h]
+        st.page_link(file, label=t("con.proof", page=t(key)), icon=icon)
 st.markdown(t("con.score", k=int((sens["spearman_networks"] >= 0.95).sum()), n=len(sens)))
 
 fig = go.Figure()

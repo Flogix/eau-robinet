@@ -4,6 +4,19 @@ implications for a resident and for local authorities; limits and next steps."""
 T = {
     "con.kicker": {"en": "Conclusions", "fr": "Conclusions"},
     "con.title": {"en": "What it all means", "fr": "Ce qu'il faut en retenir"},
+    "con.preview": {
+        "en": "This page comes second on purpose: it is the summary of the findings, given before the evidence. The pages "
+              "that follow bring the proof, one question at a time: how to read a water test, the water of your own "
+              "town, towns side by side, the map of France and its two hypotheses on small networks and on bacteria "
+              "against chemistry, what the monitoring looks for and finds over ten years, and a score you can build "
+              "yourself to test our method. Each hypothesis below also links to the page that tests it.",
+        "fr": "Cette page vient en deuxième, à dessein : c'est le résumé des résultats, donné avant les preuves. Les pages "
+              "suivantes apportent ces preuves, une question à la fois : lire une analyse d'eau, l'eau de votre propre "
+              "commune, des communes côte à côte, la carte de France et ses deux hypothèses sur les petits réseaux et sur "
+              "les bactéries face à la chimie, ce que le contrôle cherche et trouve sur dix ans, et un score à construire "
+              "vous-même pour mettre notre méthode à l'épreuve. Chaque hypothèse ci-dessous renvoie aussi à la page qui "
+              "la teste."},
+    "con.proof": {"en": "The evidence: {page}", "fr": "Les preuves : {page}"},
     "con.lede": {
         "en": "In {year}, {bact} of bacterial samples and {chem} of chemical samples met the health limits. French tap "
               "water is good in the vast majority of places; the problems exist, but they are concentrated and, for a "

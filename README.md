@@ -35,7 +35,9 @@ The app answers five questions, one page or more each:
 The story follows the arc asked by the brief. The **hook** is the home page: water that makes people ill is not a thing
 of the past (WHO and Santé publique France figures, sourced). The **context** is how the control works and how to read a
 test. The **insights** are four hypotheses, H1 to H4, tested on the data. The **implications** page says what this means
-for a resident and for local authorities, and what the data cannot say.
+for a resident and for local authorities, and what the data cannot say. It comes second in the menu, right after the hook:
+the reader gets the findings first, and every page after it is the evidence, each hypothesis linking to the page that tests
+it.
 
 The score is a **teaching indicator, not a health opinion**. The official opinion on a town's water is the one of its
 regional health agency. This warning is in the sidebar of every page, in the PDF report and on the personal score page.
@@ -269,7 +271,7 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 241 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 271 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
 
@@ -291,13 +293,13 @@ app.py                  page config, language, menu (order of the story) under t
 config.py               paths, periods, thresholds, score weights, SEED
 sections/               one page per file, in the order of the story
   intro.py              What's in my glass? (hook, context, KPIs tied to the filters)
+  conclusions.py        What it all means, second in the menu (H1 to H4 with links to the evidence, implications, limits)
   comprendre.py         How to read a water test (fact sheets, parameter search)
   ma_commune.py         The water of my town (score, report per network, formulas, history, PDF)
   comparer.py           Town against town (2 to 6 towns, groups of towns)
   overview.py           The map of France (choropleth, rankings, H1, H2, distribution, trend)
   deep_dives.py         What we look for, what we find (H3, nitrates, PFAS, seasons, hardness H4)
   mon_score.py          Build your own score (weights, severities, thresholds)
-  conclusions.py        What it all means (H1 to H4, implications, limits)
   explore.py            Explore the data (the three files and their keys, real rows, distributions, Spearman matrix,
                         scatter plot of any two department indicators)
   data_quality.py       Behind the numbers (missing values, checks, official vs recomputed, coverage, biases)

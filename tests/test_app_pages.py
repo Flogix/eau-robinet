@@ -192,9 +192,21 @@ def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, cours
     assert program in first and course in first
     assert f'href="{config.AUTHOR_LINKEDIN}" target="_blank"' in first
     assert f'href="{config.REPO_URL}" target="_blank"' in first
-    links = at.get("page_link")
-    assert len(links) == len(PAGE_FILES)                    # every page in the menu, once
+    links = [link.proto.page for link in at.sidebar.get("page_link")]
+    assert len(links) == len(set(links)) == len(PAGE_FILES)          # every page in the menu, once
 
 
 def test_efrei_logo_is_small():
     assert (ROOT / "assets" / "efrei-logo-white.png").stat().st_size < 10_000
+
+
+@pytest.mark.parametrize("lang", ["en", "fr"])
+def test_conclusions_come_second_and_link_to_the_evidence(lang):
+    at = run_app(lang)
+    menu = [link.proto.page for link in at.sidebar.get("page_link")]  # url paths, "" for the home page
+    assert menu[:3] == ["", "conclusions", "reading"]
+    at.switch_page("sections/conclusions.py").run()
+    assert not at.exception
+    in_page = [link.proto.page for link in at.main.get("page_link")]
+    assert set(in_page[:6]) == {"reading", "town", "compare", "map", "monitor", "my-score"}
+    assert in_page[6:] == ["map", "map", "monitor", "monitor"]                     # the evidence of H1 to H4
