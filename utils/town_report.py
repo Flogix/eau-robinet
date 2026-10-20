@@ -34,6 +34,23 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
 
     c: row of utils.io.communes() for the town; u_rows: udi_scores rows of its scored networks."""
     town, score = c["nom"], float(c["score"])
+    gen = points_lost(c, u_rows, labels)
+    median, dep_med = medians(c, com_all)
+
+    def pos(diff: float) -> str:
+        if abs(diff) < 0.05:
+            return t("town.pos.at")
+        return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
+
+    if not show_dep_median(c, com_all):   # Paris: a single town, its "departmental median" is itself
+        return gen + " " + t("town.why.gen.medians.nat", nat=fmt1(median), town=town, pos_nat=pos(score - median))
+    return gen + " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})",
+                         depm=fmt1(dep_med), town=town, pos_nat=pos(score - median), pos_dep=pos(score - dep_med))
+
+
+def points_lost(c: pd.Series, u_rows: pd.DataFrame, labels: dict) -> str:
+    """First sentence of the explanation: the points lost, family by family, with what causes them."""
+    town, score = c["nom"], float(c["score"])
     fams = list(S.FAMILIES)
     w_measured = {k: config.WEIGHTS[k] for k in fams if pd.notna(c[k])}
     norm = sum(w_measured.values())
@@ -61,17 +78,7 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
         gen = t("town.why.gen.perfect", town=town)
     else:
         gen = t("town.why.gen.loss", town=town, loss=fmt1(loss)) + t("town.why.gen.join").join(parts) + "."
-    median, dep_med = medians(c, com_all)
-
-    def pos(diff: float) -> str:
-        if abs(diff) < 0.05:
-            return t("town.pos.at")
-        return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
-
-    if not show_dep_median(c, com_all):   # Paris: a single town, its "departmental median" is itself
-        return gen + " " + t("town.why.gen.medians.nat", nat=fmt1(median), town=town, pos_nat=pos(score - median))
-    return gen + " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})",
-                         depm=fmt1(dep_med), town=town, pos_nat=pos(score - median), pos_dep=pos(score - dep_med))
+    return gen
 
 
 def show_dep_median(c: pd.Series, com_all: pd.DataFrame) -> bool:

@@ -62,6 +62,9 @@ T = {
         "fr": "Tapez les premières lettres de votre commune : vous obtenez un score sur 100, une note de A à E et un "
               "rapport en langage clair sur ce qui a été trouvé dans votre eau."},
     "home.find.placeholder": {"en": "Start typing a town name", "fr": "Commencez à taper un nom de commune"},
+    "home.find.score": {"en": "{score}/100, grade {grade}, confidence {conf}",
+                        "fr": "{score}/100, note {grade}, confiance {conf}"},
+    "home.find.report": {"en": "See the full report", "fr": "Voir le rapport complet"},
 
     "home.method.kicker": {"en": "How we worked", "fr": "Notre méthode"},
     "home.method.title": {"en": "Ten years of tests, four questions to settle",
