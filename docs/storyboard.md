@@ -10,7 +10,10 @@ Every page opens with a sentence that states its insight, computed from the data
 shows, a caption that describes it (also used as alternative text), the source, and a short paragraph that says what to take
 away. All numbers below come from the current version of the app (data up to 31 August 2026).
 
-The sidebar holds the language switch (English, official, or French), and three filters: period, region and kind of town.
+The sidebar opens on the author block: the EFREI logo (white, on a small ink-coloured plate so that it reads in
+both themes), Florian Giraud, Data & AI (DAI group), links to LinkedIn and GitHub, and the course, Data Analysis &
+Visualization (coordinator: MATHEW Mano Joseph). Then come the menu, the language switch (English, official, or French),
+and three filters: period, region and kind of town.
 On the map page, it also holds the variable selection: what the map shows.
 Only the filters that change the open page are shown, so that no control is decorative: period, region and kind of town on
 the home page and the map, the period on *How to read a water test*, *What we look for, what we find* and *Behind the

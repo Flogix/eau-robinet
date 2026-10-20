@@ -23,6 +23,10 @@ T = {
                                    "fr": "{town} : tapez pour choisir une autre commune"},
     # sidebar
     "side.lang": {"en": "Language", "fr": "Langue"},
+    "side.author.logo": {"en": "EFREI Paris, engineering school", "fr": "EFREI Paris, école d'ingénieurs"},
+    "side.author.program": {"en": "Data & AI, DAI group", "fr": "Data & AI, groupe DAI"},
+    "side.author.course": {"en": "Data Analysis & Visualization, coordinator: MATHEW Mano Joseph",
+                           "fr": "Data Analysis & Visualization, coordinateur : MATHEW Mano Joseph"},
     "side.filters": {"en": "Filters", "fr": "Filtres"},
     "side.intro": {
         "en": "These filters narrow the figures of this page to a period, a region or a kind of town. Only the "

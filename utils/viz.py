@@ -61,12 +61,52 @@ CSS = """
 .ar-num {font-family:"IBM Plex Mono", monospace;}
 [data-testid="stMetricValue"] {font-family:"IBM Plex Mono", monospace; font-weight:500;}
 [data-testid="stSidebarNav"] a span {font-size:.95rem;}
+.ar-side-head {margin:-1.6rem 0 .9rem 0; line-height:1.35; font-size:.82rem;}
+.ar-side-logo {display:inline-block; background:#1B2A41; border-radius:.35rem; padding:.45rem .7rem; margin-bottom:.55rem;}
+.ar-side-logo img {display:block; width:150px; height:auto;}
+.ar-side-name {font-weight:600; font-size:.95rem;}
+.ar-side-muted {opacity:.78;}
+.ar-side-head a {text-decoration:none; border-bottom:1px solid currentColor;}
+.ar-nav-section {font-size:.8rem; font-weight:600; opacity:.75; margin:.7rem 0 .1rem .1rem;}
+[data-testid="stSidebar"] [data-testid="stPageLink"] {margin:-.35rem 0;}
 </style>
 """
 
 
 def inject_css() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
+
+
+def _logo_data_uri() -> str:
+    """EFREI logo, white, reduced to 400 px wide and 16 colours (6.8 KB, assets/efrei-logo-white.png), inlined so that
+    the browser needs no extra request. It sits on a small ink-coloured plate: invisible plate on the dark sidebar,
+    a dark label on the light one, so the white logo is readable in both themes."""
+    import base64
+    from pathlib import Path
+    data = (Path(__file__).resolve().parents[1] / "assets" / "efrei-logo-white.png").read_bytes()
+    return "data:image/png;base64," + base64.b64encode(data).decode()
+
+
+LOGO_EFREI = _logo_data_uri()
+LINKEDIN = "https://www.linkedin.com/in/florian-giraud-67883a291/"
+GITHUB = "https://github.com/Flogix/eau-robinet"
+
+
+def sidebar_menu(sections: dict) -> None:
+    """Top of the sidebar: the author block, then the menu (sections of st.Page drawn with st.page_link, the current
+    page highlighted). Streamlit's own menu always sits at the very top, which would put the author block below it."""
+    link = '<a href="{u}" target="_blank" rel="noopener noreferrer">{t}</a>'
+    with st.sidebar:
+        st.markdown(
+            f'<div class="ar-side-head"><span class="ar-side-logo"><img src="{LOGO_EFREI}" alt="{t("side.author.logo")}">'
+            f'</span><div class="ar-side-name">Florian Giraud</div><div>{t("side.author.program")}</div>'
+            f'<div>{link.format(u=LINKEDIN, t="LinkedIn")} · {link.format(u=GITHUB, t="GitHub")}</div>'
+            f'<div class="ar-side-muted">{t("side.author.course")}</div></div>', unsafe_allow_html=True)
+        for title, pages in sections.items():
+            st.markdown(f'<div class="ar-nav-section">{title}</div>', unsafe_allow_html=True)
+            for pg in pages:
+                st.page_link(pg, label=pg.title, icon=pg.icon)
+        st.divider()
 
 
 def header() -> None:

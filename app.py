@@ -43,15 +43,15 @@ def _stamp_project_modules() -> None:
 
 _forget_stale_project_modules()
 
-from utils.filters import language_selector, sidebar  # noqa: E402
+from utils.filters import init_language, language_selector, sidebar  # noqa: E402
 from utils.i18n import t  # noqa: E402
-from utils.viz import footer, header, inject_css  # noqa: E402
+from utils.viz import footer, header, inject_css, sidebar_menu  # noqa: E402
 
 _stamp_project_modules()
 
 st.set_page_config(page_title="Au robinet", page_icon=":material/water_drop:", layout="wide")
 inject_css()
-language_selector()
+init_language()
 
 PAGES = {   # url path -> (file, title key, material icon)
     "": ("sections/intro.py", "nav.home", ":material/water_drop:"),
@@ -73,11 +73,14 @@ def page(path: str) -> st.Page:
     return st.Page(file, title=t(title), icon=icon, url_path=path or None, default=(path == ""))
 
 
-nav = st.navigation({
+SECTIONS = {   # the menu, drawn by sidebar_menu() under the author block (Streamlit's own menu is hidden)
     t("nav.section.story"): [page(p) for p in ("", "reading", "town", "compare", "map", "monitor", "my-score",
                                                      "conclusions")],
     t("nav.section.more"): [page(p) for p in ("explore", "quality", "about")],
-})
+}
+nav = st.navigation(SECTIONS, position="hidden")
+sidebar_menu(SECTIONS)
+language_selector()
 sidebar(nav.url_path)
 header()
 nav.run()

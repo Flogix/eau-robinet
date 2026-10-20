@@ -172,3 +172,29 @@ def test_filter_values_survive_a_page_without_filters():
     at.switch_page("sections/overview.py").run()
     assert at.slider(key="f_years").value == (2019, 2022)
     assert at.selectbox(key="f_region_code").value == "53"
+
+
+def test_region_filter_shows_all_of_france_by_default():
+    at = run_app()
+    at.switch_page("sections/overview.py").run()
+    box = at.selectbox(key="f_region_code")
+    assert box.value == "all" and box.index == 0 and box.options[0] == "All of France"
+
+
+@pytest.mark.parametrize("lang, program, course", [
+    ("en", "Data & AI, DAI group", "Data Analysis & Visualization, coordinator: MATHEW Mano Joseph"),
+    ("fr", "Data & AI, groupe DAI", "Data Analysis & Visualization, coordinateur : MATHEW Mano Joseph")])
+def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, course):
+    import config
+    at = run_app(lang)
+    first = at.sidebar.markdown[0].value
+    assert 'class="ar-side-head"' in first and "data:image/png;base64," in first and "Florian Giraud" in first
+    assert program in first and course in first
+    assert f'href="{config.AUTHOR_LINKEDIN}" target="_blank"' in first
+    assert f'href="{config.REPO_URL}" target="_blank"' in first
+    links = at.get("page_link")
+    assert len(links) == len(PAGE_FILES)                    # every page in the menu, once
+
+
+def test_efrei_logo_is_small():
+    assert (ROOT / "assets" / "efrei-logo-white.png").stat().st_size < 10_000

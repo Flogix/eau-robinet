@@ -287,7 +287,7 @@ on the server (measured 0.1 to 0.3 s; 0.2 to 0.4 s in Chrome).
 ## 7. Project structure
 
 ```
-app.py                  page config, language, navigation (order of the story), header, sidebar, footer
+app.py                  page config, language, menu (order of the story) under the author block, sidebar, footer
 config.py               paths, periods, thresholds, score weights, SEED
 sections/               one page per file, in the order of the story
   intro.py              What's in my glass? (hook, context, KPIs tied to the filters)
@@ -316,6 +316,7 @@ scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -
                         the data dictionary;
                         perf_audit.py measures page loads and interactions in a real browser (Playwright)
 assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PDF report
+assets/efrei-logo-white.png  EFREI logo of the sidebar, reduced to 400 px and 16 colours (6.8 KB)
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
 docs/                   progress log, data dictionary, sources, storyboard, witness towns
