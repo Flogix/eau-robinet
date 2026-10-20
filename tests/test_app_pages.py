@@ -202,7 +202,7 @@ def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord
     assert len(links) == len(set(links)) == len(PAGE_FILES)          # every page in the menu, once
 
 
-@pytest.mark.parametrize("name", ["efrei-logo-white.png", "efrei-logo-black.png"])
+@pytest.mark.parametrize("name", ["efrei-logo-black.png"])
 def test_efrei_logos_are_small_and_transparent(name):
     from PIL import Image
     path = ROOT / "assets" / name
@@ -211,10 +211,15 @@ def test_efrei_logos_are_small_and_transparent(name):
     assert im.width == 400 and im.getpixel((0, 0))[3] == 0          # transparent background
 
 
-def test_logo_follows_the_theme():
+def test_logo_follows_the_theme_in_css():
+    """The logo is the shape of the PNG used as a mask, painted by light-dark(): black on the light theme, white on the
+    dark one, switched by the browser as soon as Streamlit changes the theme (no rerun). Checked in Chrome by
+    tests/test_performance.py style browser test below when Playwright is installed."""
     from utils import viz
-    assert viz.LOGO_EFREI["light"] != viz.LOGO_EFREI["dark"]
-    assert viz.theme_type() == "light"                               # outside a browser: light by default
+    assert "background-color:light-dark(#000000, #FFFFFF)" in viz.CSS and "mask-size:contain" in viz.CSS
+    at = run_app()
+    head = at.sidebar.markdown[0].value
+    assert 'role="img"' in head and f"mask-image:url({viz.LOGO_MASK})" in head
 
 
 @pytest.mark.parametrize("lang", ["en", "fr"])

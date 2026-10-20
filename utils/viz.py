@@ -66,7 +66,11 @@ CSS = """
 [data-testid="stSidebarNav"] a span {font-size:.95rem;}
 .ar-side-head {margin:-1.4rem 0 0 0; padding:.2rem .1rem .4rem .1rem; line-height:1.4; font-size:.84rem;}
 .ar-side-head > div {margin-top:.3rem;}
-.ar-side-logo {display:block; width:150px; height:auto; margin:0 0 .85rem 0;}
+/* EFREI logo: the shape of the PNG is a mask, its colour follows the active theme at once (Streamlit sets color-scheme
+   on the app: light-dark() reads it, no rerun needed): black on the light theme, white on the dark one */
+.ar-side-logo {display:block; width:150px; aspect-ratio:400 / 146; margin:0 0 .85rem 0;
+               background-color:currentColor; background-color:light-dark(#000000, #FFFFFF);
+               -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain;}
 .ar-side-name {font-weight:600; font-size:.98rem; margin-top:0 !important;}
 .ar-side-links {margin-top:.45rem !important;}
 .ar-side-course {margin-top:.7rem !important; opacity:.8;}
@@ -79,7 +83,7 @@ CSS = """
 .ar-preview {margin:.8rem 0 .3rem 0; font-size:1.02rem;}
 .ar-grade {display:inline-block; min-width:1.6rem; text-align:center; color:#fff; font-family:Fraunces, Georgia, serif;
            font-weight:700; border-radius:.2rem; padding:0 .35rem; margin-right:.5rem;}
-.ar-nav-section {font-size:.8rem; font-weight:600; opacity:.75; margin:.7rem 0 .1rem .1rem;}
+.ar-nav-section {font-size:.8rem; font-weight:600; opacity:.75; margin:2rem 0 1.05rem .1rem;}
 .ar-nav-section.first {margin-top:1.6rem;}
 [data-testid="stSidebar"] [data-testid="stPageLink"] {margin:-.35rem 0;}
 </style>
@@ -97,18 +101,10 @@ def _data_uri(name: str) -> str:
     return "data:image/png;base64," + base64.b64encode(data).decode()
 
 
-# EFREI logo, black on the light theme, white on the dark one: the original PNGs (transparent background, 2560 px,
-# kept out of git) reduced to 400 px wide and 16 colours (5 and 7 KB), inlined so that the browser needs no extra request.
-LOGO_EFREI = {"light": _data_uri("efrei-logo-black.png"), "dark": _data_uri("efrei-logo-white.png")}
-
-
-def theme_type() -> str:
-    """'light' or 'dark', as the reader sees the app (known from the first run; a switch of theme shows at the next
-    interaction, since Streamlit does not rerun the page for it)."""
-    try:
-        return "dark" if st.context.theme.type == "dark" else "light"
-    except Exception:   # outside a browser session (tests)
-        return "light"
+# EFREI logo: the original PNGs (transparent background, 2560 px, kept out of git) reduced to 400 px and 16 colours.
+# The black and the white one have the same shape; the page uses that shape as a CSS mask and paints it black or white
+# with the active theme (see .ar-side-logo in CSS), so the switch is instant, whatever changed the theme.
+LOGO_MASK = _data_uri("efrei-logo-black.png")
 
 
 LINKEDIN = "https://www.linkedin.com/in/florian-giraud-67883a291/"
@@ -121,8 +117,9 @@ def sidebar_menu(sections: dict) -> None:
     link = '<a href="{u}" target="_blank" rel="noopener noreferrer">{t}</a>'
     with st.sidebar:
         st.markdown(
-            f'<div class="ar-side-head"><img class="ar-side-logo" src="{LOGO_EFREI[theme_type()]}" '
-            f'alt="{t("side.author.logo")}"><div class="ar-side-name">Florian Giraud</div>'
+            f'<div class="ar-side-head"><div class="ar-side-logo" role="img" aria-label="{t("side.author.logo")}" '
+            f'style="-webkit-mask-image:url({LOGO_MASK}); mask-image:url({LOGO_MASK})"></div>'
+            f'<div class="ar-side-name">Florian Giraud</div>'
             f'<div>{t("side.author.program")}</div>'
             f'<div class="ar-side-links">{link.format(u=LINKEDIN, t="LinkedIn")} · {link.format(u=GITHUB, t="GitHub")}</div>'
             f'<div class="ar-side-course"><div>{t("side.author.course")}</div><div>{t("side.author.coord")}</div></div>'

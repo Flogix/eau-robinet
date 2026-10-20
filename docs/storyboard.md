@@ -11,7 +11,7 @@ shows, a caption that describes it (also used as alternative text), the source, 
 away. All numbers below come from the current version of the app (data up to 31 August 2026).
 
 The sidebar opens on the author block: the EFREI logo (black on the light theme, white on the dark one, on the
-sidebar's own background), Florian Giraud, Data & AI (DAI group), links to LinkedIn and GitHub, and the course, Data Analysis &
+sidebar's own background; it follows a change of theme at once, from Streamlit's menu or from the system), Florian Giraud, Data & AI (DAI group), links to LinkedIn and GitHub, and the course, Data Analysis &
 Visualization, and on its own line, coordinator: MATHEW Mano Joseph. Then come the menu, the language switch (English, official, or French),
 and three filters: period, region and kind of town.
 On the map page, it also holds the variable selection: what the map shows.

@@ -327,8 +327,9 @@ scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -
                         the data dictionary;
                         perf_audit.py measures page loads and interactions in a real browser (Playwright)
 assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PDF report
-assets/efrei-logo-*.png EFREI logo of the sidebar, black (light theme) and white (dark theme), 400 px, 16 colours,
-                        transparent background (5 and 7 KB); the original PNGs stay out of git
+assets/efrei-logo-black.png  EFREI logo of the sidebar (400 px, 16 colours, transparent, 5 KB): its shape is a CSS
+                        mask painted black on the light theme and white on the dark one with light-dark(), so it
+                        follows a change of theme at once; the original PNGs stay out of git
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
 docs/                   progress log, data dictionary, sources, storyboard, witness towns

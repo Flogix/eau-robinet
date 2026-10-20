@@ -180,3 +180,28 @@ def test_town_field_does_not_freeze_the_browser(live_app):
             pa.settle(page, pa.mark(page))
             assert page.locator(".ar-headline").first.inner_text().startswith(name + ":"), text
         browser.close()
+
+
+@pytest.mark.parametrize("start, how, to", [("light", "menu", "Dark"), ("dark", "menu", "Light"),
+                                            ("light", "system", "dark"), ("dark", "system", "light")])
+def test_logo_switches_with_the_theme_at_once(live_app, start, how, to):
+    """The EFREI logo is black on the light theme and white on the dark one, and follows a change of theme (Streamlit's
+    menu or the system setting) immediately, without a rerun or a click."""
+    from playwright.sync_api import sync_playwright
+    colour = "() => getComputedStyle(document.querySelector('.ar-side-logo')).backgroundColor"
+    expected = {"light": "rgb(0, 0, 0)", "dark": "rgb(255, 255, 255)"}
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(executable_path=str(CHROME), headless=True)
+        page = browser.new_context(color_scheme=start, viewport={"width": 1400, "height": 900}).new_page()
+        page.goto(live_app)
+        page.wait_for_selector(".ar-footer", timeout=120_000)
+        assert page.evaluate(colour) == expected[start]
+        if how == "menu":
+            page.locator('[data-testid="stMainMenu"]').click()
+            page.locator(f'[data-testid="stMainMenuItem-theme-{to}"]').click()
+            page.keyboard.press("Escape")
+        else:
+            page.emulate_media(color_scheme=to)
+        page.wait_for_timeout(400)
+        assert page.evaluate(colour) == expected[to.lower()]
+        browser.close()
