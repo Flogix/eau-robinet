@@ -56,6 +56,7 @@ T = {
               "les données, brutes ou traitées, restent sous la Licence Ouverte 2.0 de leur producteur."},
     "about.dataset": {"en": "Open the dataset on data.gouv.fr", "fr": "Ouvrir le jeu de données sur data.gouv.fr"},
     "about.repo": {"en": "Open the GitHub repository", "fr": "Ouvrir le dépôt GitHub"},
+    "about.linkedin": {"en": "LinkedIn", "fr": "LinkedIn"},
     "about.sources.link": {"en": "Read the list of sources", "fr": "Lire la liste des sources"},
     "about.tools.kicker": {"en": "How it was built", "fr": "Comment c'est fait"},
     "about.tools": {

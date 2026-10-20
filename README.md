@@ -309,7 +309,7 @@ DATASET.md              citation and links of the dataset (the raw files are dow
 
 ## 8. Credits
 
-Made by Florian Giraud, EFREI Paris, Data & AI track, 2026. Data: French Ministry of Health, Licence Ouverte 2.0 (citation
+Made by Florian Giraud ([LinkedIn](https://www.linkedin.com/in/florian-giraud-67883a291/)), EFREI Paris, Data & AI track, 2026. Data: French Ministry of Health, Licence Ouverte 2.0 (citation
 above). Health and regulatory sources: WHO, Santé publique France, Anses, the regional health agencies, EUR-Lex and
 Légifrance, all listed in [docs/sources.md](docs/sources.md). Geography: geo.api.gouv.fr and Etalab contours (Licence
 Ouverte 2.0), INSEE density grid, Cerema list of Mountain Act towns. Fonts: Fraunces, IBM Plex Sans and IBM Plex Mono (SIL

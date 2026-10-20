@@ -38,6 +38,8 @@ DUCKDB_THREADS = 4
 # --- Source dataset --------------------------------------------------------------
 DATASET_SLUG = "resultats-du-controle-sanitaire-de-leau-distribuee-commune-par-commune"
 DATASET_PAGE = f"https://www.data.gouv.fr/datasets/{DATASET_SLUG}"
+AUTHOR_LINKEDIN = "https://www.linkedin.com/in/florian-giraud-67883a291/"
+REPO_URL = "https://github.com/Flogix/eau-robinet"
 DATASET_API = f"https://www.data.gouv.fr/api/1/datasets/{DATASET_SLUG}/"
 DATASET_UPDATED = "2026-10-05"
 DATASET_CITATION = (

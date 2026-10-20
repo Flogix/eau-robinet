@@ -82,7 +82,7 @@ def _md(text: str) -> str:
     """Minimal Markdown for HTML blocks: **bold**, *italic*, [link](url)."""
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)", r"<em>\1</em>", text)
-    return re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2" target="_blank">\1</a>', text)
+    return re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>', text)
 
 
 def kicker(text: str) -> None:

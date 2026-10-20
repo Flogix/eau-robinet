@@ -112,3 +112,13 @@ def test_map_variable_selection_is_in_the_sidebar(lang, label):
 def test_license_file():
     text = (ROOT / "LICENSE").read_text(encoding="utf-8")
     assert text.startswith("MIT License") and "2026 Florian Giraud" in text
+
+
+@pytest.mark.parametrize("lang", ["en", "fr"])
+def test_footer_and_about_link_to_linkedin(lang):
+    import config
+    at = run_app(lang)
+    at.switch_page("sections/about.py").run()
+    footer = [m.value for m in at.markdown if m.value.startswith('<div class="ar-footer"')]
+    assert footer and f'href="{config.AUTHOR_LINKEDIN}" target="_blank" rel="noopener noreferrer">Florian Giraud' in footer[0]
+    assert any(b.proto.url == config.AUTHOR_LINKEDIN for b in at.get("link_button"))

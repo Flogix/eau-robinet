@@ -110,11 +110,11 @@ T = {
     "common.partial2026": {"en": "2026: January to August", "fr": "2026 : janvier à août"},
     "common.year": {"en": "Year", "fr": "Année"},
     "footer.text": {
-        "en": "Made by **Florian Giraud**, student at EFREI Paris (Data & AI), data storytelling project 2026. "
+        "en": "Made by **[Florian Giraud](https://www.linkedin.com/in/florian-giraud-67883a291/)**, student at EFREI Paris (Data & AI), data storytelling project 2026. "
               "The code and the processed data are public on [GitHub](https://github.com/Flogix/eau-robinet): anyone "
               "can download them, reuse them and redo the analysis. Data: French Ministry of Health, Licence Ouverte 2.0; "
               "every other source is listed in [sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md).",
-        "fr": "Réalisé par **Florian Giraud**, étudiant à l'EFREI Paris (Data & AI), projet de data storytelling 2026. "
+        "fr": "Réalisé par **[Florian Giraud](https://www.linkedin.com/in/florian-giraud-67883a291/)**, étudiant à l'EFREI Paris (Data & AI), projet de data storytelling 2026. "
               "Le code et les données traitées sont publics sur [GitHub](https://github.com/Flogix/eau-robinet) : chacun "
               "peut les télécharger, les réutiliser et refaire l'analyse. Données : ministère de la Santé, Licence Ouverte "
               "2.0 ; toutes les autres sources sont listées dans [sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md)."},
