@@ -15,6 +15,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
 | 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
 | Session 5 | ✅ A, B, C, D, E faits : LinkedIn, page « Explorer les données », audit complet, push, vérification en ligne, zip | 20/10 |
+| Session 6 | ✅ doublon retiré, F (filtres masqués), G (PDF de comparaison), H (en-tête de la barre latérale), I (conclusions en 2e), E refaite | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -553,3 +554,61 @@ bloquent jamais le navigateur ; « – » = non mesuré.
 - Ajouter une ville dans Comparer (1,7 s en local, 2,3 à 2,4 s en ligne) : la frappe simulée de « Villejuif » (0,54 s), l'attente
   des propositions, puis le rerun de la page à 3 villes ; le navigateur n'est pas bloqué (0 à 0,1 s).
 - Axe du nuage en français en ligne (une mesure à 1,02 s, l'autre à 0,48 s) : trajet réseau variable, aucun blocage.
+
+## Session 6 : filtres, PDF de comparaison, en-tête, ordre du menu (20/10/2026)
+**Décisions de Florian (validation de A à E)** : `.devcontainer/` reste suivi (Streamlit Cloud le recrée) et reste hors du
+zip ; l'histogramme des prélèvements par réseau est retiré de « Explorer les données » (gardé dans « Les coulisses des
+chiffres », qui suit le filtre de période), remplacé par une phrase et un lien vers cette page ; la table
+`explore_samples_hist` est supprimée du pipeline et du dépôt.
+
+**F. Filtres masqués là où ils n'agissent pas.** Effet mesuré page par page (on change chaque filtre et on compare le
+contenu affiché), identique à `PAGE_FILTERS` :
+
+| Page | Filtres affichés |
+|---|---|
+| What's in my glass? | période, région, type de commune |
+| What it all means | aucun (section masquée) |
+| How to read a water test | période (année de fin du graphique des dépassements) |
+| The water of my town | aucun |
+| Town against town | région (groupes de communes) |
+| The map of France | période, région, type de commune (+ vue de la carte) |
+| What we look for, what we find | période |
+| Build your own score | aucun |
+| Explore the data | aucun |
+| Behind the numbers | période |
+| About this project | aucun |
+
+Sur les pages où des filtres agissent, seuls ceux-là sont affichés (plus de filtres grisés). Un widget non dessiné perd
+sa valeur : les valeurs sont réaffectées à chaque exécution (procédé documenté par Streamlit), si bien qu'une période
+choisie sur la carte survit au passage par une page sans filtres (testé avec AppTest et dans Chrome). Régression trouvée
+pendant H puis corrigée : avec `None` dans `session_state`, le filtre Région affichait « Choose an option » ; il vaut
+désormais `"all"` (« All of France » / « Toute la France », vérifié en ligne). Notes « side.none » supprimées.
+
+**G. PDF de comparaison** (`utils/compare_report.py`) : bouton EN et FR sous le tableau de « Town against town », pour les 2
+à 6 communes comparées. Contenu : en-tête de marque, avertissement, chaque commune (carré de note avec la lettre, score,
+confiance, population, trois notes), graphique en barres (score puis trois notes ; nom de la commune à gauche, valeur à
+droite : la couleur n'est jamais nécessaire), explication de l'écart entre la meilleure et la moins bonne (même fonction
+que la page), position face à la médiane nationale, formules, sources, date des données. Les communes sans score sont
+nommées et écartées. `town_report._Doc` regroupe la mise en page commune aux deux rapports ; le rapport d'une commune est
+resté identique octet pour octet (hors date de création, vérifié sur Paris et Froncles en EN et FR). Corrections de texte
+au passage (page et PDF) : substance en minuscule après « À Paris : » (`lower_name`), « porte sur la famille confort ».
+Génération 0,2 à 0,3 s (1 s la première fois, polices) ; en ligne 0,95 à 1,03 s. Tests : `tests/test_compare_report.py` (13).
+
+**H. En-tête de la barre latérale** : logo EFREI blanc sur une pastille couleur encre de l'identité (#1B2A41) : pastille
+visible en clair, fondue dans le fond en sombre (#1A2230), logo lisible dans les deux cas. Logo réduit à 400 px et 16
+couleurs : `assets/efrei-logo-white.png`, 6,8 Ko (l'original fait 2560 × 1280 px), inclus en data URI (aucune requête de
+plus). Puis Florian Giraud, Data & AI (groupe DAI), liens LinkedIn et GitHub (nouvel onglet), « Data Analysis &
+Visualization, coordinateur : MATHEW Mano Joseph ». Streamlit place toujours son menu natif tout en haut : il est masqué
+(`position="hidden"`) et redessiné avec `st.page_link` sous l'en-tête (mêmes sections, icônes, page active surlignée).
+Différence connue : sur téléphone, la barre latérale reste ouverte après un clic dans le menu (le menu natif la refermait).
+Les trois logos d'origine déposés par Florian dans `assets/` ne sont pas suivis par git ni mis dans le zip.
+
+**I. Ordre du menu** : « What it all means » en 2e position. La page s'ouvre sur une phrase qui dit que c'est le résumé
+des résultats, avant les preuves, avec des liens vers les six pages de preuves ; chaque hypothèse renvoie à la page qui la
+teste (H1 et H2 : la carte ; H3 et H4 : « What we look for, what we find »). Storyboard renuméroté (conclusions = section 2)
+et récit d'ouverture réécrit ; README (arc du récit, structure).
+
+**E.** 271 tests verts, aussi depuis un clone propre. Audit Playwright local sans échec ni régression (ex. carte, période :
+0,67 s ; nuage de points : 0,24 à 0,27 s ; PDF de comparaison : 0,20 s ; seule « ajouter une ville » dépasse 1 s, frappe
+simulée comprise, navigateur non bloqué). En ligne après le push : les 11 pages en EN et FR sans erreur, en-tête présent,
+filtres exactement là où ils agissent, menu dans le nouvel ordre, PDF de comparaison valides ; pages réchauffées.
