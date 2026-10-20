@@ -60,6 +60,7 @@ PAGES = {   # url path -> (file, title key, material icon)
     "compare": ("sections/comparer.py", "nav.compare", ":material/compare_arrows:"),
     "map": ("sections/overview.py", "nav.map", ":material/map:"),
     "monitor": ("sections/deep_dives.py", "nav.monitor", ":material/search_insights:"),
+    "explore": ("sections/explore.py", "nav.explore", ":material/table_view:"),
     "quality": ("sections/data_quality.py", "nav.quality", ":material/fact_check:"),
     "my-score": ("sections/mon_score.py", "nav.myscore", ":material/tune:"),
     "conclusions": ("sections/conclusions.py", "nav.conclusions", ":material/flag:"),
@@ -75,7 +76,7 @@ def page(path: str) -> st.Page:
 nav = st.navigation({
     t("nav.section.story"): [page(p) for p in ("", "reading", "town", "compare", "map", "monitor", "my-score",
                                                      "conclusions")],
-    t("nav.section.more"): [page(p) for p in ("quality", "about")],
+    t("nav.section.more"): [page(p) for p in ("explore", "quality", "about")],
 })
 sidebar(nav.url_path)
 header()

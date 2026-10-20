@@ -14,6 +14,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
 | 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
 | 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
+| Session 5 | 🟡 en cours : A (performance) terminé, B (LinkedIn) et C (page « Explorer les données ») commités ; reste D, E | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -416,3 +417,44 @@ serveur ; 8 bonnes communes sur 8 ensuite, test unitaire et test navigateur ajou
 - Ajouter une ville dans Comparer en ligne : 1,4 s pour taper « Villejuif » (dont 0,54 s de frappe), puis 0,75 à 1,0 s pour
   le choix.
 - Les onglets des Plongées s'affichent sans aller au serveur (0 s).
+
+## Session 5 : reprise, LinkedIn, page « Explorer les données » (20/10/2026)
+**Point de reprise** : la session 4 s'était arrêtée après le correctif du clic rapide (commit `198cce8`), arbre propre et
+poussé. A était terminé : rien à reprendre. Un test (`test_paris_is_not_compared_with_its_own_department`) a échoué une
+fois dans la suite complète puis est passé à chaque relance (seul et dans la suite) : instable, à surveiller.
+
+**B. LinkedIn** (commit `ad1acb8`) : le nom de Florian dans le pied de page de toutes les pages pointe vers
+https://www.linkedin.com/in/florian-giraud-67883a291/ (EN et FR), bouton « LinkedIn » à côté du bouton GitHub sur la
+page À propos, lien dans la section Credits du README. Liens du pied de page en nouvel onglet avec `rel="noopener noreferrer"`
+(`utils/viz._md`), constantes `config.AUTHOR_LINKEDIN` et `config.REPO_URL`. Test : `test_footer_and_about_link_to_linkedin`.
+
+**C. Page « Explore the data » / « Explorer les données »** (`sections/explore.py`, textes `utils/texts/explore.py`),
+dans « Méthode et crédits » juste avant « Les coulisses des chiffres ». Tout est pré-calculé par
+`scripts/07_build_explore_tables.py` (3 s, branché dans `Makefile` et `make.ps1`) : 10 petites tables (64 Ko en tout).
+- Schéma des 3 fichiers (SVG en ligne, couleurs du thème) avec les clés `referenceprel` et `cdreseau` et les lignes 2025 ;
+  volume par année (lignes, prélèvements, tailles des zips, du texte et de la copie Parquet brute : 22 Go de texte, 449 Mo
+  de Parquet) ; pourquoi le réseau est l'unité de base (2026 : 28 419 communes sur 34 812 avec un seul réseau, 17 363 réseaux
+  sur 22 798 pour une seule commune ; 2025 : 18,6 % des prélèvements rattachés à plusieurs réseaux, jusqu'à 66).
+- Vraies lignes : les 30 lignes brutes du data dictionary (graine 42, déjà dans le dépôt, copiées dans
+  `explore_examples.json` ; un test vérifie qu'aucune autre ligne brute n'est ajoutée) + 6 lignes de `udi_year`.
+- Distributions : prélèvements par réseau en 2025 (médiane 9, 67 % sous 12 analyses bactériologiques) ; part des résultats
+  sous la limite de quantification par groupe (pesticides 98,8 %, bactéries 98,9 %, nitrates 38,4 %) ; 15 paramètres les plus
+  mesurés ; moyennes 2025 des réseaux pour 8 paramètres avec leur seuil.
+- Matrice de Spearman de 8 indicateurs des 96 départements de métropole, calculée paire par paire. **Même règle que la
+  carte** : médiane du score seulement pour les départements d'au moins 5 communes notées (Paris exclu de cet indicateur).
+  Sans cette règle on trouvait −0,12 au lieu du −0,14 affiché par la carte. Résultats : H2 ρ = 0,05 ; petits réseaux et échecs
+  bactério 0,93 ; petits réseaux et score médian −0,14 ; score médian et nitrates −0,45 ; dureté et nitrates 0,55 ; seuil de
+  hasard à 5 % pour 96 départements : 1,96/√95 = 0,20. Densité = population / surface calculée sur les contours de la carte
+  (Paris 19 900 hab./km²).
+- Nuage de points avec choix des deux axes (axes logarithmiques pour population et densité), ρ et force du lien calculés.
+- Sources citées dans les textes : n° 23 (OMS, origines des nitrates) et n° 37 (dureté). Deux phrases non sourcées retirées
+  avant publication (« le nombre de prélèvements suit la population, comme le veut la réglementation », origine des nitrates).
+- Vérifié dans Chrome (Playwright) : anglais et français, thème clair et sombre (valeurs de la matrice écrites en
+  annotations, sinon illisibles en sombre), largeur téléphone 390 px sans défilement horizontal.
+- Barre latérale : note propre aux pages sans filtre (`NO_FILTER_NOTE` : « elle décrit les fichiers eux-mêmes » pour cette
+  page, phrase neutre pour À propos ; l'ancienne note parlait des fenêtres du score).
+- Tests : `tests/test_explore.py` (17 tests : tables petites et cohérentes avec le data dictionary et les autres pages,
+  aucune ligne brute nouvelle, chaque contrôle de la page rerun sous 1,5 s en EN et FR, textes calculés et propres).
+  **241 tests verts.**
+- À trancher par Florian : « Les coulisses des chiffres » garde son histogramme de couverture (prélèvements par réseau, suit
+  le filtre de période), proche de celui de la nouvelle page (année 2025, classes lisibles). Les deux sont gardés.

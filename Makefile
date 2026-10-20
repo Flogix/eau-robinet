@@ -20,6 +20,7 @@ data:
 	$(PY) scripts/04_referentiels.py
 	$(PY) scripts/05_build_scores.py
 	$(PY) scripts/06_build_app_tables.py
+	$(PY) scripts/07_build_explore_tables.py
 
 test:
 	$(PY) -m pytest -q

@@ -36,6 +36,12 @@ T = {
               "latest three years for chemistry.",
         "fr": "Aucun filtre ne change cette page : elle montre toujours les douze derniers mois pour les bactéries et "
               "les trois dernières années pour la chimie."},
+    "side.none.explore": {
+        "en": "None of the filters changes this page: it describes the files themselves, and each chart says which "
+              "years it covers.",
+        "fr": "Aucun filtre ne change cette page : elle décrit les fichiers eux-mêmes, et chaque graphique dit "
+              "quelles années il couvre."},
+    "side.none.about": {"en": "None of the filters changes this page.", "fr": "Aucun filtre ne change cette page."},
     "side.years": {"en": "Period (years)", "fr": "Période (années)"},
     "side.years.help": {
         "en": "Calendar years of the samples. 2026 only runs to 31 August 2026. The score of a town always uses the "

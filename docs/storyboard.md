@@ -3,7 +3,8 @@
 The app is read like an investigation, in the order of the sidebar. It opens on a hook (water that makes people ill is not a
 thing of the past), gives the reader the tools to read a water test, answers their personal question (my town), widens the
 view (other towns, the map), digs into what the curves really mean, lets the reader question our own method, and ends on
-what it all means. Two pages stand apart, "Behind the numbers" and "About", for readers who want the method and the credits.
+what it all means. Three pages stand apart, "Explore the data", "Behind the numbers" and "About", for readers who want the
+data itself, the method and the credits.
 
 Every page opens with a sentence that states its insight, computed from the data. Every chart has a title that says what it
 shows, a caption that describes it (also used as alternative text), the source, and a short paragraph that says what to take
@@ -144,7 +145,26 @@ and the lower lead limit.
 
 **Interactions.** None on purpose: this page concludes.
 
-## 9. Behind the numbers (`sections/data_quality.py`)
+## 9. Explore the data (`sections/explore.py`)
+
+**Question.** What does the raw material look like, and which indicators go together?
+
+**Visuals.** A diagram of the three yearly files (PLV, RESULT, COM_UDI) with their two keys, `referenceprel` and `cdreseau`,
+and the row counts of 2025; the number of results per year; real rows of each file (the thirty rows of the data dictionary,
+drawn with seed 42, and six rows of the processed table `udi_year`); four distributions (samples per network, share of
+results below the quantification limit by group, the fifteen most measured parameters, the networks' 2025 averages of eight
+key parameters with their threshold); a Spearman matrix of eight department indicators; a scatter plot of any two of them.
+
+**Insight.** "From 2016 to 2026: 2,991,181 samples, 133,474,398 analysis results and 22 GB of text. Each sample brings about
+43 results." "Half of the networks were sampled 9 times or fewer in 2025." "99% of the pesticide results are below the
+quantification limit." Across the 96 departments of mainland France, bacterial and chemical failures are unrelated
+(ρ = 0.05, H2), the share of small networks goes with bacterial failures (ρ = 0.93) but says little about the median score
+(ρ = −0.14); a correlation is not a cause, and with 96 departments a ρ under 0.20 in absolute value can come from chance.
+
+**Interactions.** Choice of the table shown, of the parameter of the distribution, and of the two axes of the scatter plot.
+Everything is precomputed by `scripts/07_build_explore_tables.py`: each interaction reruns the page in about 0.1 to 0.3 s.
+
+## 10. Behind the numbers (`sections/data_quality.py`)
 
 **Question.** Can we trust the data and our processing?
 
@@ -157,6 +177,6 @@ reasons we could trace" (derogations, old selenium and antimony limits).
 
 **Interactions.** Choice of file for the heatmap; period filter.
 
-## 10. About this project (`sections/about.py`)
+## 11. About this project (`sections/about.py`)
 
-Credits, licences, links to the code and to the sources, and how the app was built.
+Credits, licences, links to the code, to the sources and to the author's LinkedIn page, and how the app was built.

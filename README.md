@@ -30,6 +30,7 @@ The app answers five questions, one page or more each:
 | Big city or village, mountain or Mediterranean coast? | *Town against town* |
 | Where are the problems in France? | *The map of France* |
 | Is it getting better since 2016, and can we trust the curves? | *What we look for, what we find*, *Behind the numbers* |
+| What do the raw data look like, and which indicators go together? | *Explore the data* (files and keys, real rows, distributions, rank correlations) |
 
 The story follows the arc asked by the brief. The **hook** is the home page: water that makes people ill is not a thing
 of the past (WHO and Santé publique France figures, sourced). The **context** is how the control works and how to read a
@@ -82,6 +83,7 @@ one year at a time, with a 3 GB memory limit (the development laptop had about 4
 | `04_referentiels.py` | Towns (population, centre, department, region), former towns merged into current ones, density grid, Mountain Act, contours | under 1 min |
 | `05_build_scores.py` | Scores of networks and towns, validation, sensitivity analysis, witness towns | about 3 min (pandas only) |
 | `06_build_app_tables.py` | Department × family × year table for the map | seconds |
+| `07_build_explore_tables.py` | Small tables of *Explore the data*: volume per year, town-network links, distributions, department indicators and their rank correlations | about 3 s |
 
 Every step can be interrupted and restarted where it stopped (state files and stamps in `data/interim/`).
 
@@ -286,6 +288,8 @@ sections/               one page per file, in the order of the story
   deep_dives.py         What we look for, what we find (H3, nitrates, PFAS, seasons, hardness H4)
   mon_score.py          Build your own score (weights, severities, thresholds)
   conclusions.py        What it all means (H1 to H4, implications, limits)
+  explore.py            Explore the data (the three files and their keys, real rows, distributions, Spearman matrix,
+                        scatter plot of any two department indicators)
   data_quality.py       Behind the numbers (missing values, checks, official vs recomputed, coverage, biases)
   about.py              Credits, licences, how it was built
 utils/
@@ -297,7 +301,8 @@ utils/
   town_search.py        town search box shared by the pages (server-side matches, see section 6)
   filters.py, metrics.py, viz.py, i18n.py, texts/   sidebar, KPIs, chart style, translation (English and French)
 scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -> 04_referentiels -> 05_build_scores
-                        -> 06_build_app_tables; explore/ holds the phase-0 queries behind the data dictionary;
+                        -> 06_build_app_tables -> 07_build_explore_tables; explore/ holds the phase-0 queries behind
+                        the data dictionary;
                         perf_audit.py measures page loads and interactions in a real browser (Playwright)
 assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PDF report
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed

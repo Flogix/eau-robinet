@@ -15,6 +15,8 @@ VARIABLES = ["bact_official", "chem_official", "nitrates", "pesticides", "pfas",
 OFFICIAL = {"bact_official", "chem_official"}
 COMMUNE_TYPES = ["all", "urban_dense", "urban_inter", "rural", "mountain", "med"]
 
+# Note shown when no filter is active, for the pages that do not show the score of a town
+NO_FILTER_NOTE = {"explore": "side.none.explore", "about": "side.none.about"}
 # Which filters change something on each page (url path -> filters). The others are greyed out.
 PAGE_FILTERS = {
     "": {"years", "region", "ctype"},
@@ -23,6 +25,7 @@ PAGE_FILTERS = {
     "compare": {"region"},
     "map": {"years", "region", "ctype"},
     "monitor": {"years"},
+    "explore": set(),
     "quality": {"years"},
     "my-score": set(),
     "conclusions": set(),
@@ -81,7 +84,7 @@ def sidebar(page: str) -> Filters:
     type_labels = {c: t(f"ctype.{c}") for c in COMMUNE_TYPES}
     with st.sidebar:
         st.markdown(f"**{t('side.filters')}**")
-        st.caption(t("side.intro") if active else t("side.none"))
+        st.caption(t("side.intro") if active else t(NO_FILTER_NOTE.get(page, "side.none")))
         years = st.slider(t("side.years"), min_value=config.YEARS[0], max_value=config.YEARS[-1],
                           value=(config.YEARS[0], config.COMPLETE_YEARS[-1]), key="f_years",
                           help=t("side.years.help"), disabled="years" not in active)
