@@ -321,3 +321,91 @@ journal dans `data/interim/logs/`).
 - Zip `dist/StApp26_20230851_GIRAUD_DAI.zip` (dossier ignoré par git), construit avec `git archive` depuis le dernier commit :
   environ 52 Mo, 124 fichiers (code, README, docs sans les consignes, `data/processed`, `DATASET.md`), aucune donnée brute ni
   `data/interim`. Tests : 198 verts, y compris depuis un clone propre.
+
+## Session 4 : performance de la recherche de commune (20/10/2026)
+**Symptôme (signalé par Florian)** : sur la page commune (et le même composant dans Comparer et Construisez votre score),
+effacer le nom d'une ville pour en taper une autre gelait la page environ 5 secondes, en ligne.
+
+**Diagnostic (mesures avant correction, Playwright + Chrome, `scripts/perf_audit.py`)** : ce n'était pas un rerun.
+Effacer le texte n'envoie **aucun message au serveur** (0 message WebSocket), mais le navigateur reste bloqué sur des
+« long tasks » de 4,2 à 4,5 s. Cause : `st.selectbox` (Streamlit 1.66, react-aria) filtre et dessine ses options dans le
+navigateur, sans virtualisation, avec une comparaison `Intl.Collator` sur chaque nom ; quand le filtre redevient vide, il
+dessine les 34 812 communes. Même chose à la fermeture de la liste après un choix (6 à 7 s pour Lyon) et dans le
+multiselect de Comparer (retirer une ville : 3 s). Côté serveur, choisir une ville ne coûte que 0,16 à 0,47 s.
+Le gel croît avec le nombre d'options (environ 0,12 ms par option : la liste des 1 785 paramètres ne bloque que 0,28 s).
+
+**Choix** : alléger la liste envoyée au navigateur, la seule correction à la source (un fragment ou un cache côté serveur
+n'auraient rien changé, le serveur n'étant pas en cause). `utils/town_search.py` : champ de recherche
+**streamlit-searchbox** 0.1.24 (MIT, Python pur côté serveur, interface déjà compilée) dans un `st.fragment`. La recherche
+tourne sur le serveur (accents ignorés, homonymes avec leur département) et le navigateur ne reçoit que les 5 exemples
+(Paris, Lyon, Marseille, Bordeaux, Lille) ou les 20 meilleures correspondances. Chaque frappe ne relance que le fragment ;
+choisir une ville relance la page en un seul aller-retour, vide le champ et affiche la ville courante en texte indicatif.
+Comparer garde son multiselect pour retirer une ville, limité aux villes comparées et aux exemples, avec un champ
+« Ajouter une commune ». En plus : rapport de chaque réseau mis en cache par langue (`town_report.network_report`, Marseille
+a 16 réseaux : 0,98 s au premier passage, 0,18 s ensuite) ; décision de cache de `utils/io.py` prise à chaque appel et non
+à l'import (un test qui importait le module hors Streamlit désactivait tout le cache de la suite : suite de tests 2 min 30
+→ 1 min).
+
+**Tests ajoutés** (`tests/test_performance.py`, 15 tests) : aucun widget de l'app n'envoie plus de 2 000 options ; recherche
+rapide et correcte ; rerun serveur sous 3 s pour la page commune (Lyon, Marseille, Mamoudzou, Saint-Denis, commune sans
+score), les curseurs du score personnel et Comparer à six villes ; test dans un vrai Chrome : vider le champ bloque moins
+d'1 s et choisir Lyon prend moins de 4 s (ignoré si Playwright ou Chrome manquent). **218 tests verts.**
+Outils de développement dans `requirements-dev.txt` (Playwright), pas dans `requirements.txt`.
+
+**Tableau (secondes, anglais / français ; « total » = jusqu'à ce que l'app soit de nouveau utilisable)**. Local : machine
+de développement ; en ligne : https://eau-robinet.streamlit.app/, à chaud. Les lignes « type » comprennent la frappe
+simulée (60 ms par lettre : 0,24 s pour « Lyon », 0,66 s pour « Saint-Denis ») ; après la correction elles ne bloquent
+jamais le navigateur.
+
+| Page | Action | Local avant | Local après | En ligne avant | En ligne après |
+|---|---|---|---|---|---|
+| town | erase the name (Backspace x12), list open | 4,69 / 4,73 | 0,00 / 0,00 | 4,95 / 4,25 | 0,00 / 0,00 |
+| town | empty the field then click away | 13,72 / 24,82 | 0,00 / 0,00 | 13,75 / 11,41 | 0,00 / 0,00 |
+| town | type 'Lyon' until it is proposed | 0,60 / 0,61 | 0,66 / 0,99 | 0,69 / 0,60 | 0,30 / 1,54 |
+| town | choose Lyon (69) (page updated) | 7,01 / 6,20 | 0,49 / 2,30 | 7,45 / 6,62 | 1,32 / 1,19 |
+| town | choose Marseille (13) (page updated) | 1,08 / 1,07 | 1,10 / 1,03 | 1,82 / 1,61 | 1,19 / 1,35 |
+| town | choose Lille (59) (page updated) | 3,21 / 2,81 | 1,03 / 0,58 | 3,03 / 2,82 | 0,99 / 0,93 |
+| town | choose Péreyres (07) (page updated) | 0,49 / 0,51 | 0,29 / 0,51 | 0,72 / 0,73 | 0,66 / 0,61 |
+| town | choose Mamoudzou (976) (page updated) | 0,80 / 0,80 | 0,67 / 0,71 | 1,30 / 1,08 | 0,99 / 0,93 |
+| town | choose Saint-Denis (974) (page updated) | 2,15 / 3,22 | 0,95 / 1,05 | 3,50 / 2,55 | 1,11 / 1,10 |
+| town | choose Saint-Denis (93) (page updated) | 2,85 / 3,79 | 0,49 / 0,54 | 2,64 / 2,18 | 0,89 / 0,85 |
+| town | type 'Saint-Denis' | 0,78 / 2,08 | 1,17 / 1,22 | 0,76 / 0,77 | 1,51 / 1,51 |
+| town | download PDF (EN) | 0,90 / 0,71 | 0,76 / 0,35 | 0,91 / 0,89 | 0,96 / 0,90 |
+| town | download PDF (FR) | 0,42 / 0,75 | 0,43 / 0,38 | 0,85 / 0,88 | 0,94 / 0,89 |
+| town | switch language EN/FR | 0,79 / 0,75 | 0,40 / 0,34 | 0,96 / 1,42 | 0,59 / 0,58 |
+| compare | add a town (Villejuif) | 1,56 / 1,71 | 1,55 / 1,52 | 1,87 / 0,34 | 2,49 / 2,35 |
+| compare | remove a town (Lille) | 3,49 / 3,13 | 0,31 / 0,33 | 2,80 / 2,96 | 0,63 / 0,58 |
+| map | period slider (start year +1) | 0,71 / 0,68 | 0,67 / 0,68 | 1,17 / 1,12 | 1,14 / 1,06 |
+| map | region -> Bretagne | 0,75 / 0,72 | 0,74 / 0,79 | 1,19 / 1,19 | 1,16 / 1,10 |
+| map | kind of town -> mountain | 0,48 / 0,49 | 0,44 / 0,46 | 0,77 / 0,85 | 0,97 / 0,73 |
+| map | map view -> nitrates | 0,64 / 0,71 | 0,64 / 0,65 | 1,02 / 1,11 | 1,12 / 1,00 |
+| my-score | move a slider (each of 14) | 0,84 / 0,64 | 0,79 / 0,47 | 1,03 / 0,89 | 0,92 / 0,63 |
+| my-score | back to the official settings | 0,35 / 0,34 | 0,32 / 0,35 | 0,59 / 0,58 | 0,56 / 0,58 |
+| monitor | change tab (each of 4) | 0,00 / 0,00 | 0,00 / 0,00 | 0,00 / 0,00 | 0,00 / 0,00 |
+| home | load (warm) | 2,84 / 1,03 | 2,23 / 0,89 | 3,68 / 2,18 | 7,15 / 1,80 |
+| reading | load (warm) | 1,01 / 0,95 | 1,03 / 0,96 | 2,26 / 2,15 | 2,07 / 2,46 |
+| town | load (warm) | 1,13 / 1,21 | 1,13 / 1,02 | 2,36 / 2,53 | 2,00 / 2,44 |
+| compare | load (warm) | 1,19 / 1,49 | 1,05 / 1,05 | 2,80 / 2,81 | 1,91 / 2,18 |
+| map | load (warm) | 1,48 / 1,40 | 1,48 / 1,40 | 3,06 / 2,91 | 2,57 / 2,44 |
+| monitor | load (warm) | 1,14 / 1,15 | 1,12 / 1,14 | 2,94 / 2,12 | 2,21 / 2,25 |
+| my-score | load (warm) | 1,10 / 1,15 | 1,01 / 1,01 | 2,56 / 2,72 | 2,32 / 1,97 |
+| conclusions | load (warm) | 0,97 / 0,97 | 0,91 / 1,04 | 2,72 / 2,54 | 2,18 / 2,20 |
+| quality | load (warm) | 1,02 / 0,99 | 1,06 / 1,30 | 2,14 / 2,10 | 2,04 / 3,03 |
+| about | load (warm) | 0,86 / 0,93 | 0,85 / 0,85 | 1,91 / 1,93 | 1,71 / 1,70 |
+
+**Ce qui dépasse encore 1 s, et pourquoi** :
+- Chargement d'une page (1 à 2,5 s en ligne) : envoi de la page, dessin de 3 à 8 graphiques Plotly et des formules ; la
+  première page d'une nouvelle session télécharge en plus les fichiers JavaScript de Streamlit (1 à 3 s chacun sur Streamlit
+  Cloud, très variable : un premier chargement a pris 8 s, les suivants 1,6 s).
+- À froid, juste après un redémarrage du serveur en ligne (après un push ou une mise en veille) : accueil 10,3 s, commune
+  7,3 s, le temps de lire les tables Parquet une première fois. D'où le réchauffement avant une démonstration.
+- Choisir une ville en ligne (0,85 à 1,35 s) : le serveur recalcule la page (0,2 à 0,5 s, 1 s pour une grande ville au premier
+  passage), puis le navigateur redessine 3 graphiques, le tableau et les formules ; plus le trajet réseau.
+- Taper un nom : les propositions arrivent 0,4 à 0,9 s après la dernière touche en ligne (attente de 150 ms pour ne pas
+  chercher à chaque lettre, puis un aller-retour), sans bloquer la page.
+- Carte (curseur, région, vue : 1,0 à 1,2 s en ligne, 0,5 à 0,8 s en local) : rerun de la page avec la carte des 101
+  départements ; identique avant et après.
+- Premier PDF anglais en ligne (une fois 2,2 s) : chargement des polices ; ensuite 0,9 s.
+- Ajouter une ville dans Comparer en ligne : 1,4 s pour taper « Villejuif » (dont 0,54 s de frappe), puis 0,75 à 1,0 s pour
+  le choix.
+- Les onglets des Plongées s'affichent sans aller au serveur (0 s).
