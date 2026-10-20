@@ -2,13 +2,13 @@
 
 Why not st.selectbox: Streamlit's selectbox filters and draws its options in the browser, without virtualisation. With
 the 34,812 French towns, emptying the field (or closing the list after a choice) makes the browser draw tens of
-thousands of options: the page froze 4 to 12 seconds (measured with scripts/perf_audit.py, before and after are in
+thousands of options: the page froze 4 to 25 seconds (measured with scripts/perf_audit.py, before and after are in
 docs/AVANCEMENT.md). Here the search runs on the server (accents ignored, homonyms told apart by their department) and
 the browser only ever receives the 5 examples or the 20 best matches.
 
 The search box lives in a fragment: each keystroke reruns only the box, not the page. Choosing a town updates the
-session state and reruns the page once. The box then clears itself and shows the current town as its placeholder, so
-that choosing again a town seen before always works.
+session state, empties the box and reruns the whole page in a single round trip; the box then shows the current town as
+its placeholder, so that choosing again a town seen before always works.
 """
 from __future__ import annotations
 
@@ -44,11 +44,8 @@ def town_search(label: str, key: str, on_pick, current: str | None = None, help:
 @st.fragment
 def _box(label: str, key: str, on_pick, current: str | None, help: str | None, placeholder: str | None,
          disabled: bool) -> None:
-    from streamlit_searchbox import st_searchbox
+    from streamlit_searchbox import _set_defaults, st_searchbox
 
-    flag = f"_{key}_picked"
-    if st.session_state.pop(flag, False):
-        st.rerun()           # a town was chosen in this box: rerun the whole page once, with the new town
     if disabled:
         st.text_input(label, value="", placeholder=placeholder or "", disabled=True, help=help, key=f"{key}_off")
         return
@@ -57,11 +54,13 @@ def _box(label: str, key: str, on_pick, current: str | None, help: str | None, p
     def picked(insee):
         if insee:
             on_pick(insee)
-            st.session_state[flag] = True
+            # empty the box (as clear_on_submit would) and rerun the whole page at once: a single round trip
+            _set_defaults(key, None, "", town_matches(""))
+            st.rerun()
 
     if placeholder is None:
         placeholder = t("search.placeholder.current", town=labels[current]) if current in labels else \
             t("search.placeholder")
     st_searchbox(town_matches, label=label, placeholder=placeholder, key=key, help=help,
-                 default_options=town_matches(""), clear_on_submit=True, submit_function=picked,
+                 default_options=town_matches(""), submit_function=picked,
                  rerun_scope="fragment", debounce=150, style_overrides=_style())
