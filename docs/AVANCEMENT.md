@@ -14,7 +14,7 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
 | 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
 | 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
-| Session 5 | 🟡 en cours : A (performance) terminé, B (LinkedIn) et C (page « Explorer les données ») commités ; reste D, E | 20/10 |
+| Session 5 | ✅ A, B, C, D, E faits : LinkedIn, page « Explorer les données », audit complet, push, vérification en ligne, zip | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -423,7 +423,7 @@ serveur ; 8 bonnes communes sur 8 ensuite, test unitaire et test navigateur ajou
 poussé. A était terminé : rien à reprendre. Un test (`test_paris_is_not_compared_with_its_own_department`) a échoué une
 fois dans la suite complète puis est passé à chaque relance (seul et dans la suite) : instable, à surveiller.
 
-**B. LinkedIn** (commit `ad1acb8`) : le nom de Florian dans le pied de page de toutes les pages pointe vers
+**B. LinkedIn** (commit `8c389a2` après rebase) : le nom de Florian dans le pied de page de toutes les pages pointe vers
 https://www.linkedin.com/in/florian-giraud-67883a291/ (EN et FR), bouton « LinkedIn » à côté du bouton GitHub sur la
 page À propos, lien dans la section Credits du README. Liens du pied de page en nouvel onglet avec `rel="noopener noreferrer"`
 (`utils/viz._md`), constantes `config.AUTHOR_LINKEDIN` et `config.REPO_URL`. Test : `test_footer_and_about_link_to_linkedin`.
@@ -455,6 +455,101 @@ dans « Méthode et crédits » juste avant « Les coulisses des chiffres ». To
   page, phrase neutre pour À propos ; l'ancienne note parlait des fenêtres du score).
 - Tests : `tests/test_explore.py` (17 tests : tables petites et cohérentes avec le data dictionary et les autres pages,
   aucune ligne brute nouvelle, chaque contrôle de la page rerun sous 1,5 s en EN et FR, textes calculés et propres).
-  **241 tests verts.**
+  **241 tests verts** (aussi depuis un clone propre sans données brutes).
 - À trancher par Florian : « Les coulisses des chiffres » garde son histogramme de couverture (prélèvements par réseau, suit
   le filtre de période), proche de celui de la nouvelle page (année 2025, classes lisibles). Les deux sont gardés.
+
+### E. Fin de session 5 : audit, push, vérification en ligne, zip
+- **Fragments** sur la page « Explorer les données » : les trois contrôles (table affichée, paramètre, axes du nuage) sont
+  chacun dans un `st.fragment`, si bien qu'un changement ne redessine qu'un graphique. Mesuré dans Chrome en local :
+  axes du nuage 1,08–1,15 s → 0,28–0,38 s ; table et paramètre 0,7–0,9 s → 0,15–0,28 s.
+- **Audit** (`scripts/perf_audit.py`) : la nouvelle page est couverte (chargement et chaque contrôle) ; une interaction qui
+  échoue est notée « failed » sans arrêter l'audit, et les mesures déjà prises sont écrites même en cas de plantage
+  (un premier passage avait perdu ses mesures sur un mauvais sélecteur : les boutons segmentés ont le rôle `radio`).
+- **Comparaison A/B** dans les mêmes conditions (même machine, même Chrome, code du commit `198cce8` sur le port 8504 contre
+  le code actuel sur 8501) : les chargements de toutes les pages sont aujourd'hui de 1,5 à 2,8 s en local pour **les deux**
+  versions, contre 0,85 à 2,2 s mesurés en session 4. Le ralentissement vient de la machine, pas du code ; le code actuel
+  reste 0,15 à 0,3 s plus lent en médiane, l'ordre de grandeur de l'écart entre deux séries de mesures du même code.
+- **Push** : refusé une première fois, origin contenait `febc6e9 Added Dev Container Folder` (14:16, compte de Florian,
+  message type de Streamlit Cloud) qui remet `.devcontainer/devcontainer.json` dans le suivi, alors qu'il en avait été retiré
+  le 20/10. Contenu identique à la copie locale : les 5 commits ont été rebasés dessus (copie locale sauvegardée dans le
+  scratchpad puis restaurée à l'identique par git), rien n'a été supprimé. **À trancher par Florian** : le garder suivi ou
+  le retirer de nouveau. Le zip l'exclut, comme avant.
+- **En ligne** (après le push) : les 11 pages en anglais et en français s'ouvrent sans erreur, avec le lien LinkedIn dans le
+  pied de page ; toutes réchauffées. Chargement de la nouvelle page répété trois fois : 2,3 à 2,5 s (Behind the numbers 1,9 s,
+  About 1,7 s) ; une mesure isolée à 4,65 s et une carte à 9,2 s sont des pics de Streamlit Cloud (non reproduits). Le premier
+  chargement d'une session neuve prend encore jusqu'à 8 s (téléchargement des scripts de Streamlit).
+
+**Tableau de performance (secondes, anglais / français ; « total » = jusqu'à ce que l'app soit de nouveau utilisable).**
+S4 = mesures de la session 4 ; S5 = cette session ; « code du 198cce8 » = l'ancien code mesuré aujourd'hui dans les mêmes
+conditions (chargements anglais seulement). Les lignes « type » comprennent la frappe simulée (60 ms par lettre) et ne
+bloquent jamais le navigateur ; « – » = non mesuré.
+
+| Page | Action | S4 local avant | S4 local après | S5 local, code du 198cce8 (A/B) | S5 local | S4 en ligne avant | S4 en ligne après | S5 en ligne |
+|---|---|---|---|---|---|---|---|---|
+| about | load (cold) | 0,86 / 0,87 | 0,83 / 0,85 |  | 1,66 / 1,67 |  | 1,76 / – | 1,83 / 1,80 |
+| about | load (warm) | 0,86 / 0,93 | 0,85 / 0,85 | 1,52 / – | 1,64 / – | 1,91 / 1,93 | 1,71 / 1,70 | 1,84 / 1,98 |
+| compare | add a town (Villejuif) | 1,56 / 1,71 | 1,55 / 1,52 |  | 1,78 / 1,67 | 1,87 / 0,34 | 2,49 / 2,35 | 2,42 / 2,33 |
+| compare | load (cold) | 1,20 / 1,26 | 1,04 / 1,07 |  | 2,04 / 2,10 |  | 3,21 / – | 2,48 / 2,10 |
+| compare | load (warm) | 1,19 / 1,49 | 1,05 / 1,05 | 1,88 / – | 2,12 / – | 2,80 / 2,81 | 1,91 / 2,18 | 2,48 / 2,48 |
+| compare | remove a town (Lille) | 3,49 / 3,13 | 0,31 / 0,33 |  | 0,40 / 0,47 | 2,80 / 2,96 | 0,63 / 0,58 | 0,67 / 0,67 |
+| conclusions | load (cold) | 0,96 / 0,92 | 0,88 / 0,89 |  | 1,54 / 1,70 |  | 1,90 / – | 1,98 / 1,99 |
+| conclusions | load (warm) | 0,97 / 0,97 | 0,91 / 1,04 | 1,64 / – | 1,66 / – | 2,72 / 2,54 | 2,18 / 2,20 | 1,89 / 1,91 |
+| explore | change an axis of the scatter (each) |  |  |  | 0,33 / 0,35 |  |  | 0,71 / 0,75 |
+| explore | change the parameter (each) |  |  |  | 0,22 / 0,26 |  |  | 0,52 / 0,41 |
+| explore | change the table shown (each) |  |  |  | 0,15 / 0,19 |  |  | 0,37 / 0,39 |
+| explore | load (cold) |  |  |  | 2,58 / 2,14 |  |  | 2,81 / 2,51 |
+| explore | load (warm) |  |  | 1,67 / – | 2,12 / – |  |  | 2,74 / 4,65 |
+| home | load (cold) | 4,16 / 2,82 | 2,64 / 2,52 |  | 2,56 / 1,89 |  | 10,31 / – | 3,21 / 1,88 |
+| home | load (warm) | 2,84 / 1,03 | 2,23 / 0,89 | 2,72 / – | 2,76 / – | 3,68 / 2,18 | 7,15 / 1,80 | 2,82 / 1,71 |
+| map | kind of town -> mountain | 0,48 / 0,49 | 0,44 / 0,46 |  | 0,58 / 0,65 | 0,77 / 0,85 | 0,97 / 0,73 | 0,81 / 0,78 |
+| map | load (cold) | 1,92 / 1,53 | 1,56 / 2,43 |  | 2,41 / 2,41 |  | 2,83 / – | 3,12 / 2,70 |
+| map | load (warm) | 1,48 / 1,40 | 1,48 / 1,40 | 2,28 / – | 2,38 / – | 3,06 / 2,91 | 2,57 / 2,44 | 2,62 / 9,19 |
+| map | map view -> nitrates | 0,64 / 0,71 | 0,64 / 0,65 |  | 0,85 / 0,93 | 1,02 / 1,11 | 1,12 / 1,00 | 1,12 / 1,13 |
+| map | period slider (start year +1) | 0,71 / 0,68 | 0,67 / 0,68 |  | 0,88 / 0,95 | 1,17 / 1,12 | 1,14 / 1,06 | 1,25 / 1,10 |
+| map | region -> Bretagne | 0,75 / 0,72 | 0,74 / 0,79 |  | 0,84 / 1,08 | 1,19 / 1,19 | 1,16 / 1,10 | 1,32 / 1,23 |
+| monitor | change tab (each) | 0,00 / 0,00 | 0,00 / 0,00 |  | 0,00 / 0,00 | 0,00 / 0,00 | 0,00 / 0,00 | 0,00 / 0,00 |
+| monitor | load (cold) | 1,17 / 1,15 | 1,07 / 1,67 |  | 2,08 / 2,10 |  | 2,19 / – | 2,65 / 2,45 |
+| monitor | load (warm) | 1,14 / 1,15 | 1,12 / 1,14 | 1,89 / – | 1,94 / – | 2,94 / 2,12 | 2,21 / 2,25 | 2,16 / 2,27 |
+| my-score | load (cold) | 1,70 / 1,63 | 1,46 / 1,62 |  | 2,37 / 2,07 |  | 1,91 / – | 2,02 / 1,86 |
+| my-score | load (warm) | 1,10 / 1,15 | 1,01 / 1,01 | 1,76 / – | 1,82 / – | 2,56 / 2,72 | 2,32 / 1,97 | 1,87 / 1,96 |
+| my-score | move a slider (each) | 0,54 / 0,27 | 0,46 / 0,28 |  | 0,31 / 0,35 | 0,85 / 0,58 | 0,78 / 0,53 | 0,85 / 0,57 |
+| quality | load (cold) | 1,06 / 1,01 | 0,96 / 0,99 |  | 1,92 / 1,93 |  | 2,39 / – | 2,11 / 2,24 |
+| quality | load (warm) | 1,02 / 0,99 | 1,06 / 1,30 | 1,58 / – | 1,87 / – | 2,14 / 2,10 | 2,04 / 3,03 | 3,70 / 2,35 |
+| reading | load (cold) | 1,07 / 1,03 | 0,97 / 1,01 |  | 2,04 / 2,01 |  | 2,18 / – | 2,03 / 1,74 |
+| reading | load (warm) | 1,01 / 0,95 | 1,03 / 0,96 | 1,78 / – | 1,91 / – | 2,26 / 2,15 | 2,07 / 2,46 | 1,92 / 1,88 |
+| town | choose Bordeaux (33) (page updated) | 0,84 / 0,77 | 0,74 / 0,64 |  | 0,76 / 0,97 | 1,22 / 1,14 | 1,09 / 1,28 | 1,42 / 1,33 |
+| town | choose Lille (59) (page updated) | 3,21 / 2,81 | 1,03 / 0,58 |  | 0,64 / 0,77 | 3,03 / 2,82 | 1,25 / 1,02 | 1,40 / 0,95 |
+| town | choose Lyon (69) (page updated) | 7,01 / 6,20 | 0,49 / 2,30 |  | 0,68 / 0,58 | 7,45 / 6,62 | 1,06 / 0,85 | 0,90 / 0,73 |
+| town | choose Mamoudzou (976) (page updated) | 0,80 / 0,80 | 0,67 / 0,71 |  | 0,46 / 0,92 | 1,30 / 1,08 | 1,28 / 1,17 | 1,53 / 0,99 |
+| town | choose Marseille (13) (page updated) | 1,08 / 1,07 | 1,10 / 1,03 |  | 0,93 / 1,56 | 1,82 / 1,61 | 1,45 / 1,78 | 1,34 / 1,20 |
+| town | choose Péreyres (07) (page updated) | 0,49 / 0,51 | 0,29 / 0,51 |  | 0,31 / 0,28 | 0,72 / 0,73 | 0,63 / 0,69 | 0,78 / 0,59 |
+| town | choose Saint-Denis (93) (page updated) | 2,85 / 3,79 | 0,49 / 0,54 |  | 0,41 / 0,70 | 2,64 / 2,18 | 0,89 / 0,86 | 1,02 / 0,93 |
+| town | choose Saint-Denis (974) (page updated) | 2,15 / 3,22 | 0,95 / 1,05 |  | 0,54 / 1,33 | 3,50 / 2,55 | 1,76 / 1,62 | 1,65 / 1,66 |
+| town | download PDF (English) | 0,90 / – | 0,76 / – |  | 0,36 / – | 0,91 / – | 2,17 / – | 0,90 / – |
+| town | download PDF (French) | 0,42 / – | 0,43 / – |  | 0,35 / – | 0,85 / – | 0,92 / – | 0,99 / – |
+| town | download PDF (anglais) | – / 0,71 | – / 0,35 |  | – / 0,56 | – / 0,89 | – / 0,86 | – / 0,88 |
+| town | download PDF (français) | – / 0,75 | – / 0,38 |  | – / 0,58 | – / 0,88 | – / 0,85 | – / 0,92 |
+| town | empty the field then click away | 13,72 / 24,82 | 0,00 / 0,00 |  | 0,00 / 0,00 | 13,75 / 11,41 | 0,00 / 0,00 | 0,00 / 0,00 |
+| town | erase the name (Backspace x12), list open | 4,69 / 4,73 | 0,00 / 0,00 |  | 0,00 / 0,00 | 4,95 / 4,25 | 0,00 / 0,00 | 0,00 / 0,00 |
+| town | load (cold) | 1,93 / 1,90 | 1,58 / 1,58 |  | 2,90 / 2,39 |  | 7,30 / – | 2,25 / 2,21 |
+| town | load (warm) | 1,13 / 1,21 | 1,13 / 1,02 | 2,03 / – | 2,19 / – | 2,36 / 2,53 | 2,00 / 2,44 | 2,83 / 1,91 |
+| town | switch language EN/FR | 0,79 / 0,75 | 0,40 / 0,34 |  | 0,65 / 0,63 | 0,96 / 1,42 | 0,59 / 0,58 | 0,75 / 0,58 |
+| town | type 'Bordeaux' until it is proposed | 0,36 / 0,35 | 0,00 / 0,00 |  | 0,00 / 0,00 | 0,35 / 0,20 | 0,00 / 0,00 | 0,00 / 0,00 |
+| town | type 'Lille' (retyped town) | 4,65 / 4,51 | 0,66 / 0,68 |  | 0,69 / 0,73 | 4,38 / 4,25 | 0,96 / 0,94 | 1,13 / 1,02 |
+| town | type 'Lyon' until it is proposed | 0,60 / 0,61 | 0,66 / 0,99 |  | 1,09 / 0,73 | 0,69 / 0,60 | 0,93 / 0,84 | 0,97 / 0,82 |
+| town | type 'Mamoudzou' (overseas town) | 0,42 / 0,42 | 0,99 / 1,11 |  | 1,05 / 1,00 | 0,42 / 0,42 | 1,35 / 1,25 | 2,21 / 1,36 |
+| town | type 'Marseille' until it is proposed | 0,45 / 0,43 | 0,00 / 0,00 |  | 0,00 / 0,00 | 0,45 / 0,44 | 0,00 / 0,00 | 0,00 / 0,00 |
+| town | type 'Péreyres' (town without score) | 0,26 / 0,24 | 0,90 / 0,95 |  | 0,97 / 0,97 | 0,25 / 0,23 | 1,27 / 1,18 | 2,23 / 1,24 |
+| town | type 'Saint-Denis' (homonym) | 0,77 / 1,42 | 1,17 / 1,21 |  | 1,17 / 1,22 | 0,74 / 0,76 | 1,44 / 1,42 | 1,58 / 1,56 |
+
+**Ce qui dépasse encore 1 s, et pourquoi** (en plus de la liste de la session 4, toujours valable) :
+- Chargement d'une page (1,5 à 3 s) : envoi de la page, dessin de 3 à 8 graphiques ; la nouvelle page en dessine 7, plus deux
+  tableaux et un schéma, d'où 0,4 à 0,6 s de plus que « Behind the numbers ». Rien n'y est calculé : tout est pré-calculé.
+- Choisir une ville en ligne (1,0 à 1,65 s) : rerun de la page commune et dessin de ses graphiques et formules, plus le trajet
+  réseau ; Marseille et Saint-Denis (974) ont plusieurs réseaux dont le rapport est calculé une fois par langue puis mis en cache.
+- Carte (curseur, région, vue : 1,1 à 1,3 s en ligne, 0,6 à 1,1 s en local) : rerun de la page avec la carte des 101
+  départements, inchangé depuis la session 4.
+- Ajouter une ville dans Comparer (1,7 s en local, 2,3 à 2,4 s en ligne) : la frappe simulée de « Villejuif » (0,54 s), l'attente
+  des propositions, puis le rerun de la page à 3 villes ; le navigateur n'est pas bloqué (0 à 0,1 s).
+- Axe du nuage en français en ligne (une mesure à 1,02 s, l'autre à 0,48 s) : trajet réseau variable, aucun blocage.
