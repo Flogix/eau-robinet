@@ -22,7 +22,8 @@ from pathlib import Path
 from playwright.sync_api import Page, sync_playwright
 
 CHROME = os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe")
-PAGES = ["", "reading", "town", "compare", "map", "monitor", "my-score", "conclusions", "quality", "about"]
+PAGES = ["", "reading", "town", "compare", "map", "monitor", "my-score", "conclusions", "explore", "quality",
+         "about"]
 SETTLE_MS = 600
 
 INIT = """
@@ -234,6 +235,17 @@ def interactions(a: Audit, page: Page, lang: str) -> None:
     for i in range(tabs.count()):
         nm = tabs.nth(i).inner_text()
         a.act(page, "monitor", f"tab: {nm}", lang, lambda i=i: page.get_by_role("tab").nth(i).click())
+    # explore the data: every control
+    a.goto(page, "explore", lang, "open explore")
+    for nm in ("RESULT", "COM_UDI", "udi_year"):
+        a.act(page, "explore", f"rows: {nm}", lang,
+              lambda nm=nm: page.get_by_role("button").filter(has_text=nm).first.click())
+    for nm in (["Hardness", "Lead", "PFAS"] if not fr else ["Dureté", "Plomb", "PFAS"]):
+        a.act(page, "explore", f"distribution: {nm}", lang,
+              lambda nm=nm: page.get_by_role("button").filter(has_text=nm).first.click())
+    for label, opt in ((("Horizontal axis", "Density"), ("Vertical axis", "Median score")) if not fr else
+                       (("Axe horizontal", "Densité"), ("Axe vertical", "Score médian"))):
+        a.act(page, "explore", f"scatter: {label} -> {opt}", lang, lambda label=label, opt=opt: select_option(page, label, opt))
     # language switch
     a.goto(page, "town?insee=75056", lang, "open Paris")
     a.act(page, "town", "switch language EN/FR", lang,

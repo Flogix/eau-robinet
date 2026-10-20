@@ -105,7 +105,8 @@ def examples() -> None:
     uy = uy[uy["annee"] == YEAR].sample(6, random_state=config.SEED).sort_values("cdreseau")
     out["udi_year"] = {"year": YEAR, "columns": list(uy.columns),
                        "rows": uy.astype(object).where(uy.notna(), "").astype(str).values.tolist()}
-    (OUT / "explore_examples.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    (OUT / "explore_examples.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8",
+                                               newline="\n")
     print("explore_examples.json:", {k: len(v["rows"]) for k, v in out.items()})
 
 
