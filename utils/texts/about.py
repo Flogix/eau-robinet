@@ -56,12 +56,12 @@ T = {
     "about.tools.kicker": {"en": "How it was built", "fr": "Comment c'est fait"},
     "about.tools": {
         "en": "Python, DuckDB and Parquet for the processing, pandas and Plotly for the analysis and the charts, "
-              "Streamlit for the app, hosted on Streamlit Community Cloud. Claude Code, an AI coding assistant made by "
+              "Streamlit for the app, hosted on Streamlit Community Cloud, fpdf2 for the PDF report. Claude Code, an AI coding assistant made by "
               "Anthropic, was used to help write and test the code; the questions, the choices of method and the "
               "validation of every result are the author's. Typefaces: Fraunces and IBM Plex, under the SIL Open Font "
               "License.",
         "fr": "Python, DuckDB et Parquet pour le traitement, pandas et Plotly pour l'analyse et les graphiques, Streamlit "
-              "pour l'application, hébergée sur Streamlit Community Cloud. Claude Code, un assistant de programmation par "
+              "pour l'application, hébergée sur Streamlit Community Cloud, fpdf2 pour le rapport PDF. Claude Code, un assistant de programmation par "
               "IA conçu par Anthropic, a aidé à écrire et tester le code ; les questions, les choix de méthode et la "
               "validation de chaque résultat sont ceux de l'auteur. Polices : Fraunces et IBM Plex, sous licence SIL Open "
               "Font License."},

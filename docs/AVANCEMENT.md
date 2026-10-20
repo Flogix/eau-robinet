@@ -12,8 +12,8 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 2. Pipeline | ✅ validée | 19/10 |
 | 3. Score | ✅ validée (k = 5) | 19/10 |
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
-| 5. Finitions | 🟡 première passe faite | 19/10 |
-| 6. Livraison | ⏳ | prévu 23/10 |
+| 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
+| 6. Livraison | 🟡 livrables prêts (README, storyboard, script vidéo, zip) ; reste la vidéo à enregistrer et la remise | 20/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -282,3 +282,30 @@ journal dans `data/interim/logs/`).
   métabolites (6 177 → 7 592 dépassements sans elles, 6 676 → 20 769 au pic avec elles) ; implications pour un habitant et pour les
   collectivités (sources 11, 26, 33).
 - Tests : **168 verts** (dont complétude des fiches et des traductions).
+
+## Session 3 : finalisation (20/10/2026)
+- **Construisez votre score** (`sections/mon_score.py`, `utils/custom_score.py`) : poids des familles, gravité de cinq groupes de
+  substances (×0,5 à ×3), sévérité des bactéries (k = 2,5 à 20), seuils de nitrates, plomb, arsenic, PFAS et de chaque pesticide ;
+  score officiel et personnel d'une commune côte à côte, rang, part des communes qui changent de note, notes de toutes les
+  communes, dix plus basses communes de plus de 10 000 habitants, tableau de sensibilité (déplacé depuis les Plongées, où les
+  curseurs what-if sont remplacés par un lien : plus de doublon). Bouton « Revenir aux réglages officiels », avertissement en tête.
+  Moteur rapide : tout ce qui ne dépend pas des réglages est préparé une fois (pic 92 Mo, 24 Mo gardés), puis 0,1 s par recalcul ;
+  **avec les réglages officiels il redonne exactement les scores publiés** (test). Seuil d'un pesticide : seules les limites
+  individuelles (0,1 et 0,03 µg/L) bougent, pas les sommes à 0,5 µg/L (total, atrazine et métabolites, terbuthylazine et métabolites).
+- **Rapport PDF** depuis la page commune, en anglais et en français (`utils/town_report.py`, textes `utils/texts/pdf.py`) :
+  score, note, trois notes, réseaux, rapport par réseau, historique sur dix ans (par défaut la substance qui coûte le plus de points,
+  le total des pesticides pour un pesticide seul), position face aux médianes nationale et départementale, formules, sources, date
+  des données, avertissement. Texte généré par règles (le même que dans l'app : l'explication « pourquoi ce score » est désormais une
+  fonction partagée). **fpdf2 2.8.9** : Python pur, s'installe sur Streamlit Cloud ; polices Plex et Fraunces embarquées
+  (`assets/fonts/`, licences OFL) → accents, µ, ≤, × corrects ; graphiques dessinés avec fpdf2 (pas de navigateur sans tête).
+  Génération à la demande au clic (0,2 à 1 s), langue forcée par une variable de contexte (sans effet sur les autres sessions).
+  Dates des rapports au format de la langue (« 26/02/2024 », « 26 Feb 2024 ») au lieu du format ISO.
+- Corrections : « for a indicative value » → « under the indicative value » ; « desservie par 0 réseau » → phrase dédiée ;
+  pesticides à limite 0,5 µg/L exclus du curseur « chaque pesticide » (repéré par un test).
+- Vérification : pages ouvertes en EN et FR avec Paris, Germaines (52, 47 hab., note E), Cayenne, Ouanary, Mamoudzou, une commune
+  sans score (Péreyres), réglages extrêmes (tous les poids à zéro → avertissement) ; PDF générés pour ces communes dans les deux
+  langues. Relecture automatique des 819 textes : aucun tiret cadratin, aucun emoji, aucune liste, toutes les clés traduites.
+- Mémoire en local (serveur neuf, toutes les pages ouvertes) : 437 Mo pour les 8 pages historiques, 518 Mo avec la commune,
+  527 Mo avec le score personnalisé. Temps de chargement local : 0,8 à 4,2 s à la première visite, 1 à 3 s ensuite.
+- Livraison : README complet en anglais (rapport), `docs/storyboard.md`, `docs/script_video.md` (3 min, 436 mots), `DATASET.md`,
+  `docs/sources.md` (polices embarquées, fpdf2).

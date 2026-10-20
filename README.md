@@ -292,6 +292,7 @@ assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PD
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
 docs/                   specification, progress log, data dictionary, sources, storyboard, video script, witness towns
+DATASET.md              citation and links of the dataset (the raw files are downloaded by make data)
 ```
 
 ## 8. Credits

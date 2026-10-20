@@ -105,6 +105,12 @@ La date de consultation est indiquée entre crochets. Les numéros sont cités d
 
 17. **Polices** de l'interface : Fraunces, IBM Plex Sans et IBM Plex Mono, servies par Google Fonts sous licence SIL Open Font License 1.1.
     https://fonts.google.com/specimen/Fraunces ; https://fonts.google.com/specimen/IBM+Plex+Sans [19/10/2026]
+    Pour le rapport PDF, les fichiers TTF sont copiés dans `assets/fonts/` avec leurs licences (`OFL-Plex.txt`, `OFL-Fraunces.txt`),
+    ce que la licence OFL autorise : IBM Plex Sans (Regular, SemiBold, Italic) et IBM Plex Mono Regular depuis le dépôt officiel
+    https://github.com/IBM/plex (dossier `packages/*/fonts/complete/ttf`), Fraunces 72pt SemiBold depuis https://github.com/undercasetype/Fraunces
+    (dossier `fonts/ttf`) [20/10/2026].
+    Bibliothèque PDF : **fpdf2** 2.8.9 (licence LGPL v3), https://py-pdf.github.io/fpdf2/ : Python pur (dépendances fontTools, defusedxml,
+    Pillow), donc installable sur Streamlit Community Cloud sans paquet système ; polices TrueType Unicode pour les accents.
 
 ## H. Fiches des paramètres (page « Lire une analyse d'eau »), vérifiées le 20/10/2026
 

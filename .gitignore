@@ -21,3 +21,6 @@ Thumbs.db
 
 # Course instructions (teacher document, not published)
 docs/consignes.pdf
+
+# submission zip (built locally)
+dist/
