@@ -111,6 +111,10 @@ La date de consultation est indiquée entre crochets. Les numéros sont cités d
     (dossier `fonts/ttf`) [20/10/2026].
     Bibliothèque PDF : **fpdf2** 2.8.9 (licence LGPL v3), https://py-pdf.github.io/fpdf2/ : Python pur (dépendances fontTools, defusedxml,
     Pillow), donc installable sur Streamlit Community Cloud sans paquet système ; polices TrueType Unicode pour les accents.
+    Recherche de commune : **streamlit-searchbox** 0.1.24 (licence MIT), https://github.com/m-wrzr/streamlit-searchbox :
+    composant dont l'interface est déjà compilée dans le paquet, la recherche tourne côté serveur [20/10/2026].
+    Audit de performance (outil de développement) : **Playwright** 1.64 pour Python, https://playwright.dev/python/,
+    piloté avec le Chrome installé sur la machine.
 
 ## H. Fiches des paramètres (page « Lire une analyse d'eau »), vérifiées le 20/10/2026
 

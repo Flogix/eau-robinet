@@ -17,6 +17,10 @@ T = {
     "nav.section.explore": {"en": "Explore", "fr": "Explorer"},
     "nav.section.more": {"en": "Method and credits", "fr": "Méthode et crédits"},
 
+    # town search (utils/town_search.py)
+    "search.placeholder": {"en": "Type the name of a town", "fr": "Tapez le nom d'une commune"},
+    "search.placeholder.current": {"en": "{town}: type to choose another town",
+                                   "fr": "{town} : tapez pour choisir une autre commune"},
     # sidebar
     "side.lang": {"en": "Language", "fr": "Langue"},
     "side.filters": {"en": "Filters", "fr": "Filtres"},

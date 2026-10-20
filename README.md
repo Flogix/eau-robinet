@@ -259,9 +259,18 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 203 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 218 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
+
+**Performance.** `scripts/perf_audit.py` drives a real browser (Playwright with the installed Chrome, tools in
+`requirements-dev.txt`) and measures every page load and interaction, both the time until the app is usable again and the
+time the browser was frozen. It found that Streamlit's selectbox, given the 34,812 towns, froze the page for 4 to 25 seconds
+when its field was emptied: the browser drew every option. The town search now runs on the server
+(`utils/town_search.py`, built on `streamlit-searchbox`): the browser only receives the five examples or the 20 best
+matches, the box lives in a fragment so that typing does not rerun the page, and the report of each network is cached.
+`tests/test_performance.py` fails if a widget sends more than 2,000 options to the browser, if a key interaction takes more
+than 3 seconds on the server, or if emptying the town field freezes a real browser for more than 1 second.
 
 ## 7. Project structure
 
@@ -285,9 +294,11 @@ utils/
   score.py              score, sub-scores, grade, confidence, rule-based report
   custom_score.py       fast recomputation of the score with the reader's settings
   town_report.py        generated explanation and the PDF report (fpdf2)
+  town_search.py        town search box shared by the pages (server-side matches, see section 6)
   filters.py, metrics.py, viz.py, i18n.py, texts/   sidebar, KPIs, chart style, translation (English and French)
 scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -> 04_referentiels -> 05_build_scores
-                        -> 06_build_app_tables; explore/ holds the phase-0 queries behind the data dictionary
+                        -> 06_build_app_tables; explore/ holds the phase-0 queries behind the data dictionary;
+                        perf_audit.py measures page loads and interactions in a real browser (Playwright)
 assets/fonts/           IBM Plex and Fraunces (SIL Open Font License) for the PDF report
 data/processed/         small tables read by the app (committed); data/raw and data/interim are never committed
 tests/                  pytest
@@ -302,7 +313,7 @@ Made by Florian Giraud, EFREI Paris, Data & AI track, 2026. Data: French Ministr
 above). Health and regulatory sources: WHO, Santé publique France, Anses, the regional health agencies, EUR-Lex and
 Légifrance, all listed in [docs/sources.md](docs/sources.md). Geography: geo.api.gouv.fr and Etalab contours (Licence
 Ouverte 2.0), INSEE density grid, Cerema list of Mountain Act towns. Fonts: Fraunces, IBM Plex Sans and IBM Plex Mono (SIL
-Open Font License 1.1). Built with Streamlit, pandas, DuckDB, PyArrow, Plotly and fpdf2.
+Open Font License 1.1). Built with Streamlit, pandas, DuckDB, PyArrow, Plotly, fpdf2 and streamlit-searchbox.
 
 **Licences.** The code of this project is released under the MIT licence ([LICENSE](LICENSE), Florian Giraud, 2026). The data
 is not covered by it: the source dataset and the tables derived from it in `data/processed/` remain under the Licence Ouverte

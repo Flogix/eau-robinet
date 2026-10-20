@@ -8,6 +8,7 @@ from utils import custom_score as C
 from utils import score as S
 from utils.i18n import lang, num, pct, t
 from utils.io import cached, cached_resource, commune_network_links, communes, load_table, town_options
+from utils.town_search import town_search
 from utils.viz import BLUE, NEUTRAL, analysis, chart, headline, kicker, layout, lede
 
 kicker(t("my.kicker"))
@@ -54,15 +55,13 @@ def rank_txt(r) -> str:
 
 
 # --- Town -----------------------------------------------------------------------------------------------------------
-options, labels = town_options()
+_, labels = town_options()
 current = st.session_state.get("insee") or st.query_params.get("insee") or "75056"
 if current not in labels:
     current = "75056"
-if st.session_state.get("my_town") != current:
-    st.session_state["my_town"] = current
-st.selectbox(t("my.pick"), options, format_func=labels.get, key="my_town", help=t("my.pick.help"),
-             on_change=lambda: st.session_state.update(insee=st.session_state["my_town"]))
-insee = st.session_state["my_town"]
+town_search(t("my.pick"), "my_town_search", lambda i: st.session_state.update(insee=i), current=current,
+            help=t("my.pick.help"))
+insee = current
 
 # --- Settings -------------------------------------------------------------------------------------------------------
 st.button(t("my.reset"), on_click=_reset, help=t("my.reset.help"), icon=":material/restart_alt:")

@@ -9,11 +9,15 @@ T = {
         "fr": "L'eau d'une grande ville est-elle meilleure que celle d'un village ? Celle d'une station de montagne que "
               "celle d'une ville de bord de mer ? Mettez des communes côte à côte, puis regardez des groupes entiers."},
     "cmp.pick": {"en": "Towns compared (up to six)", "fr": "Communes comparées (jusqu'à six)"},
+    "cmp.add": {"en": "Add a town", "fr": "Ajouter une commune"},
+    "cmp.add.full": {"en": "Six towns already: remove one to add another.",
+                     "fr": "Déjà six communes : retirez-en une pour en ajouter une autre."},
     "cmp.pick.help": {
-        "en": "Type in the box to add a town: the list filters as you type and homonyms show their department. Click "
-              "the cross on a town to remove it.",
-        "fr": "Tapez dans le champ pour ajouter une commune : la liste se filtre au fur et à mesure et les homonymes "
-              "affichent leur département. Cliquez sur la croix d'une commune pour la retirer."},
+        "en": "The towns compared. Click the cross on a town to remove it; add one with the search box below, where the "
+              "list filters as you type and homonyms show their department.",
+        "fr": "Les communes comparées. Cliquez sur la croix d'une commune pour la retirer ; ajoutez-en une avec le champ "
+              "de recherche ci-dessous, où la liste se filtre au fur et à mesure et les homonymes affichent leur "
+              "département."},
     "cmp.need2": {"en": "Choose at least two towns that have a score.",
                   "fr": "Choisissez au moins deux communes qui ont un score."},
     "cmp.headline": {"en": "{best} scores {bs}/100 ({bg}) and {worst} {ws}/100 ({wg}): a gap of {gap} points.",

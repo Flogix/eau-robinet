@@ -6,7 +6,8 @@ import config
 from utils import metrics
 from utils.filters import get_filters
 from utils.i18n import num, pct, t
-from utils.io import load_table, town_options
+from utils.io import load_table
+from utils.town_search import town_search
 from utils.viz import BRICK, BLUE, chart, kicker, layout, lede, partial_year
 
 f = get_filters()
@@ -33,16 +34,9 @@ st.caption(t("home.why.sources"))
 with st.container(border=True):
     st.markdown(f"**{t('home.find.title')}**")
     st.caption(t("home.find.text"))
-    options, labels = town_options()
-
-    def _go_to_town():   # keep the choice for the town page, clear the box so that coming back does not redirect
-        st.session_state["insee"] = st.session_state["home_town"]
-        st.session_state["home_town"] = None
-        st.session_state["_goto_town"] = True
-
-    st.selectbox(t("home.find.title"), options, index=None, format_func=labels.get, on_change=_go_to_town,
-                 placeholder=t("home.find.placeholder"), label_visibility="collapsed", key="home_town")
-    if st.session_state.pop("_goto_town", False):
+    town_search(None, "home_search", lambda i: st.session_state.update(insee=i, _goto_town=True),
+                placeholder=t("home.find.placeholder"))
+    if st.session_state.pop("_goto_town", False):   # a town was chosen: open its page
         st.switch_page("sections/ma_commune.py")
 
 # --- Method and hypotheses -----------------------------------------------------------------------------

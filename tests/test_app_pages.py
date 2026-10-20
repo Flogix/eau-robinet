@@ -55,9 +55,8 @@ def test_pages_with_extreme_filters(region, variable, ctype, years):
 
 
 def test_town_search_tells_homonyms_apart():
-    at = run_app()
-    at.switch_page("sections/ma_commune.py").run()
-    labels = [o for o in at.selectbox(key="town_pick").options if o.startswith("Saint-Denis (")]
+    from utils.town_search import town_matches
+    labels = [lab for lab, _ in town_matches("Saint-Denis") if lab.startswith("Saint-Denis (")]
     assert len(labels) > 1   # homonyms shown with their department
 
 
@@ -89,8 +88,8 @@ def test_my_score_changes_and_resets():
 @pytest.mark.parametrize("insee", ["75056", "97411", "01001"])   # Paris, Saint-Denis (Réunion), a small town
 def test_town_page_offers_the_pdf_in_both_languages(insee):
     at = run_app()
+    at.session_state["insee"] = insee            # what the town search box sets when a town is chosen
     at.switch_page("sections/ma_commune.py").run()
-    at.selectbox(key="town_pick").set_value(insee).run()
     assert not at.exception
     buttons = at.get("download_button")
     assert len(buttons) == 2

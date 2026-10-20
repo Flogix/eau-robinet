@@ -15,6 +15,7 @@ import pandas as pd
 import config
 from utils import score as S
 from utils.i18n import date_fr_en, forced_lang, lang, num, t, tn
+from utils.io import cached
 
 FONTS = config.ROOT / "assets" / "fonts"
 APP_URL = "https://eau-robinet.streamlit.app/"
@@ -89,6 +90,22 @@ def lower_name(name: str) -> str:
 def medians(c: pd.Series, com_all: pd.DataFrame) -> tuple[float, float]:
     """National median score of the towns, and median of the towns of the same department."""
     return float(com_all["score"].median()), float(com_all.loc[com_all["dep"] == c["dep"], "score"].median())
+
+
+@cached
+def network_report(net: str, language: str) -> list[tuple[str, str]]:
+    """Rule-based report of one network in one language, cached: a town page is redrawn at each interaction, and a
+    large town has up to a dozen networks (about 0.1 s each)."""
+    from utils.io import load_table
+    udi = load_table("udi_scores").set_index("cdreseau")
+    row = udi.loc[net].copy()
+    row["cdreseau"] = net
+    params, fam, p95 = load_table("udi_param_window"), load_table("udi_family_window"), load_table("udi_param_p95")
+    cat = load_table("params_catalog")
+    with forced_lang(language):
+        return S.why_report(row, params[params["cdreseau"] == net], fam[fam["cdreseau"] == net],
+                            p95[p95["cdreseau"] == net], dict(zip(cat["code"], cat["label"])),
+                            ranges=S.reference_ranges(cat))
 
 
 def history_codes(hist: pd.DataFrame, u_rows: pd.DataFrame | None = None,

@@ -6,6 +6,7 @@ import streamlit as st
 import config
 from utils import score as S
 from utils import town_report as R
+from utils.town_search import town_search
 from utils.i18n import lang, num, t, tn
 from utils.io import commune_network_links, communes, load_table, network_history, town_options
 from utils.viz import (BRICK, FAMILY_COLORS, GRADE_COLORS, SERIES, badge, chart, headline, kicker, layout, lede,
@@ -16,21 +17,13 @@ st.title(t("town.title"))
 lede(t("town.lede"))
 
 DEFAULT_INSEE = "75056"   # Paris
-options, labels = town_options()
-
-
-def _sync_choice():
-    st.session_state["insee"] = st.session_state["town_pick"]
-
-
+_, labels = town_options()
 current = st.session_state.get("insee") or st.query_params.get("insee") or DEFAULT_INSEE
 if current not in labels:
     current = DEFAULT_INSEE
-if st.session_state.get("town_pick") != current:
-    st.session_state["town_pick"] = current
-st.selectbox(t("town.pick"), options, format_func=labels.get, key="town_pick", on_change=_sync_choice,
-             help=t("town.pick.help"))
-insee = st.session_state["town_pick"]
+town_search(t("town.pick"), "town_search", lambda i: st.session_state.update(insee=i), current=current,
+            help=t("town.pick.help"))
+insee = current
 st.session_state["insee"] = insee
 st.query_params["insee"] = insee
 
@@ -134,12 +127,8 @@ if len(n) > 1:
 else:
     st.markdown(t("town.why.one", town=town))
 
-params = load_table("udi_param_window")
-fam = load_table("udi_family_window")
-p95 = load_table("udi_param_p95")
 cat = load_table("params_catalog")
 cat_labels = dict(zip(cat["code"], cat["label"]))
-ranges = S.reference_ranges(cat)
 ordered = n.sort_values("score")
 tabs = st.tabs([f"{r['name']} · {r['score']:.0f} ({r['grade']})" if pd.notna(r["score"])
                 else t("town.tab.nodata", net=r["name"]) for _, r in ordered.iterrows()])
@@ -148,10 +137,7 @@ for tab, (_, r) in zip(tabs, ordered.iterrows()):
         if pd.isna(r["score"]):
             st.write(t("town.nodata"))
             continue
-        row = udi.loc[r["cdreseau"]].copy()
-        row["cdreseau"] = r["cdreseau"]
-        rep = S.why_report(row, params[params["cdreseau"] == r["cdreseau"]], fam[fam["cdreseau"] == r["cdreseau"]],
-                           p95[p95["cdreseau"] == r["cdreseau"]], cat_labels, ranges=ranges)
+        rep = R.network_report(r["cdreseau"], lang())
         html = "".join(f"<p>{badge(kind)}{text}</p>" for kind, text in rep)
         st.markdown(f'<div class="ar-report">{html}</div>', unsafe_allow_html=True)
         if isinstance(r.get("districts"), str):

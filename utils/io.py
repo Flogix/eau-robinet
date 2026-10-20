@@ -4,6 +4,7 @@ The app only reads data/processed/ (small, committed tables). Heavy work is done
 """
 from __future__ import annotations
 
+import functools
 import json
 import unicodedata
 from pathlib import Path
@@ -43,19 +44,27 @@ def _streamlit_running() -> bool:
         return False
 
 
-if _streamlit_running():  # the app caches loads; scripts and tests read directly
-    import streamlit as st
+def _lazy_cache(kind: str):
+    """Decorator that caches with Streamlit when the app is running and calls the function directly otherwise
+    (scripts, tests). Decided at each call, not at import: a test process imports this module outside Streamlit and
+    then runs the app with AppTest, which must be cached like the real app."""
+    def decorate(func):
+        holder = {}
 
-    def cached(func):
-        return st.cache_data(show_spinner=False)(func)
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if not _streamlit_running():
+                return func(*args, **kwargs)
+            if "f" not in holder:
+                import streamlit as st
+                holder["f"] = getattr(st, kind)(show_spinner=False)(func)
+            return holder["f"](*args, **kwargs)
+        return wrapper
+    return decorate
 
-    def cached_resource(func):
-        return st.cache_resource(show_spinner=False)(func)
-else:
-    def cached(func):
-        return func
 
-    cached_resource = cached
+cached = _lazy_cache("cache_data")
+cached_resource = _lazy_cache("cache_resource")
 
 # Big tables are stored compactly in memory (Streamlit Community Cloud gives an app ~690 MB to 2.7 GB):
 # repeated text -> category, numbers -> 32 bits. Only columns never concatenated as text are converted.

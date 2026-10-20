@@ -12,6 +12,7 @@ from utils import score as S
 from utils.filters import commune_mask, get_filters
 from utils.i18n import lang, num, pct, t, tn
 from utils.io import EXAMPLE_TOWNS, commune_network_links, communes, load_table, town_options
+from utils.town_search import town_search
 from utils.viz import SERIES, chart, headline, kicker, layout, lede, takeaway
 
 f = get_filters()
@@ -20,11 +21,19 @@ st.title(t("cmp.title"))
 lede(t("cmp.lede"))
 fmt1 = (lambda v: f"{v:.1f}".replace(".", ",")) if lang() == "fr" else (lambda v: f"{v:.1f}")
 
-options, labels = town_options()
+_, labels = town_options()
 if "cmp_sel" not in st.session_state:
     st.session_state["cmp_sel"] = list(EXAMPLE_TOWNS)
-chosen = st.multiselect(t("cmp.pick"), options, format_func=labels.get, max_selections=6, key="cmp_sel",
+added = st.session_state.pop("_cmp_add", None)          # chosen in the search box below, during the last run
+if added and added not in st.session_state["cmp_sel"] and len(st.session_state["cmp_sel"]) < 6:
+    st.session_state["cmp_sel"] = st.session_state["cmp_sel"] + [added]
+# the multiselect only holds the towns compared (and the examples): no 35,000 options in the browser
+small = list(dict.fromkeys(st.session_state["cmp_sel"] + EXAMPLE_TOWNS))
+chosen = st.multiselect(t("cmp.pick"), small, format_func=labels.get, max_selections=6, key="cmp_sel",
                         help=t("cmp.pick.help"))
+full = len(chosen) >= 6
+town_search(t("cmp.add"), "cmp_search", lambda i: st.session_state.update(_cmp_add=i), disabled=full,
+            placeholder=t("cmp.add.full") if full else None)
 com = communes().set_index("insee")
 sel = com.loc[chosen].reset_index()
 sel = sel[sel["score"].notna()]
