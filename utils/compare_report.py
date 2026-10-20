@@ -23,7 +23,8 @@ def best_worst(sel: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
 
 def headline_text(sel: pd.DataFrame) -> str:
     best, worst = best_worst(sel)
-    return t("cmp.headline", best=best["nom"], bs=fmt1(best["score"]), bg=best["grade"], worst=worst["nom"],
+    key = "cmp.headline.lt2" if best["score"] - worst["score"] < 2 else "cmp.headline"   # "0,5 point" in French
+    return t(key, best=best["nom"], bs=fmt1(best["score"]), bg=best["grade"], worst=worst["nom"],
              ws=fmt1(worst["score"]), wg=worst["grade"], gap=fmt1(best["score"] - worst["score"]))
 
 
@@ -38,19 +39,20 @@ def spread_text(sel: pd.DataFrame) -> str:
              vlo=f"{lo[fam]:.0f}")
 
 
-def why_text(sel: pd.DataFrame, cat_labels: dict, causes_of=None) -> str:
-    """Why the best town does better than the worst one: the family that weighs most in the gap, then what pulls
-    each of the two towns down (failed bacterial samples, the substance that costs the most points)."""
+def why_lines(sel: pd.DataFrame, cat_labels: dict, causes_of=None) -> list[str]:
+    """Why the best town does better than the worst one, in short sentences: the family that weighs most in the gap,
+    then what costs points to the worst town, then to the best one (failed bacterial samples, the health substance and
+    the comfort indicator that cost the most). The scores themselves are in the headline just above: not repeated."""
     if causes_of is None:
         from utils.metrics import town_causes as causes_of
     best, worst = best_worst(sel)
     if best["score"] - worst["score"] < 1:
-        why = t("cmp.why.same", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]))
+        lines = [t("cmp.why.same", best=best["nom"], worst=worst["nom"])]
     else:
         gaps = {k: (best[k] - worst[k]) * config.WEIGHTS[k] for k in FAMS if pd.notna(best[k]) and pd.notna(worst[k])}
         fam_w = max(gaps, key=gaps.get) if gaps else "micro"
-        why = t("cmp.why.lead", best=best["nom"], worst=worst["nom"], bs=fmt1(best["score"]), ws=fmt1(worst["score"]),
-                fam=t(f"fam.{fam_w}").lower(), vb=f"{best[fam_w]:.0f}", vw=f"{worst[fam_w]:.0f}")
+        lines = [t("cmp.why.lead", best=best["nom"], worst=worst["nom"], fam=t(f"fam.{fam_w}").lower(),
+                   vb=f"{best[fam_w]:.0f}", vw=f"{worst[fam_w]:.0f}")]
     for town_row in (worst, best):
         causes = causes_of(town_row["insee"])
         items = []
@@ -60,11 +62,23 @@ def why_text(sel: pd.DataFrame, cat_labels: dict, causes_of=None) -> str:
         for k in ("chem", "comfort"):
             if causes[k]:
                 items.append(t(f"cmp.cause.{k}", param=lower_name(S.label(causes[k], cat_labels))))
-        why += " " + (t("cmp.why.town", town=town_row["nom"], causes=t("town.why.gen.join").join(items)) if items
-                      else t("cmp.why.clean", town=town_row["nom"]))
+        lines.append(t("cmp.why.town", town=town_row["nom"], causes=and_join(items)) if items
+                     else t("cmp.why.clean", town=town_row["nom"]))
     if len(sel) > 2:
-        why += " " + t("cmp.why.end")
-    return why
+        lines.append(t("cmp.why.end"))
+    return lines
+
+
+def why_text(sel: pd.DataFrame, cat_labels: dict, causes_of=None) -> str:
+    """The same sentences, one paragraph each (a line break the page and the PDF both render)."""
+    return "<br><br>".join(why_lines(sel, cat_labels, causes_of))
+
+
+def and_join(items: list[str]) -> str:
+    """'a', 'a and b', 'a, b and c' in the current language."""
+    if len(items) <= 1:
+        return "".join(items)
+    return ", ".join(items[:-1]) + t("cmp.and") + items[-1]
 
 
 def position_text(sel: pd.DataFrame, national_median: float) -> str:

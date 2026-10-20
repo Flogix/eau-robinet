@@ -54,7 +54,18 @@ def test_why_text_names_the_causes_in_lower_case():
     cat = load_table("params_catalog")
     with forced_lang("fr"):
         why = CR.why_text(selection([PARIS, MARSEILLE]), dict(zip(cat["code"], cat["label"])))
-    assert "À Paris : plomb" in why and "Plomb" not in why
+    assert "Là où Paris perd des points : plomb (substance sanitaire)" in why and "Plomb" not in why
+
+
+def test_why_text_is_short_and_does_not_repeat_the_scores():
+    cat = load_table("params_catalog")
+    sel = selection([MARSEILLE, LILLE, PARIS])
+    lines = CR.why_lines(sel, dict(zip(cat["code"], cat["label"])))
+    assert 3 <= len(lines) <= 4 and all(len(x) < 260 for x in lines)
+    text = " ".join(lines)
+    for _, r in sel.iterrows():                       # the scores are in the headline above, not here
+        assert f"{r['score']:.1f}" not in text
+    assert CR.why_text(sel, dict(zip(cat["code"], cat["label"]))).count("<br><br>") == len(lines) - 1
 
 
 def test_file_names():

@@ -22,6 +22,8 @@ T = {
                   "fr": "Choisissez au moins deux communes qui ont un score."},
     "cmp.headline": {"en": "{best} scores {bs}/100 ({bg}) and {worst} {ws}/100 ({wg}): a gap of {gap} points.",
                      "fr": "{best} obtient {bs}/100 ({bg}) et {worst} {ws}/100 ({wg}) : un écart de {gap} points."},
+    "cmp.headline.lt2": {"en": "{best} scores {bs}/100 ({bg}) and {worst} {ws}/100 ({wg}): a gap of {gap} points.",
+                     "fr": "{best} obtient {bs}/100 ({bg}) et {worst} {ws}/100 ({wg}) : un écart de {gap} point."},
     "cmp.metric.delta": {"en": "grade {g}, confidence {c}", "fr": "note {g}, confiance {c}"},
     "cmp.bars.title": {"en": "Where the towns differ: the three marks of each town",
                        "fr": "Là où les communes diffèrent : les trois notes de chaque commune"},
@@ -101,27 +103,22 @@ T = {
     # why one town does better than another
     "cmp.why.title": {"en": "Why one town does better than the other", "fr": "Pourquoi une commune fait mieux que l'autre"},
     "cmp.why.lead": {
-        "en": "{best} ({bs}/100) does better than {worst} ({ws}/100). The gap comes mostly from {fam}: {vb} against {vw}.",
-        "fr": "{best} ({bs}/100) fait mieux que {worst} ({ws}/100). L'écart vient surtout de la famille {fam} : {vb} contre "
-              "{vw}."},
+        "en": "The gap comes mostly from {fam}: {worst} gets {vw} out of 100 there, {best} {vb}.",
+        "fr": "L'écart vient surtout de la famille {fam} : {worst} y obtient {vw} sur 100, {best} {vb}."},
     "cmp.why.same": {
-        "en": "{best} and {worst} are almost level ({bs} and {ws} out of 100): their differences are too small to mean much.",
-        "fr": "{best} et {worst} sont presque à égalité ({bs} et {ws} sur 100) : leurs différences sont trop faibles pour "
-              "vouloir dire grand-chose."},
-    "cmp.why.town": {"en": "In {town}: {causes}.", "fr": "À {town} : {causes}."},
-    "cmp.why.clean": {"en": "In {town}, no family loses points that matter.",
-                      "fr": "À {town}, aucune famille ne perd de points qui comptent."},
-    "cmp.cause.micro": {"en": "{k} of {n} bacterial samples failed in twelve months",
-                        "fr": "{k} prélèvements bactériologiques sur {n} ont échoué en douze mois"},
-    "cmp.cause.micro.one": {"en": "{k} of {n} bacterial samples failed in twelve months",
-                            "fr": "{k} prélèvement bactériologique sur {n} a échoué en douze mois"},
-    "cmp.cause.chem": {"en": "{param} came close to or above its health limit",
-                       "fr": "{param} s'est approché de sa limite sanitaire ou l'a dépassée"},
-    "cmp.cause.comfort": {"en": "{param} came close to or above its comfort reference",
-                          "fr": "{param} s'est approché de sa référence de confort ou l'a dépassée"},
+        "en": "{best} and {worst} are almost level: their differences are too small to mean much.",
+        "fr": "{best} et {worst} sont presque à égalité : leurs différences sont trop faibles pour vouloir dire "
+              "grand-chose."},
+    "cmp.why.town": {"en": "Where {town} loses points: {causes}.", "fr": "Là où {town} perd des points : {causes}."},
+    "cmp.why.clean": {"en": "{town} loses almost no points.", "fr": "{town} ne perd presque aucun point."},
+    "cmp.and": {"en": " and ", "fr": " et "},
+    "cmp.cause.micro": {"en": "bacteria ({k} failed samples out of {n} in twelve months)",
+                        "fr": "bactéries ({k} prélèvements non conformes sur {n} en douze mois)"},
+    "cmp.cause.micro.one": {"en": "bacteria ({k} failed sample out of {n} in twelve months)",
+                            "fr": "bactéries ({k} prélèvement non conforme sur {n} en douze mois)"},
+    "cmp.cause.chem": {"en": "{param} (health substance)", "fr": "{param} (substance sanitaire)"},
+    "cmp.cause.comfort": {"en": "{param} (comfort indicator)", "fr": "{param} (indicateur de confort)"},
     "cmp.why.end": {
-        "en": "The other towns of the comparison sit between these two; the report of each one, on the page The water of my "
-              "town, gives the details.",
-        "fr": "Les autres communes de la comparaison se situent entre ces deux-là ; le rapport de chacune, sur la page L'eau "
-              "de ma commune, donne le détail."},
+        "en": "The other towns sit between these two; the page The water of my town details each one.",
+        "fr": "Les autres communes se situent entre ces deux-là ; la page L'eau de ma commune détaille chacune."},
 }
