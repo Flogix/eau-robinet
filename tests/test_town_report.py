@@ -73,6 +73,9 @@ def test_paris_is_not_compared_with_its_own_department(tables):
     u = tables["udi_scores"].set_index("cdreseau").reindex(nets).dropna(subset=["score"])
     txt = R.explanation(c, u, tables["communes"], {})
     assert "department" not in txt and "national middle" in txt
+    assert "mainly lead" in txt and "mainly Lead" not in txt
+    assert not R.show_dep_median(c, tables["communes"])
+    assert R.show_dep_median(tables["communes"].set_index("insee").loc["69123"], tables["communes"])
     with forced_lang("fr"):
         txt = R.explanation(c, u, tables["communes"], {})
         assert "département" not in txt and "en cause : plomb" in txt
@@ -81,6 +84,7 @@ def test_paris_is_not_compared_with_its_own_department(tables):
 def test_lower_name_keeps_acronyms():
     assert R.lower_name("Plomb") == "plomb"
     assert R.lower_name("Total des pesticides") == "total des pesticides"
+    assert R.lower_name("Lead") == "lead" and R.lower_name("Chlorothalonil R471811") == "chlorothalonil R471811"
     for keep in ("PFAS (somme de 20)", "ESA-métolachlore", "E. coli", "pH", "NOA-métolachlore"):
         assert R.lower_name(keep) == keep
 

@@ -53,7 +53,7 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
             worst = u_rows.sort_values(col_pen, ascending=False)
             if len(worst) and isinstance(worst[col_code].iloc[0], str):
                 param = S.label(worst[col_code].iloc[0], labels)
-                piece += ", " + t(f"town.why.gen.cause.{k}", param=lower_name(param) if lang() == "fr" else param)
+                piece += ", " + t(f"town.why.gen.cause.{k}", param=lower_name(param))
         parts.append(piece)
     loss = 100 - score
     if loss < 0.05 or not parts:
@@ -67,15 +67,19 @@ def explanation(c: pd.Series, u_rows: pd.DataFrame, com_all: pd.DataFrame, label
             return t("town.pos.at")
         return t("town.pos.above" if diff > 0 else "town.pos.below", d=fmt1(abs(diff)))
 
-    n_dep = int(com_all.loc[com_all["dep"] == c["dep"], "score"].notna().sum())
-    if n_dep < MIN_TOWNS_DEP_MEDIAN:   # Paris: a single town, its "departmental median" is itself
+    if not show_dep_median(c, com_all):   # Paris: a single town, its "departmental median" is itself
         return gen + " " + t("town.why.gen.medians.nat", nat=fmt1(median), town=town, pos_nat=pos(score - median))
     return gen + " " + t("town.why.gen.medians", nat=fmt1(median), dep=f"{c['dep_nom']} ({c['dep']})",
                          depm=fmt1(dep_med), town=town, pos_nat=pos(score - median), pos_dep=pos(score - dep_med))
 
 
+def show_dep_median(c: pd.Series, com_all: pd.DataFrame) -> bool:
+    """Compare with the departmental median only when the department has enough scored towns."""
+    return int(com_all.loc[com_all["dep"] == c["dep"], "score"].notna().sum()) >= MIN_TOWNS_DEP_MEDIAN
+
+
 def lower_name(name: str) -> str:
-    """'Plomb' -> 'plomb' after 'en cause :', but acronyms and species names stay: PFAS, ESA-métolachlore, E. coli."""
+    """'Plomb' -> 'plomb' after 'en cause :' ('Lead' -> 'lead' after 'mainly'), but acronyms and species names stay: PFAS, ESA-métolachlore, E. coli."""
     first = name.split(" ")[0]
     if sum(ch.isupper() for ch in first) >= 2 or first.endswith("."):
         return name
@@ -395,6 +399,8 @@ class _Report:
         rows = [(t("pdf.pos.nat"), median, (138, 133, 120), "diamond"),
                 (t("pdf.pos.dep", dep=f"{c['dep_nom']} ({c['dep']})"), dep_med, (63, 115, 201), "square"),
                 (c["nom"], float(c["score"]), INK, "circle")]
+        if not show_dep_median(c, self.d["com_all"]):
+            rows.pop(1)
         y0 = pdf.get_y() + 1
         pdf.set_draw_color(*RULE)
         for i, (lab, v, col, shape) in enumerate(rows):
@@ -415,7 +421,7 @@ class _Report:
             pdf.set_xy(sx + sw + 1.5, y)
             pdf.set_font("Mono", size=8)
             pdf.cell(10, 4.5, fmt1(v))
-        y = y0 + 3 * 6.5
+        y = y0 + len(rows) * 6.5
         pdf.set_font("Mono", size=6.5)
         pdf.set_text_color(*MUTED)
         for tick in range(0, 101, 20):
