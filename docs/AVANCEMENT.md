@@ -13,11 +13,12 @@ Rendu : **samedi 24/10/2026 à 12:00**, 1re remise visée jeudi 22 au soir.
 | 3. Score | ✅ validée (k = 5) | 19/10 |
 | 4. App | ✅ déployée : https://eau-robinet.streamlit.app/ | 19/10 |
 | 5. Finitions | ✅ terminée (score personnalisé, rapport PDF, vérification complète) | 20/10 |
-| 6. Livraison | 🟡 livrables prêts (README, storyboard, zip ; script vidéo gardé en local) ; reste la vidéo à enregistrer et la remise | 20/10 |
+| 6. Livraison | ✅ livrables finaux prêts (README, storyboard, zip dist/StApp26_20230851_GIRAUD_DAI.zip) ; reste la vidéo et la remise | 23/10 |
 | Session 5 | ✅ A, B, C, D, E faits : LinkedIn, page « Explorer les données », audit complet, push, vérification en ligne, zip | 20/10 |
 | Session 6 | ✅ doublon retiré, F (filtres masqués), G (PDF de comparaison), H (en-tête de la barre latérale), I (conclusions en 2e), E refaite | 20/10 |
 | Session 7 | ✅ en-tête (logos selon le thème), retours de l'utilisateur test (2a à 2g), chiffres harmonisés, tests, push, vérification en ligne, zip | 20/10 |
 | Session 8 | ✅ logo qui suit le thème instantanément, espacement du menu | 20/10 |
+| Session 9 | ✅ en-tête barre latérale, téléchargement tables dérivées (About), audit reproductibilité, README, docstrings, tests (295), zip | 23/10 |
 | 7. Bonus bouteille | hors périmètre (accord de Florian requis) |, |
 
 **Pour reprendre** : `make data` / `.\make.ps1 data` reconstruit tout ; chaque étape reprend là où elle s'est arrêtée
@@ -694,3 +695,12 @@ groupe ; vérifié en clair et en sombre, en anglais et en français.
 
 **Vérifications** : 290 tests verts ; push ; en ligne, 11 pages × 2 langues × 2 thèmes sans erreur, logo de la bonne
 couleur partout ; zip reconstruit.
+
+## Session 9 : finitions finales, audit reproductibilité et préparation du livrable (23/10/2026)
+- **Barre latérale (en-tête)** : structure réalignée de haut en bas (logo EFREI, Florian Giraud, promotion DAI 2026, courriels avec liens `mailto:` discrets, LinkedIn / GitHub, coordinateur MATHEW Mano Joseph). Textes bilingues FR/EN (`utils/texts/common.py`), espacement harmonisé et tests d'affichage validés en thèmes clair et sombre.
+- **Téléchargement des tables dérivées (page À propos)** : ajout d'un bouton de téléchargement `eau-robinet-processed-data.zip` à côté du lien data.gouv.fr d'origine. Construction paresseuse en mémoire sans cache global permanent (`utils/io.py::build_processed_zip`). Pic mémoire mesuré : 56,97 Mo (< 100 Mo). L'archive (~52 Mo) regroupe les 41 fichiers Parquet de `data/processed/`, `DATASET.md`, `docs/data_dictionary.md` et `DATA_README.txt` généré.
+- **Audit de reproductibilité** : dépendances épinglées avec `==` dans `requirements.txt` et `requirements-dev.txt`, vérification `pip check` propre. Validation en environnement vierge dans un clone indépendant (`$env:TEMP\eau-clean`, Python 3.12.9) : 295 tests passés et app headless opérationnelle. Alignement des cibles Makefile / make.ps1 et confirmation du cache sans retéléchargement (`scripts/01_download.py`).
+- **README** : synthèse exécutive en 3 phrases en tête des limites et biais, section perspectives ajoutée (comparaison bouteilles et perspectives de complétude réseau), tableau "Reproducibility checklist" inséré, compteur de tests mis à jour à 295.
+- **Commentaires et docstrings** : en-têtes et docstrings techniques ajoutés sur l'ensemble du projet (`config.py`, `app.py`, `utils/`, `sections/`, `scripts/`, `tests/`, `Makefile`, `make.ps1`). Intégrité logique vérifiée par comparaison AST (0 régression).
+- **Vérifications et livrable** : 295 tests réussis (dont 61 tests de rendu des 11 pages en français et anglais). Archive livrable `dist/StApp26_20230851_GIRAUD_DAI.zip` reconstruite.
+
