@@ -1,3 +1,4 @@
+# Tap water scoring engine: sub-scores, global grades, confidence ratings, and diagnostic reports.
 """Score /100 per distribution network (UDI) and per commune, and the rule-based "why" report.
 
 Method (decisions in docs/AVANCEMENT.md, phase 3)
@@ -55,6 +56,7 @@ class ScoreSettings:
     micro_prior_n: float = 0.0   # > 0: t smoothed towards the national rate with this many pseudo-samples
 
     def with_(self, **kw) -> "ScoreSettings":
+        """Return copy of settings with specified attributes replaced."""
         return replace(self, **kw)
 
 
@@ -190,6 +192,7 @@ def global_score(sub: pd.DataFrame, weights: dict) -> pd.Series:
 
 
 def confidence(d: pd.DataFrame) -> pd.Series:
+    """Compute confidence level ('high', 'medium', 'low') based on sampling completeness."""
     high = ((d["n_families"] == 3) & (d["n_bact"] >= config.CONF_HIGH_MIN_BACT)
             & d["has_nitrates"] & d["has_pesticides"])
     low = d["micro"].isna() | d["chem"].isna() | (d["n_bact"] <= config.CONF_LOW_MAX_BACT)
@@ -299,6 +302,7 @@ def _pct1(x: float) -> str:
 
 
 def label(code: str, catalog_labels: dict | None = None) -> str:
+    """Return human-readable parameter label in current language or catalog fallback."""
     return KEY_LABELS[_lang()].get(code) or (catalog_labels or {}).get(code) or code
 
 

@@ -1,3 +1,4 @@
+# Data transformation rules, DuckDB SQL parsing macros, and parameter classification logic.
 """Cleaning rules shared by the pipeline and the tests.
 
 Parsing is written as DuckDB SQL macros (the RESULT table has 133 million rows, so it is never

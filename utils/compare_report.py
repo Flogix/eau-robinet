@@ -1,3 +1,4 @@
+# Comparison of 2 to 6 towns: bilingual text generation and PDF report export.
 """Comparison of 2 to 6 towns: the generated texts (shared by the page "Town against town" and the PDF) and the PDF.
 
 Every sentence comes from fixed rules applied to the data, as in the town report (utils/town_report.py), whose look,
@@ -22,6 +23,7 @@ def best_worst(sel: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
 
 
 def headline_text(sel: pd.DataFrame) -> str:
+    """Summary sentence comparing the best and worst towns in the selection."""
     best, worst = best_worst(sel)
     key = "cmp.headline.lt2" if best["score"] - worst["score"] < 2 else "cmp.headline"   # "0,5 point" in French
     return t(key, best=best["nom"], bs=fmt1(best["score"]), bg=best["grade"], worst=worst["nom"],
@@ -111,6 +113,7 @@ def build_pdf(insees: list[str], language: str) -> bytes:
 
 
 def file_name(towns: list[str], language: str) -> str:
+    """Generate a localized slug filename for the comparison PDF download."""
     with forced_lang(language):
         name = "-".join(slug(x) for x in towns[:3])
         if len(towns) > 3:
@@ -119,11 +122,14 @@ def file_name(towns: list[str], language: str) -> str:
 
 
 class _Comparison(_Doc):
+    """PDF document generator comparing 2 to 6 towns side by side."""
+
     def __init__(self, data: dict):
         self.d = data
         super().__init__(f"{t('pdf.cmp.doc_title')}: " + ", ".join(data["sel"]["nom"]))
 
     def render(self) -> bytes:
+        """Compose all report sections into a single PDF byte stream."""
         self.pdf.add_page()
         self.masthead()
         if len(self.d["sel"]) < 2:
@@ -139,6 +145,7 @@ class _Comparison(_Doc):
         return bytes(self.pdf.output())
 
     def masthead(self) -> None:
+        """Render document header, titles, key takeaway, and disclaimer."""
         sel = self.d["sel"]
         self.brand()
         self.kicker(t("pdf.cmp.doc_title"))
@@ -242,6 +249,7 @@ class _Comparison(_Doc):
             self.takeaway(take)
 
     def position(self) -> None:
+        """Plot town scores along an axis against the national median."""
         pdf, sel, nat = self.pdf, self.d["sel"], self.d["national_median"]
         self.kicker(t("pdf.cmp.k.position"))
         self.need(20 + 6.5 * (len(sel) + 1))

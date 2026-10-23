@@ -1,3 +1,4 @@
+# Aggregates and validates bilingual text dictionaries across all app pages.
 """All the texts of the app, in English (official) and French. One module per page, merged here."""
 from importlib import import_module
 

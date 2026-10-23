@@ -1,3 +1,4 @@
+# Global sidebar controls: language toggle, page-scoped filtering, and disclaimer.
 """Global sidebar: language, filters (only the ones that act on the open page are active), disclaimer."""
 from __future__ import annotations
 
@@ -46,24 +47,29 @@ class Filters:
 
     @property
     def variable_label(self) -> str:
+        """Localized label of active metric variable."""
         return t(f"var.{self.variable}")
 
     @property
     def type_label(self) -> str:
+        """Localized label of active commune type filter."""
         return t(f"ctype.{self.commune_type}")
 
     @property
     def period_label(self) -> str:
+        """Localized human-readable period string (e.g. '2021-2025')."""
         a, b = self.years
         txt = str(a) if a == b else f"{a}–{b}"
         return txt + (t("period.partial") if b == config.PARTIAL_YEAR else "")
 
     @property
     def scope_label(self) -> str:
+        """Localized geographic scope label (region name or all France)."""
         return self.region_name if self.region else t("side.region.all")
 
 
 def regions() -> pd.DataFrame:
+    """Return distinct administrative regions sorted by label."""
     return departments()[["reg", "reg_nom"]].drop_duplicates().sort_values("reg_nom")
 
 
@@ -146,6 +152,7 @@ def page_controls():
 
 
 def get_filters() -> Filters:
+    """Retrieve active filters from session state or initialize with defaults."""
     f = st.session_state.get("filters")
     if f is None:   # page run on its own (tests): defaults
         f = Filters((config.YEARS[0], config.COMPLETE_YEARS[-1]), None, "", "bact_official", "all")
@@ -172,6 +179,7 @@ def commune_mask(d: pd.DataFrame, f: Filters) -> pd.Series:
 
 
 def dept_mask(d: pd.DataFrame, f: Filters, dep_col: str = "dep") -> pd.Series:
+    """Return boolean mask for rows matching selected regional filter."""
     if f.region is None:
         return pd.Series(True, index=d.index)
     deps = departments()

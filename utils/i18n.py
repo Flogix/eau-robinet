@@ -1,3 +1,4 @@
+# Internationalization engine: translation lookups and locale-aware number/date formatting.
 """Translation: every text of the app goes through t(key). English is the official version, French is a choice.
 
 The strings live in utils/texts/ (one module per page + common), merged in TEXTS below. A missing French string
@@ -32,6 +33,7 @@ def forced_lang(code: str):
 
 
 def lang() -> str:
+    """Return current language code ('en' or 'fr') from context or session state."""
     forced = _FORCED.get()
     if forced:
         return forced
@@ -42,6 +44,7 @@ def lang() -> str:
 
 
 def t(key: str, **kw) -> str:
+    """Translate key into current language with format interpolation."""
     entry = TEXTS[key]
     s = entry.get(lang()) or entry["en"]
     return s.format(**kw) if kw else s
@@ -86,6 +89,7 @@ MONTHS = {"en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 
 
 
 def months() -> list[str]:
+    """Return localized list of abbreviated month names."""
     return MONTHS[lang()]
 
 

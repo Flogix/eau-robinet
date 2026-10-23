@@ -1,3 +1,4 @@
+# High-level KPIs and regional aggregations computed dynamically from prebuilt tables.
 """Aggregates computed in the app from the small tables (KPIs, department metrics), all tied to the filters."""
 from __future__ import annotations
 
@@ -9,6 +10,7 @@ from utils.io import cached_resource, communes, departments, load_table
 
 
 def _years(d: pd.DataFrame, f: Filters, col: str = "annee") -> pd.Series:
+    """Return boolean mask for rows falling within active period filter."""
     return d[col].between(*f.years)
 
 
@@ -54,6 +56,7 @@ def communes_with_nc(f: Filters, kind: str = "bact") -> dict:
 
 
 def scored_communes(f: Filters) -> pd.DataFrame:
+    """Return scored communes matching active geographic and typology filters."""
     d = communes()
     d = d[d["is_current"] & d["score"].notna()]
     return d[commune_mask(d, f)]

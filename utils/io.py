@@ -1,3 +1,4 @@
+# Data access layer: DuckDB connections, cached Parquet loaders, and export packaging.
 """Data access: DuckDB connection for the pipeline, cached Parquet loaders for the app, source/licence text.
 
 The app only reads data/processed/ (small, committed tables). Heavy work is done by the scripts.
@@ -28,6 +29,7 @@ def connect_duckdb(database: str = ":memory:") -> duckdb.DuckDBPyConnection:
 
 
 def processed_path(name: str) -> Path:
+    """Return absolute filesystem path to a processed Parquet table."""
     return config.PROCESSED / f"{name}.parquet"
 
 
@@ -79,6 +81,7 @@ COMPACT = {
 
 
 def compact(d: pd.DataFrame, categories: list[str]) -> pd.DataFrame:
+    """Downcast DataFrame columns to categorical, int32/int16, and float32 to save RAM."""
     for c in categories:
         d[c] = d[c].astype("category")
     for c in d.select_dtypes(include=["int64"]).columns:
@@ -120,11 +123,13 @@ def normalize(text: str) -> str:
 
 @cached_resource
 def departments() -> pd.DataFrame:
+    """Cached lookup table of French administrative departments."""
     return read_processed("dim_departements")
 
 
 @cached_resource
 def departments_geojson() -> dict:
+    """Cached GeoJSON geometry dictionary for French departments."""
     with open(config.PROCESSED / "departements.geojson", encoding="utf-8") as f:
         return json.load(f)
 

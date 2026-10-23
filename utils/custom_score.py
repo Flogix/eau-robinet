@@ -1,3 +1,4 @@
+# Personal score engine: fast array-based recalculation under user-defined weights and thresholds.
 """Personal score: the official method of utils/score.py, recomputed with the reader's own settings.
 
 The reader can change three kinds of choices on the page "Build your score":
@@ -49,6 +50,7 @@ class Personal:
 
     @property
     def is_official(self) -> bool:
+        """Return True if current parameters match official baseline settings."""
         w = np.array(self.weights, dtype=float)
         w_off = np.array([config.WEIGHTS[k] for k in S.FAMILIES])
         return (w.sum() > 0 and np.allclose(w / w.sum(), w_off) and self.micro_k == config.MICRO_K
@@ -92,6 +94,7 @@ def threshold_key(code: str, subfamily: str, threshold: float) -> str:
 
 def prepare(micro_win: pd.DataFrame, fam_win: pd.DataFrame, params: pd.DataFrame, p95: pd.DataFrame | None,
             links: pd.DataFrame, ranges: dict | None = None, s: S.ScoreSettings = S.DEFAULT) -> Prepared:
+    """Precompute index alignments and static masks into numpy arrays for fast recompute."""
     nets = pd.Index(sorted(set(micro_win["cdreseau"]) | set(fam_win["cdreseau"])), name="cdreseau")
     m = micro_win.set_index("cdreseau")
     measured = fam_win.groupby(["cdreseau", "family"], observed=True)["n_samples"].max().unstack()
@@ -164,6 +167,7 @@ def _position(col: pd.Series, index: pd.Index) -> np.ndarray:
 
 
 def _strings(col: pd.Series) -> np.ndarray:
+    """Extract string values from Series, handling categorical codes cleanly."""
     if isinstance(col.dtype, pd.CategoricalDtype):
         cats = np.append(col.cat.categories.astype(str).to_numpy(dtype=object), "")
         return cats[col.cat.codes.to_numpy()]
@@ -171,6 +175,7 @@ def _strings(col: pd.Series) -> np.ndarray:
 
 
 def _index_of(values, choices) -> np.ndarray:
+    """Map categorical values to integer indices in choices array (-1 if absent)."""
     pos = {v: i for i, v in enumerate(choices)}
     return np.array([pos.get(v, -1) for v in values], dtype=np.int8)
 

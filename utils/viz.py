@@ -1,3 +1,4 @@
+# Visual identity, typography, CSS styling, and Plotly charting helpers for Au robinet.
 """Visual identity "Au robinet" (a lab notebook / newspaper data page) and the shared chart pattern.
 
 Every chart is shown with chart(): a title that says what it shows, the figure, a caption underneath that tells how to
@@ -92,10 +93,12 @@ CSS = """
 
 
 def inject_css() -> None:
+    """Inject global stylesheet and custom CSS classes into active Streamlit view."""
     st.markdown(CSS, unsafe_allow_html=True)
 
 
 def _data_uri(name: str) -> str:
+    """Encode an image asset as a Base64 data URI string."""
     import base64
     from pathlib import Path
     data = (Path(__file__).resolve().parents[1] / "assets" / name).read_bytes()
@@ -141,11 +144,13 @@ def sidebar_menu(sections: dict) -> None:
 
 
 def header() -> None:
+    """Render primary top branding bar with logo, title, and tagline."""
     st.markdown(f'<div class="ar-header">{LOGO}<div><div class="ar-brand">Au robinet</div>'
                 f'<div class="ar-tagline">{t("brand.tagline")}</div></div></div>', unsafe_allow_html=True)
 
 
 def footer() -> None:
+    """Render standard page footer with credits and repository link."""
     st.markdown(f'<div class="ar-footer">{_md(t("footer.text"))}</div>', unsafe_allow_html=True)
 
 
@@ -162,6 +167,7 @@ def kicker(text: str) -> None:
 
 
 def lede(text: str) -> None:
+    """Render large introductory lede paragraph in serif font."""
     st.markdown(f'<div class="ar-lede">{_md(text)}</div>', unsafe_allow_html=True)
 
 
@@ -171,6 +177,7 @@ def headline(text: str) -> None:
 
 
 def takeaway(text: str) -> None:
+    """Render highlighted takeaway callout block with teal accent border."""
     st.markdown(f'<div class="ar-takeaway">{_md(text)}</div>', unsafe_allow_html=True)
 
 
@@ -215,6 +222,7 @@ def event(fig: go.Figure, x, text: str, y_pos: float = 1.0) -> go.Figure:
 
 
 def partial_year(fig: go.Figure, year: int, text: str) -> go.Figure:
+    """Highlight incomplete final year column with translucent vertical band."""
     fig.add_vrect(x0=year - 0.5, x1=year + 0.5, fillcolor=NEUTRAL, opacity=0.12, line_width=0,
                   annotation_text=f"<i>{text}</i>", annotation_position="top left", annotation_font=dict(size=11))
     return fig

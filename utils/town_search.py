@@ -1,3 +1,4 @@
+# Server-side town search autocomplete component powered by streamlit-searchbox.
 """Town search shared by the pages: one list that filters as you type, without 35,000 options in the browser.
 
 Why not st.selectbox: Streamlit's selectbox filters and draws its options in the browser, without virtualisation. With
@@ -34,10 +35,12 @@ def _options_js(options) -> list[dict]:
 
 
 def _options_py(options) -> dict:
+    """Server-side dictionary mapping returned INSEE codes to themselves."""
     return _SameCode((str(code), str(code)) for _, code in options)
 
 
 def _install_stable_values() -> None:
+    """Monkey-patch streamlit-searchbox to use stable INSEE codes instead of list indices."""
     import streamlit_searchbox as sb
     sb._list_to_options_js = _options_js
     sb._list_to_options_py = _options_py
@@ -67,6 +70,7 @@ def town_search(label: str, key: str, on_pick, current: str | None = None, help:
 @st.fragment
 def _box(label: str, key: str, on_pick, current: str | None, help: str | None, placeholder: str | None,
          disabled: bool) -> None:
+    """Render searchbox inside an isolated Streamlit fragment for responsive keystroke debouncing."""
     from streamlit_searchbox import _set_defaults, st_searchbox
 
     _install_stable_values()

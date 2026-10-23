@@ -1,3 +1,4 @@
+# Commune report generator: rule-based text synthesis and fpdf2 vector PDF export.
 """Town report: the generated "why this score" text (shared by the page and the PDF) and the PDF itself.
 
 Every sentence comes from fixed rules applied to the data (utils/score.why_report and explanation() below): no AI,
@@ -25,6 +26,7 @@ HISTORY_PREFERENCE = ("NO3", "PESTOT", "SPFAS", "ECOLI", "TH", "CLDZ_D", "PB", "
 
 
 def fmt1(v) -> str:
+    """Format float with 1 decimal place using current locale."""
     return num(v, 1)
 
 
@@ -166,6 +168,7 @@ MUTED = (94, 90, 80)
 
 
 def _hex(h: str) -> tuple[int, int, int]:
+    """Convert hex color string ('#RRGGBB') to RGB integer tuple."""
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
@@ -223,10 +226,12 @@ class _Doc:
 
     # --- building blocks ---------------------------------------------------------------------------------------
     def need(self, h: float) -> None:
+        """Trigger page break if vertical space requested exceeds remaining margin."""
         if self.pdf.get_y() + h > self.pdf.page_break_trigger:
             self.pdf.add_page()
 
     def kicker(self, text: str) -> None:
+        """Render small-caps kicker heading with teal accent bar."""
         pdf = self.pdf
         self.need(24)
         pdf.ln(4)
@@ -242,18 +247,21 @@ class _Doc:
         pdf.ln(1)
 
     def title(self, text: str, size: float = 13) -> None:
+        """Render primary section title in Fraunces serif typeface."""
         self.pdf.set_font("Fraunces", size=size)
         self.pdf.set_text_color(*INK)
         self.pdf.multi_cell(0, size * 0.48, _clean(text), new_x="LMARGIN", new_y="NEXT")
         self.pdf.ln(1)
 
     def para(self, text: str, size: float = 9.5, color=INK, italic: bool = False, w: float = 0) -> None:
+        """Render body paragraph supporting Markdown formatting and custom sizing."""
         self.pdf.set_font("Plex", "I" if italic else "", size=size)
         self.pdf.set_text_color(*color)
         self.pdf.multi_cell(w, size * 0.5, _clean(text), markdown=True, align="L", new_x="LMARGIN", new_y="NEXT")
         self.pdf.ln(1.2)
 
     def takeaway(self, text: str) -> None:
+        """Render key takeaway callout block with teal left border."""
         pdf = self.pdf
         pdf.set_font("Plex", size=9.5)
         lines = pdf.multi_cell(self.width - 5, 4.75, _clean(text), markdown=True, dry_run=True, output="LINES")
@@ -270,6 +278,7 @@ class _Doc:
         pdf.ln(2)
 
     def badge_line(self, kind: str, text: str) -> None:
+        """Render inline status badge followed by descriptive explanation text."""
         pdf = self.pdf
         bw = 25
         pdf.set_font("Plex", size=9)
@@ -323,6 +332,7 @@ class _Doc:
         pdf.set_y(46)
 
     def warning_box(self) -> None:
+        """Render standard disclaimer box warning that score is not a sanitary health notice."""
         pdf = self.pdf
         pdf.set_fill_color(*PAPER)
         y0 = pdf.get_y()
@@ -341,6 +351,7 @@ class _Doc:
         pdf.set_y(y0 + h + 2)
 
     def method(self) -> None:
+        """Render methodology summary section explaining score formulas."""
         pdf = self.pdf
         self.kicker(t("pdf.k.method"))
         self.title(t("town.formula.title"), size=11.5)
@@ -356,6 +367,7 @@ class _Doc:
             self.para(t(f"town.formula.{words}"), size=8.5)
 
     def sources(self) -> None:
+        """Render sources and licensing section at bottom of document."""
         self.kicker(t("pdf.k.sources"))
         self.para(t("pdf.sources", url=config.DATASET_PAGE, end=date_fr_en(config.DATA_END_DATE), repo=REPO_URL,
                     app=APP_URL), size=8)
@@ -373,6 +385,7 @@ class _Report(_Doc):
         self.hist_code = hist_code
 
     def render(self) -> bytes:
+        """Assemble all town report sections into a single PDF byte stream."""
         pdf = self.pdf
         pdf.add_page()
         self.masthead()
@@ -392,6 +405,7 @@ class _Report(_Doc):
         return bytes(pdf.output())
 
     def masthead(self) -> None:
+        """Render town header with population, department, and network count."""
         c = self.d["c"]
         self.brand()
         self.kicker(t("pdf.doc_title"))
@@ -404,6 +418,7 @@ class _Report(_Doc):
         self.warning_box()
 
     def score_block(self) -> None:
+        """Render overall score block with letter grade, confidence, and family sub-scores."""
         from utils.viz import FAMILY_COLORS, GRADE_COLORS
         pdf, c = self.pdf, self.d["c"]
         self.kicker(t("pdf.k.score"))
@@ -451,6 +466,7 @@ class _Report(_Doc):
         self.para(t("town.how"), size=8.5)
 
     def position(self) -> None:
+        """Render horizontal position plot comparing town score to medians."""
         pdf, c = self.pdf, self.d["c"]
         median, dep_med = medians(c, self.d["com_all"])
         self.kicker(t("pdf.k.position"))
@@ -495,6 +511,7 @@ class _Report(_Doc):
         pdf.set_y(y + 5)
 
     def networks(self) -> None:
+        """Render list of distribution networks serving commune with individual scores."""
         pdf, n = self.pdf, self.d["nets"]
         self.kicker(t("pdf.k.networks"))
         self.para(t("town.nets.text"), size=8.5)
@@ -542,6 +559,7 @@ class _Report(_Doc):
         self.para(t("town.legend"), size=7.5, color=MUTED, italic=True)
 
     def history(self) -> None:
+        """Render multi-year parameter evolution chart with thresholds."""
         from utils.viz import SERIES
         pdf, hist = self.pdf, self.d["history"]
         u_rows = self.d["udi"].reindex(self.d["nets"]["cdreseau"]).dropna(subset=["score"])
@@ -653,20 +671,24 @@ class _Report(_Doc):
 
 
 def _heading_style():
+    """Return fpdf2 FontFace styling for table column headers."""
     from fpdf.fonts import FontFace
     return FontFace(family="Plex", emphasis="BOLD", size_pt=7.5, color=MUTED, fill_color=PAPER)
 
 
 def slug(name: str) -> str:
+    """Create URL/filename safe slug from commune name."""
     from utils.io import normalize
     return normalize(name).replace(" ", "-") or "town"
 
 
 def file_name(town: str, language: str) -> str:
+    """Build localized slugged filename for town PDF download."""
     with forced_lang(language):
         return t("pdf.filename", slug=slug(town))
 
 
 def is_valid_pdf(data: bytes) -> bool:
+    """Check whether byte sequence represents a valid PDF with header and EOF trailer."""
     return data[:5] == b"%PDF-" and b"%%EOF" in data[-1024:]
 
