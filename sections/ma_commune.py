@@ -1,3 +1,4 @@
+# Commune detail page: score gauge, sub-scores, network-level diagnostics, and parameter history.
 """The water of my town: one searchable list, score, gauge, sub-scores, the report per network, history."""
 import pandas as pd
 import plotly.graph_objects as go

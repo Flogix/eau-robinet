@@ -1,3 +1,4 @@
+# Side-by-side town comparison page: multi-select benchmarks, PDF generation, and group distributions.
 """Town against town: one searchable multi-select, the marks side by side, key facts, then groups of towns."""
 from dataclasses import replace
 
@@ -74,6 +75,7 @@ else:
         m = mw[mw["cdreseau"].isin(nets)]
 
         def mx(code):
+            """Return maximum measured parameter value for active town networks."""
             v = p.loc[p["code"] == code, "max_value"]
             return float(v.max()) if len(v) else np.nan
 

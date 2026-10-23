@@ -1,3 +1,4 @@
+# Landing page: problem statement, public health stakes, town search preview, and methodology.
 """Home: the problem (sourced), why water is tested, look up your town, method and hypotheses, national indicators."""
 import pandas as pd
 import plotly.graph_objects as go

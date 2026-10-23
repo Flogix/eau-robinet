@@ -1,3 +1,4 @@
+# Interactive custom score builder: customizable weights, severity multipliers, and threshold sliders.
 """Build your own score: weights, severities and key thresholds chosen by the reader, against the official settings."""
 import pandas as pd
 import plotly.graph_objects as go
@@ -26,28 +27,33 @@ for key, value in DEFAULTS.items():
 
 
 def _reset():
+    """Reset all interactive score adjustment widgets to baseline official values."""
     for key, value in DEFAULTS.items():
         st.session_state[key] = value
 
 
 @cached_resource
 def _prepared() -> C.Prepared:
+    """Cached loader for pre-aligned custom scoring arrays."""
     return C.prepare(load_table("udi_micro_window"), load_table("udi_family_window"), load_table("udi_param_window"),
                      load_table("udi_param_p95"), commune_network_links(), S.reference_ranges(load_table("params_catalog")))
 
 
 @cached
 def _personal(weights: tuple, k: float, severity: tuple, thresholds: tuple) -> pd.DataFrame:
+    """Cached recalculation of commune scores given personal weight and threshold tuples."""
     p = _prepared()
     udi = C.recompute(p, C.Personal(weights=weights, micro_k=k, severity=dict(severity), thresholds=dict(thresholds)))
     return C.commune_recompute(p, udi)
 
 
 def fmt1(v) -> str:
+    """Format float to 1 decimal place using locale thousands and decimal rules."""
     return num(v, 1)
 
 
 def rank_txt(r) -> str:
+    """Format national rank integer with localized ordinal suffix."""
     if pd.isna(r):
         return "?"
     r = int(r)

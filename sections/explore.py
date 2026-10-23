@@ -1,3 +1,4 @@
+# Dataset exploration page: relational structure, sample tables, distributions, and correlations.
 """Explore the data: the three files and their keys, real rows, key distributions, rank correlations between
 department indicators and a scatter plot of any two of them. Every table is precomputed by
 scripts/07_build_explore_tables.py: the page only reads small tables."""
@@ -25,11 +26,13 @@ VALUE_CODES = ["NO3", "TH", "PB", "AS", "PESTOT", "SPFAS", "CL", "SO4"]
 
 
 def dec(v: float, k: int = 2) -> str:
+    """Format float with k decimals using localized decimal point."""
     s = f"{v:.{k}f}".replace("-", "−")
     return s.replace(".", ",") if lang() == "fr" else s
 
 
 def strength(rho: float) -> str:
+    """Classify Spearman rank correlation magnitude into qualitative category."""
     a = abs(rho)
     return ("very_strong" if a >= 0.8 else "strong" if a >= 0.5 else "moderate" if a >= 0.3 else "weak" if a >= 0.15
             else "none")
@@ -37,6 +40,7 @@ def strength(rho: float) -> str:
 
 @cached_resource
 def examples() -> dict:
+    """Cached loader for raw representative records JSON file."""
     return json.loads((config.PROCESSED / "explore_examples.json").read_text(encoding="utf-8"))
 
 

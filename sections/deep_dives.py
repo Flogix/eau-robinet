@@ -1,3 +1,4 @@
+# Deep dive analytical investigations: metabolite waves, PFAS emergence, and seasonal variations.
 """What we look for, what we find: H3 told as three clues, then nitrates, PFAS, seasons, hardness (H4), what-if."""
 import pandas as pd
 import plotly.graph_objects as go

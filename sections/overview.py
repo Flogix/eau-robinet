@@ -1,3 +1,4 @@
+# France overview map page: choropleth maps, departmental rankings, and regional distributions.
 """The map of France: KPIs, department map, rankings, H2 (two maps), H1 (small networks), distribution, trend."""
 import numpy as np
 import pandas as pd

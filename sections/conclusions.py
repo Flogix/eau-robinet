@@ -1,3 +1,4 @@
+# Conclusions page: hypothesis verification, analytical synthesis, civic takeaways, and limitations.
 """What it all means: each hypothesis restated, with the numbers, the verdict and what we conclude; one summary chart;
 implications for a resident and for local authorities; limits."""
 import numpy as np

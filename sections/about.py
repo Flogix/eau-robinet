@@ -1,3 +1,4 @@
+# About page: project genesis, author information, open source links, data export, and tools.
 """About this project: author, open code and processed data, how to reproduce, sources and licences, tools."""
 import streamlit as st
 

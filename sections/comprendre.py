@@ -1,3 +1,4 @@
+# Parameter reading guide: educational concepts, parameter search engine, and fact sheets.
 """How to read a water test: the basics, a search engine of parameters with sourced fact sheets, how often each
 threshold is crossed, and the thresholds used."""
 import pandas as pd
@@ -40,6 +41,7 @@ def param_totals() -> pd.DataFrame:
 
 
 def fmt_value(v) -> str:
+    """Format numeric measurement value with localized decimal separator."""
     if v is None or pd.isna(v):
         return "?"
     s = f"{v:.3g}"

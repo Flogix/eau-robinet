@@ -1,3 +1,4 @@
+# Data quality audit page: completeness heatmaps, result status breakdown, and validation checks.
 """Behind the numbers: missing values, kinds of results, official vs recomputed verdicts, coverage, checks, limits."""
 import numpy as np
 import plotly.graph_objects as go
