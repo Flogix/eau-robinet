@@ -30,6 +30,7 @@ CLAUDE.md
 docs/CAHIER_DES_CHARGES.md
 .devcontainer/
 docs/script_video.md
+docs/conv*.txt
 
 # Original EFREI logos dropped by Florian: kept on disk, never published (the app uses assets/efrei-logo-white.png)
 assets/Logo-Efrei-*-scaled.png

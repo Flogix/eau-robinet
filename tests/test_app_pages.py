@@ -186,20 +186,54 @@ def test_region_filter_shows_all_of_france_by_default():
     assert box.value == "all" and box.index == 0 and box.options[0] == "All of France"
 
 
-@pytest.mark.parametrize("lang, program, coord", [
-    ("en", "Data & AI, DAI group", "<div>coordinator: MATHEW Mano Joseph</div>"),
-    ("fr", "Data & AI, groupe DAI", "<div>coordinateur : MATHEW Mano Joseph</div>")])
-def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord):
+@pytest.mark.parametrize("lang, program, coord, proposed", [
+    ("en", "Data & AI, DAI group 2026", "<div>Coordinator: MATHEW Mano Joseph</div>",
+     '<div>Project Proposed by <a href="mailto:mano.mathew@efrei.fr">mano.mathew@efrei.fr</a></div>'),
+    ("fr", "Data & AI, groupe DAI 2026", "<div>Coordinateur : MATHEW Mano Joseph</div>",
+     '<div>Projet proposé par <a href="mailto:mano.mathew@efrei.fr">mano.mathew@efrei.fr</a></div>')])
+def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord, proposed):
     import config
     at = run_app(lang)
     first = at.sidebar.markdown[0].value
     assert 'class="ar-side-head"' in first and "data:image/png;base64," in first and "Florian Giraud" in first
-    assert program in first and coord in first and "<div>Data Analysis & Visualization</div>" in first
+    assert program in first and coord in first and proposed in first and "<div>Data Analysis & Visualization</div>" in first
+    assert '<a href="mailto:florian.giraud@efrei.net">florian.giraud@efrei.net</a>' in first
     assert 'class="ar-side-logo"' in first and "ar-side-plate" not in first      # no dark plate behind the logo
     assert f'href="{config.AUTHOR_LINKEDIN}" target="_blank"' in first
     assert f'href="{config.REPO_URL}" target="_blank"' in first
     links = [link.proto.page for link in at.sidebar.get("page_link")]
     assert len(links) == len(set(links)) == len(PAGE_FILES)          # every page in the menu, once
+
+
+@pytest.mark.parametrize("lang, expected_lines", [
+    ("en", [
+        "Florian Giraud",
+        "Data & AI, DAI group 2026",
+        '<a href="mailto:florian.giraud@efrei.net">florian.giraud@efrei.net</a>',
+        "LinkedIn", "GitHub",
+        "Data Analysis & Visualization",
+        "Coordinator: MATHEW Mano Joseph",
+        'Project Proposed by <a href="mailto:mano.mathew@efrei.fr">mano.mathew@efrei.fr</a>',
+    ]),
+    ("fr", [
+        "Florian Giraud",
+        "Data & AI, groupe DAI 2026",
+        '<a href="mailto:florian.giraud@efrei.net">florian.giraud@efrei.net</a>',
+        "LinkedIn", "GitHub",
+        "Data Analysis & Visualization",
+        "Coordinateur : MATHEW Mano Joseph",
+        'Projet proposé par <a href="mailto:mano.mathew@efrei.fr">mano.mathew@efrei.fr</a>',
+    ]),
+])
+def test_sidebar_header_lines_order_and_links(lang, expected_lines):
+    at = run_app(lang)
+    html = at.sidebar.markdown[0].value
+    last_idx = -1
+    for token in expected_lines:
+        idx = html.find(token)
+        assert idx != -1, f"Missing token {token!r} in {lang} sidebar"
+        assert idx > last_idx, f"Token {token!r} appears out of order in {lang} sidebar"
+        last_idx = idx
 
 
 @pytest.mark.parametrize("name", ["efrei-logo-black.png"])

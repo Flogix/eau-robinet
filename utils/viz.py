@@ -72,6 +72,7 @@ CSS = """
                background-color:currentColor; background-color:light-dark(#000000, #FFFFFF);
                -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain;}
 .ar-side-name {font-weight:600; font-size:.98rem; margin-top:0 !important;}
+.ar-side-email {margin-top:.15rem !important;}
 .ar-side-links {margin-top:.45rem !important;}
 .ar-side-course {margin-top:.7rem !important; opacity:.8;}
 .ar-side-course div {margin-top:.1rem;}
@@ -109,20 +110,27 @@ LOGO_MASK = _data_uri("efrei-logo-black.png")
 
 LINKEDIN = "https://www.linkedin.com/in/florian-giraud-67883a291/"
 GITHUB = "https://github.com/Flogix/eau-robinet"
+AUTHOR_EMAIL = "florian.giraud@efrei.net"
+COORD_EMAIL = "mano.mathew@efrei.fr"
 
 
 def sidebar_menu(sections: dict) -> None:
     """Top of the sidebar: the author block, then the menu (sections of st.Page drawn with st.page_link, the current
     page highlighted). Streamlit's own menu always sits at the very top, which would put the author block below it."""
     link = '<a href="{u}" target="_blank" rel="noopener noreferrer">{t}</a>'
+    mailto = '<a href="mailto:{e}">{e}</a>'
+    email_author = mailto.format(e=AUTHOR_EMAIL)
+    email_coord = mailto.format(e=COORD_EMAIL)
     with st.sidebar:
         st.markdown(
             f'<div class="ar-side-head"><div class="ar-side-logo" role="img" aria-label="{t("side.author.logo")}" '
             f'style="-webkit-mask-image:url({LOGO_MASK}); mask-image:url({LOGO_MASK})"></div>'
             f'<div class="ar-side-name">Florian Giraud</div>'
             f'<div>{t("side.author.program")}</div>'
+            f'<div class="ar-side-email">{email_author}</div>'
             f'<div class="ar-side-links">{link.format(u=LINKEDIN, t="LinkedIn")} · {link.format(u=GITHUB, t="GitHub")}</div>'
-            f'<div class="ar-side-course"><div>{t("side.author.course")}</div><div>{t("side.author.coord")}</div></div>'
+            f'<div class="ar-side-course"><div>{t("side.author.course")}</div><div>{t("side.author.coord")}</div>'
+            f'<div>{t("side.author.proposed", email=email_coord)}</div></div>'
             f'</div>', unsafe_allow_html=True)
         for i, (title, pages) in enumerate(sections.items()):
             first = " first" if i == 0 else ""

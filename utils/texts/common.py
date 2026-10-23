@@ -24,9 +24,10 @@ T = {
     # sidebar
     "side.lang": {"en": "Language", "fr": "Langue"},
     "side.author.logo": {"en": "EFREI Paris, engineering school", "fr": "EFREI Paris, école d'ingénieurs"},
-    "side.author.program": {"en": "Data & AI, DAI group", "fr": "Data & AI, groupe DAI"},
+    "side.author.program": {"en": "Data & AI, DAI group 2026", "fr": "Data & AI, groupe DAI 2026"},
     "side.author.course": {"en": "Data Analysis & Visualization", "fr": "Data Analysis & Visualization"},
-    "side.author.coord": {"en": "coordinator: MATHEW Mano Joseph", "fr": "coordinateur : MATHEW Mano Joseph"},
+    "side.author.coord": {"en": "Coordinator: MATHEW Mano Joseph", "fr": "Coordinateur : MATHEW Mano Joseph"},
+    "side.author.proposed": {"en": "Project Proposed by {email}", "fr": "Projet proposé par {email}"},
     "side.filters": {"en": "Filters", "fr": "Filtres"},
     "side.intro": {
         "en": "These filters narrow the figures of this page to a period, a region or a kind of town. Only the "
