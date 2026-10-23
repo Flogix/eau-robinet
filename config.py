@@ -1,3 +1,5 @@
+# Central configuration: filesystem paths, analysis windows, score thresholds, and data sources.
+# Serves as the single source of truth imported by the pipeline scripts, web app, and tests.
 """Project-wide constants: paths, periods, score parameters, sources.
 
 Every threshold used by the score lives here so that it is documented in one place

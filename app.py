@@ -1,3 +1,5 @@
+# Main Streamlit application entry point configuring page layout, global navigation, and sidebar controls.
+# Routes user requests across storytelling sections and handles dynamic module reloading for live deployment.
 """Entry point: language, navigation (order = order of the story), header, sidebar filters, footer."""
 import sys
 from pathlib import Path
@@ -6,9 +8,7 @@ import streamlit as st
 
 
 def _forget_stale_project_modules() -> None:
-    """After a code update (git push to Streamlit Cloud, or an edit in local development), the server keeps the old
-    project modules in memory, and a page importing a new function fails with ImportError. Forget the project
-    modules whose source file changed since they were loaded, so that the imports below load the new code."""
+    """Evict cached project modules from sys.modules when their files change on disk, preventing stale imports."""
     project = _project_modules()
     for mod in project.values():
         stamp = getattr(mod, "_au_robinet_mtime", None)
@@ -21,6 +21,7 @@ def _forget_stale_project_modules() -> None:
 
 
 def _project_modules() -> dict:
+    """Find loaded sys.modules belonging to config or utils within the project root."""
     root = Path(__file__).resolve().parent
     return {n: m for n, m in list(sys.modules.items())
             if (n == "config" or n == "utils" or n.startswith("utils.")) and getattr(m, "__file__", None)
@@ -28,6 +29,7 @@ def _project_modules() -> dict:
 
 
 def _mtime(mod) -> float | None:
+    """Get file modification timestamp for a module, returning None on filesystem error."""
     try:
         return Path(mod.__file__).stat().st_mtime
     except OSError:
@@ -35,7 +37,7 @@ def _mtime(mod) -> float | None:
 
 
 def _stamp_project_modules() -> None:
-    """Remember the modification time of each project module the first time it is seen after loading."""
+    """Record the initial modification timestamp of each loaded project module to detect subsequent file edits."""
     for mod in _project_modules().values():
         if getattr(mod, "_au_robinet_mtime", None) is None:
             mod._au_robinet_mtime = _mtime(mod)
@@ -69,6 +71,7 @@ PAGES = {   # url path -> (file, title key, material icon)
 
 
 def page(path: str) -> st.Page:
+    """Build a localized st.Page instance from the PAGES registry with translated title and icon."""
     file, title, icon = PAGES[path]
     return st.Page(file, title=t(title), icon=icon, url_path=path or None, default=(path == ""))
 
