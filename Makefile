@@ -1,3 +1,4 @@
+# Project automation tasks: setup virtual environment, rebuild data, run test suite, and launch app.
 # Usage: make setup | make data | make test | make run
 # Windows without make: see make.ps1 (.\make.ps1 setup, etc.)
 ifeq ($(OS),Windows_NT)

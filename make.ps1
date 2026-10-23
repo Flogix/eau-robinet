@@ -1,3 +1,4 @@
+# Windows PowerShell automation script: setup virtual environment, rebuild data, run test suite, and launch app.
 # PowerShell equivalent of the Makefile (Windows without make).
 # Usage: .\make.ps1 setup | data | test | run
 param([Parameter(Mandatory = $true)][ValidateSet("setup", "data", "test", "run")][string]$Target)
