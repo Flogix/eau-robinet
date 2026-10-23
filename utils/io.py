@@ -199,3 +199,52 @@ def town_options() -> tuple[list[str], dict[str, str]]:
     labels = dict(zip(d["insee"], d["label"]))
     rest = [i for i in d["insee"] if i not in EXAMPLE_TOWNS]
     return [i for i in EXAMPLE_TOWNS if i in labels] + rest, labels
+
+
+def generate_data_readme() -> str:
+    """Plain-text readme included in the processed data export zip."""
+    return (
+        "Au robinet - Processed Data Export\n"
+        "==================================\n\n"
+        "Source:\n"
+        f"{config.DATASET_CITATION}\n"
+        f"Dataset URL: {config.DATASET_PAGE}\n"
+        f"Last updated: {config.DATASET_UPDATED}\n\n"
+        "Licence:\n"
+        "Licence Ouverte / Open Licence 2.0 (Etalab)\n"
+        "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-LICENCE-OUVERTE-v2.0.pdf\n\n"
+        "Nature of this archive:\n"
+        "This archive contains DERIVED tables used by the Streamlit application « Au robinet »,\n"
+        "not the raw sanitary control data. The columns and structures are documented in docs/data_dictionary.md.\n\n"
+        "How to find the raw data and reproduce:\n"
+        f"The raw yearly files (about 3 GB of archives, 22 GB of text) can be downloaded from {config.DATASET_PAGE}.\n"
+        "The automated pipeline rebuilds all derived tables from scratch:\n"
+        f"1. Clone the repository: {config.REPO_URL}\n"
+        "2. Run `make data` (or `.\\make.ps1 data` on Windows).\n"
+    )
+
+
+def get_processed_data_size_mb() -> int:
+    """Total size in megabytes of the processed tables on disk."""
+    total_bytes = sum(f.stat().st_size for f in config.PROCESSED.glob("*") if f.is_file())
+    return round(total_bytes / (1024 * 1024))
+
+
+def build_processed_zip():
+    """Pack all files in data/processed/, documentation, and DATA_README.txt into a zip archive in memory."""
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for f in sorted(config.PROCESSED.glob("*")):
+            if f.is_file():
+                zf.write(f, arcname=f"data/processed/{f.name}")
+        dict_path = config.ROOT / "docs" / "data_dictionary.md"
+        if dict_path.is_file():
+            zf.write(dict_path, arcname="docs/data_dictionary.md")
+        dataset_path = config.ROOT / "DATASET.md"
+        if dataset_path.is_file():
+            zf.write(dataset_path, arcname="DATASET.md")
+        zf.writestr("DATA_README.txt", generate_data_readme())
+    buf.seek(0)
+    return buf

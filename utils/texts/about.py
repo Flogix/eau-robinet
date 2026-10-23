@@ -54,7 +54,13 @@ T = {
               "leur lien dans [docs/sources.md](https://github.com/Flogix/eau-robinet/blob/main/docs/sources.md). Le code de "
               "l'application est publié sous licence MIT ([LICENSE](https://github.com/Flogix/eau-robinet/blob/main/LICENSE)) ; "
               "les données, brutes ou traitées, restent sous la Licence Ouverte 2.0 de leur producteur."},
-    "about.dataset": {"en": "Open the dataset on data.gouv.fr", "fr": "Ouvrir le jeu de données sur data.gouv.fr"},
+    "about.dataset": {"en": "Original source on data.gouv.fr", "fr": "Source originale sur data.gouv.fr"},
+    "about.download_processed": {
+        "en": "Download the processed tables used by this app (ZIP, {size} MB)",
+        "fr": "Télécharger les tables traitées utilisées par cette application (ZIP, {size} Mo)"},
+    "about.raw_data_note": {
+        "en": "The raw data weighs about 3 GB and can be rebuilt with make data.",
+        "fr": "Les données brutes pèsent environ 3 Go et se reconstruisent avec make data."},
     "about.repo": {"en": "Open the GitHub repository", "fr": "Ouvrir le dépôt GitHub"},
     "about.linkedin": {"en": "LinkedIn", "fr": "LinkedIn"},
     "about.sources.link": {"en": "Read the list of sources", "fr": "Lire la liste des sources"},

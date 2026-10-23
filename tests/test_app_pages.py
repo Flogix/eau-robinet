@@ -124,6 +124,27 @@ def test_footer_and_about_link_to_linkedin(lang):
     assert any(b.proto.url == config.AUTHOR_LINKEDIN for b in at.get("link_button"))
 
 
+@pytest.mark.parametrize("lang", ["en", "fr"])
+def test_about_page_has_both_dataset_buttons(lang):
+    import config
+    from utils.io import get_processed_data_size_mb
+    at = run_app(lang)
+    at.switch_page("sections/about.py").run()
+    assert not at.exception
+    # Check data.gouv.fr link button
+    links = [b.proto.url for b in at.get("link_button")]
+    assert config.DATASET_PAGE in links
+    # Check processed data download button
+    dl_buttons = at.get("download_button")
+    assert len(dl_buttons) >= 1
+    dl = dl_buttons[0]
+    assert dl.key == "about_download_zip"
+    expected_size = str(get_processed_data_size_mb())
+    assert expected_size in dl.proto.label
+    unit = "MB" if lang == "en" else "Mo"
+    assert unit in dl.proto.label
+
+
 # --- Filters: drawn only where they act, values kept across pages -------------------------------------------------
 PAGE_FILES = {"": "intro", "reading": "comprendre", "town": "ma_commune", "compare": "comparer", "map": "overview",
               "monitor": "deep_dives", "my-score": "mon_score", "conclusions": "conclusions", "explore": "explore",

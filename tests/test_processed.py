@@ -82,3 +82,37 @@ def test_processed_size_budget():
 def test_source_manifest():
     m = json.loads((config.PROCESSED / "source_manifest.json").read_text(encoding="utf-8"))
     assert [f["file"] for f in m["files"]] == [f"dis-{y}.zip" for y in config.YEARS]
+
+
+def test_build_processed_zip_valid_and_complete():
+    import zipfile
+    from utils.io import build_processed_zip, generate_data_readme, get_processed_data_size_mb
+
+    assert get_processed_data_size_mb() > 40
+    buf = build_processed_zip()
+    assert buf.getbuffer().nbytes > 40 * 1024 * 1024
+
+    with zipfile.ZipFile(buf, "r") as zf:
+        assert zf.testzip() is None
+        names = set(zf.namelist())
+
+        # Check every file in data/processed/ is included
+        for f in config.PROCESSED.glob("*"):
+            if f.is_file():
+                assert f"data/processed/{f.name}" in names, f"Missing {f.name} in export zip"
+
+        # Check documentation files
+        assert "docs/data_dictionary.md" in names
+        assert "DATASET.md" in names
+        assert "DATA_README.txt" in names
+
+        # Check no raw or interim files are included
+        assert not any("data/raw" in name or "data/interim" in name for name in names)
+
+        # Check DATA_README.txt contents
+        readme = zf.read("DATA_README.txt").decode("utf-8")
+        assert config.DATASET_PAGE in readme
+        assert config.DATASET_UPDATED in readme
+        assert "Licence Ouverte" in readme
+        assert "DERIVED" in readme
+        assert "make data" in readme
