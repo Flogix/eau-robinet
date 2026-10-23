@@ -1,3 +1,4 @@
+# Exploratory utility: extracts reproducible 10-row samples per table for documentation.
 """Phase 0, 10 lignes d'exemple par type de fichier (2025, échantillon reproductible, graine 42),
 au format CSV brut tel que lu, pour docs/data_dictionary.md.
 

@@ -1,3 +1,4 @@
+# Exploratory analysis: details discrepancy drivers between official and recomputed chemical compliance.
 """Phase 2, explain the gap between the official chemical conformity and our recomputation.
 
 Reads data/interim (joined results, clean samples) with the project DuckDB settings (3 GB, 4 threads).
@@ -21,6 +22,7 @@ con.execute(f"CREATE TEMP TABLE g AS SELECT s.*, r.* EXCLUDE (annee, referencepr
 
 
 def show(title, sql):
+    """Execute and pretty-print formatted DuckDB query results."""
     print(f"\n### {title}")
     print(con.sql(sql).df().to_string(index=False, max_colwidth=110))
 

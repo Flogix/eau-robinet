@@ -1,3 +1,4 @@
+# Pipeline stage 02: unpacks yearly text archives and compiles validated clean Parquet partitions.
 """02: From the yearly zips to clean, typed Parquet files (one year at a time).
 
 For each year:
@@ -33,6 +34,7 @@ LOG = config.INTERIM / "build_log.jsonl"
 
 
 def count_newlines(path: Path) -> int:
+    """Count newline characters in binary file to verify complete record ingestion."""
     n = 0
     with open(path, "rb") as f:
         while chunk := f.read(1 << 24):
@@ -41,6 +43,7 @@ def count_newlines(path: Path) -> int:
 
 
 def zip_signature(zp: Path) -> str:
+    """Generate cache key from zip file size and modification timestamp."""
     st = zp.stat()
     return f"{st.st_size}|{st.st_mtime_ns}"
 
@@ -140,6 +143,7 @@ def build_clean(con, y: int) -> dict:
 
 
 def main() -> int:
+    """Execute yearly Parquet extraction and cleaning pipeline with incremental caching."""
     force = "--force" in sys.argv
     years = [int(a) for a in sys.argv[1:] if a.isdigit()] or config.YEARS
     con = connect_duckdb()

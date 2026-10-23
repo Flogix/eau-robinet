@@ -1,3 +1,4 @@
+# Exploratory utility: executes DuckDB SQL script files over raw Parquet partitions.
 """Petit utilitaire d'exploration : exécute des requêtes SQL DuckDB (séparées par ';;')
 sur les Parquet bruts de data/interim/raw_parquet/ et affiche les résultats.
 

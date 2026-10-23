@@ -1,3 +1,4 @@
+# Pipeline stage 04: builds geographical dimensions, commune typologies, and administrative contours.
 """04: Reference tables: communes (population, centre, department, region), typologies, department contours.
 
 Downloads (cached in data/raw/ref/, never overwritten):
@@ -55,6 +56,7 @@ def looks_valid(name: str, content: bytes) -> bool:
 
 
 def fetch(name: str) -> Path:
+    """Download reference dataset from remote source or load cached file."""
     path = config.RAW_REF / name
     if path.exists():
         if looks_valid(name, path.read_bytes()):
@@ -71,10 +73,12 @@ def fetch(name: str) -> Path:
 
 
 def dept_of(insee: str) -> str:
+    """Extract department code from an INSEE commune code."""
     return insee[:3] if insee.startswith("97") else insee[:2]
 
 
 def main() -> int:
+    """Coordinate reference data retrieval, spatial normalization, and dimension exports."""
     config.RAW_REF.mkdir(parents=True, exist_ok=True)
     config.PROCESSED.mkdir(parents=True, exist_ok=True)
     paths = {name: fetch(name) for name in SOURCES}

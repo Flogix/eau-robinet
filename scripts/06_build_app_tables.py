@@ -1,3 +1,4 @@
+# Pipeline stage 06: shapes departmental aggregate tables for high-performance map and trend displays.
 """06: Small tables shaped for the app's map and trend charts (pandas only, a few seconds).
 
 dept_family_year: department × year × variable -> networks measured / networks with at least one exceedance.
@@ -24,6 +25,7 @@ SUBFAMILIES = ["nitrates", "pesticides", "pfas", "metals", "disinfection_byprodu
 
 
 def main() -> int:
+    """Aggregate network non-conformities and parameter exceedances into dept_family_year table."""
     uy = read_processed("udi_year")
     rows = []
     for var, n_col, nc_col in (("bact_official", "n_bact", "n_bact_nc"), ("chem_official", "n_chem", "n_chem_nc")):

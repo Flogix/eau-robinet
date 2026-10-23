@@ -1,3 +1,4 @@
+# Pipeline stage 05: computes network and commune scores, validations, and sensitivity metrics.
 """05: scores /100 (networks and communes), validation against official conformity, sensitivity analysis.
 
 Reads only data/processed/ (small tables): no DuckDB, no raw data, a few seconds of pandas.
@@ -51,6 +52,7 @@ VARIANTS = {   # name -> changes to the default settings
 
 
 def load():
+    """Load required processed tables into a dictionary of DataFrames."""
     t = {name: read_processed(name) for name in
          ("udi_micro_window", "udi_family_window", "udi_param_window", "udi_param_p95", "bridge_commune_udi",
           "dim_communes", "dim_udi", "params_catalog")}
@@ -75,6 +77,7 @@ def spearman(x: pd.Series, y: pd.Series) -> float:
 
 
 def validation(udi: pd.DataFrame) -> pd.DataFrame:
+    """Compare calculated scores across networks with and without official non-conformities."""
     rows = []
     for label, flag, col in (("bacteriology", "n_bact_nc", "micro"), ("bacteriology", "n_bact_nc", "score"),
                              ("chemistry", "n_chem_nc_official", "chem"), ("chemistry", "n_chem_nc_official", "score")):
@@ -91,6 +94,7 @@ def validation(udi: pd.DataFrame) -> pd.DataFrame:
 
 
 def sensitivity(t, base_udi: pd.DataFrame, base_com: pd.DataFrame, links: pd.DataFrame) -> pd.DataFrame:
+    """Compute rank correlations and stability metrics across score formula variants."""
     eligible = base_udi[(base_udi["n_bact"] >= config.MIN_SAMPLES_RANKING) & base_udi["score"].notna()]["cdreseau"]
     b = base_udi.set_index("cdreseau")
     bc = base_com.set_index("insee")
@@ -133,6 +137,7 @@ def pick_rural(com: pd.DataFrame, dim: pd.DataFrame) -> str:
 
 
 def witnesses_md(t, udi: pd.DataFrame, com: pd.DataFrame, links: pd.DataFrame) -> str:
+    """Generate Markdown documentation detailing scores and diagnostic reports for witness communes."""
     dim = t["dim_communes"].set_index("insee")
     names = t["dim_udi"].set_index("cdreseau")["nomreseau"]
     labels = dict(zip(t["params_catalog"]["code"], t["params_catalog"]["label"]))
@@ -171,6 +176,7 @@ def witnesses_md(t, udi: pd.DataFrame, com: pd.DataFrame, links: pd.DataFrame) -
 
 
 def main() -> int:
+    """Execute score calculations, validation benchmarks, and sensitivity analysis exports."""
     t0 = time.time()
     t = load()
     links = S.commune_links(t["bridge_commune_udi"])

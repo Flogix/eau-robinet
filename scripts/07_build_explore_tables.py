@@ -1,3 +1,4 @@
+# Pipeline stage 07: precomputes dataset exploration tables, sample records, and indicator correlation matrices.
 """07: Small tables for the page "Explore the data" (everything heavy is computed here, the page only reads).
 
 explore_volume        per year: size of the zip, of each text file in it and of its raw Parquet copy, number of
@@ -44,12 +45,14 @@ MIN_TOWNS = 5                                           # scored towns needed fo
 
 
 def save(d: pd.DataFrame, name: str) -> None:
+    """Save DataFrame as unindexed Parquet file in processed directory."""
     d.to_parquet(OUT / f"{name}.parquet", index=False)
     print(f"{name}: {len(d):,} rows")
 
 
 # --- volume (raw files) ---------------------------------------------------------------------------------------------
 def volume() -> None:
+    """Compute storage sizes, sample counts, and fanout statistics across raw yearly files."""
     zips = sorted((config.RAW / "dis").glob("dis-20??.zip"))
     if not zips or not RAW_PARQUET.exists():
         print("explore_volume, explore_fanout: raw files not found, existing tables kept")
@@ -100,6 +103,7 @@ def param_group(row) -> str:
 
 
 def param_changes() -> None:
+    """Identify parameters added or deprecated between first and last complete year."""
     if not RAW_PARQUET.exists():
         print("explore_param_changes: raw files not found, existing table kept")
         return
@@ -120,6 +124,7 @@ def param_changes() -> None:
 
 # --- town <-> network links ---------------------------------------------------------------------------------------
 def links() -> None:
+    """Analyze network-to-commune topology and connection fanout distributions."""
     b = read_processed("bridge_commune_udi")
     last = int(b["annee"].max())
     b = b.loc[b["annee"] == last, ["insee", "cdreseau"]].drop_duplicates()
@@ -131,6 +136,7 @@ def links() -> None:
 
 # --- example rows -------------------------------------------------------------------------------------------------
 def examples() -> None:
+    """Extract representative records from documentation and sample tables for UI display."""
     md = (config.ROOT / "docs" / "data_dictionary.md").read_text(encoding="utf-8")
     section = md.split("## 12.", 1)[1]
     blocks = re.findall(r"\*\*(PLV|RESULT|COM_UDI)\*\* \((\d{4})\)\s+```csv\n(.*?)```", section, flags=re.S)
@@ -151,6 +157,7 @@ def examples() -> None:
 
 # --- distributions ------------------------------------------------------------------------------------------------
 def distributions() -> None:
+    """Compute histogram bins and quantiles for key chemical parameter measurements."""
     py = read_processed("param_year")
     p = py[(py["annee"] == YEAR) & (py["family"] != "info")]
     g = p.groupby(["family", "subfamily"], as_index=False)[["n_samples", "n_detected"]].sum()
@@ -190,6 +197,7 @@ def polygon_area_km2(coords) -> float:
 
 
 def dept_area() -> pd.Series:
+    """Extract land surface area for each department from GeoJSON boundaries."""
     geo = json.loads((OUT / "departements.geojson").read_text(encoding="utf-8"))
     out = {}
     for f in geo["features"]:
@@ -201,6 +209,7 @@ def dept_area() -> pd.Series:
 
 
 def departments() -> None:
+    """Compile departmental indicator aggregates and demographic metrics for correlation analysis."""
     dy = read_processed("dept_year")
     d = dy[dy["annee"].between(*PERIOD)].groupby("dep")[["n_bact", "n_bact_nc", "n_chem", "n_chem_nc"]].sum()
     ind = pd.DataFrame({"bact_rate": d["n_bact_nc"] / d["n_bact"], "chem_rate": d["n_chem_nc"] / d["n_chem"]})
@@ -238,6 +247,7 @@ def spearman(a: pd.Series, b: pd.Series) -> float:
 
 
 def main() -> int:
+    """Execute full data exploration table generation pipeline."""
     volume()
     param_changes()
     links()

@@ -1,3 +1,4 @@
+# Performance audit harness: measures UI response latency and thread-blocking time via Playwright.
 """Performance audit of the app in a real browser (Playwright + the local Chrome), page loads and interactions.
 
 For each action, two numbers are measured:
@@ -40,6 +41,7 @@ new PerformanceObserver(l => l.getEntries().forEach(e => { window.__lt.push([e.s
 
 
 def mark(page: Page) -> float:
+    """Record high-resolution performance timestamp in browser context."""
     return page.evaluate("performance.now()")
 
 
@@ -63,6 +65,7 @@ class Audit:
         self.base, self.label, self.rows = base.rstrip("/"), label, []
 
     def record(self, page_name: str, action: str, lang: str, res: tuple[float, float]) -> None:
+        """Measure total and blocked latency for a user action and append to log."""
         total, blocked = res
         self.rows.append({"label": self.label, "page": page_name, "action": action, "lang": lang,
                           "total_s": round(total, 2), "blocked_s": round(blocked, 2)})
@@ -70,6 +73,7 @@ class Audit:
         print(f"{page_name:12s} {lang} {action:52s} total {total:6.2f}s  blocked {blocked:5.2f}s{flag}", flush=True)
 
     def act(self, page: Page, page_name: str, action: str, lang: str, fn) -> None:
+        """Execute interaction callback, wait for DOM stabilization, and record latency."""
         t0 = mark(page)
         try:
             fn()
@@ -80,6 +84,7 @@ class Audit:
         self.record(page_name, action, lang, settle(page, t0, footer=False))
 
     def goto(self, page: Page, path: str, lang: str, action: str = "load") -> None:
+        """Navigate to relative page URL and measure full load latency."""
         sep = "&" if "?" in path else "?"
         url = f"{self.base}/{path}{sep}lang={lang}"
         t_start = time.perf_counter()
@@ -149,12 +154,14 @@ def select_option(page: Page, label: str, option: str) -> None:
 
 # --- scenarios ----------------------------------------------------------------------------------------------------
 def loads(a: Audit, page: Page, langs, tag: str) -> None:
+    """Measure initial render latency and blocking time across all application pages."""
     for lang in langs:
         for p in PAGES:
             a.goto(page, p, lang, f"load ({tag})")
 
 
 def town_scenarios(a: Audit, page: Page, lang: str) -> None:
+    """Run autocomplete selection scenarios and measure keystroke response latencies."""
     field = {"en": "Town", "fr": "Commune"}[lang]
     a.goto(page, "town?insee=75056", lang, "open Paris")
     for text, choice in (("Lyon", "Lyon (69)"), ("Marseille", "Marseille (13)"), ("Bordeaux", "Bordeaux (33)")):
@@ -183,6 +190,7 @@ def town_scenarios(a: Audit, page: Page, lang: str) -> None:
 
 
 def interactions(a: Audit, page: Page, lang: str) -> None:
+    """Audit latency for key user interactions (filters, sliders, PDF generation)."""
     fr = lang == "fr"
     # compare
     a.goto(page, "compare", lang, "open compare")
@@ -264,6 +272,7 @@ def interactions(a: Audit, page: Page, lang: str) -> None:
 
 
 def main() -> None:
+    """Execute browser performance profiling suite and output CSV benchmarks."""
     ap = argparse.ArgumentParser()
     ap.add_argument("base")
     ap.add_argument("--out", default="data/interim/perf.csv")
@@ -295,6 +304,7 @@ def main() -> None:
 
 
 def write(a: Audit, path: str) -> None:
+    """Write recorded performance benchmark measurements to CSV file."""
     if not a.rows:
         return
     out = Path(path)

@@ -1,3 +1,4 @@
+# Pipeline stage 01: downloads national SISE-Eaux yearly zip archives with checksum verification.
 """01: Download the national yearly zips (dis-YYYY.zip) listed by the data.gouv.fr API, with cache.
 
 Idempotent and safe for data/raw/ (read-only by project rule):
@@ -41,6 +42,7 @@ def sha1_of(path: Path, cache: dict) -> str:
 
 
 def download(url: str, dest: Path, size: int, sha1: str) -> None:
+    """Stream download from URL to temporary .part file and verify SHA1 checksum."""
     part = dest.with_suffix(dest.suffix + ".part")
     h = hashlib.sha1()
     with requests.get(url, stream=True, timeout=60) as r, open(part, "wb") as f:
@@ -54,6 +56,7 @@ def download(url: str, dest: Path, size: int, sha1: str) -> None:
 
 
 def main() -> int:
+    """Orchestrate data.gouv.fr dataset resource downloads and manifest generation."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--update", action="store_true", help="save newer API versions next to the local files")
     ap.add_argument("--no-hash", action="store_true", help="compare sizes only (faster)")

@@ -1,3 +1,4 @@
+# Exploratory benchmark: extracts raw archives and counts line breaks versus DuckDB rows.
 """Phase 0, reconnaissance (lecture seule de data/raw/).
 
 Pour chaque année : extrait les 3 fichiers texte du zip dans data/interim/extract/<année>/,
@@ -39,6 +40,7 @@ con.execute("SET preserve_insertion_order=false")
 
 
 def count_newlines(path: Path) -> int:
+    """Count total newline characters in binary file."""
     n = 0
     with open(path, "rb") as f:
         while chunk := f.read(1 << 24):

@@ -1,3 +1,4 @@
+# Pipeline stage 03: computes multi-year aggregates, joins measurements, and generates data quality tables.
 """03: Small tables for the app (data/processed/) + automatic data-quality checks.
 
 Steps
@@ -48,10 +49,12 @@ PREP_SOURCE = (Path(config.ROOT) / "utils" / "prep.py").read_text(encoding="utf-
 
 
 def _key(*parts) -> str:
+    """Hash string components with SHA1 to generate a unique query stamp."""
     return hashlib.sha1("\x1f".join(map(str, parts)).encode("utf-8")).hexdigest()
 
 
 def _newest(paths) -> float:
+    """Return the most recent modification time across an input list of paths."""
     return max((q.stat().st_mtime for q in paths if q.exists()), default=0.0)
 
 
@@ -63,19 +66,23 @@ def is_fresh(out: Path, key: str, inputs) -> bool:
 
 
 def write_stamp(out: Path, key: str) -> None:
+    """Persist query hash stamp for a generated output artifact."""
     STAMPS.mkdir(parents=True, exist_ok=True)
     (STAMPS / f"{out.parent.name}__{out.name}.txt").write_text(key)
 
 
 def all_inputs():
+    """Collect all parquet dependencies matching input patterns across years."""
     return list(Path(config.CLEAN).glob("*/*.parquet")) + list(JOINED.glob("*.parquet")) + [P / "params_catalog.parquet"]
 
 
 def sql_list(values) -> str:
+    """Format sequence of string values as SQL comma-separated literal list."""
     return ", ".join(f"'{v}'" for v in values)
 
 
 def check(name: str, ok: bool, value, expected, year=None, detail: str = "") -> None:
+    """Evaluate verification predicate and record check result in manifest."""
     CHECKS.append({"check": name, "year": year, "value": str(value), "expected": str(expected),
                    "ok": bool(ok), "detail": detail})
     flag = "OK " if ok else "FAIL"
@@ -123,6 +130,7 @@ def build_parts(con, template: str, name: str) -> Path:
 
 # --- 1. Parameter catalogue ------------------------------------------------------------------
 def build_catalog(con) -> pd.DataFrame:
+    """Build parameter catalog with standardized families, units, and typical thresholds."""
     print("1. parameter catalogue", flush=True)
     out = P / "params_catalog.parquet"
     key = _key("catalog", PREP_SOURCE, sorted(config.NON_RELEVANT_METABOLITES), sorted(config.TWIN_CODES.items()))
@@ -493,6 +501,7 @@ def run_checks(con) -> None:
 
 
 def main() -> int:
+    """Execute aggregate building pipeline, calculate p95 metrics, and run DQ checks."""
     t0 = time.time()
     P.mkdir(parents=True, exist_ok=True)
     con = connect_duckdb()   # memory_limit and threads from config.py (3 GB, 4 threads)
