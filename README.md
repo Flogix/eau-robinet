@@ -73,8 +73,10 @@ also get a score but are not counted). The networks sampled in a year are about 
 different network codes appear since 2016.
 
 The raw files are **not** in the repository. `make data` downloads them (with a cache that never overwrites a file) and
-rebuilds the small tables of `data/processed/` (41 files, 55 MB, largest 24 MB), which are committed so that the app runs
-from a clean clone without the raw data. Other sources (town referentials, INSEE density grid, Mountain Act towns,
+rebuilds the small tables of `data/processed/` (41 files, 52 MB, largest 23 MB), which are committed so that the app runs
+from a clean clone without the raw data. Readers can also directly download all processed tables and data documentation
+as a single ZIP archive (`eau-robinet-processed-data.zip`, about 51 MB) via the *About this project* page of the app.
+Other sources (town referentials, INSEE density grid, Mountain Act towns,
 department contours, and 39 health and regulatory sources used in the texts) are listed with their URLs in
 [docs/sources.md](docs/sources.md). The columns and their formats are described in
 [docs/data_dictionary.md](docs/data_dictionary.md).
@@ -227,6 +229,8 @@ from 10 to 5 µg/L in 2036 (source 26).
 
 ## 5. Limits and biases
 
+In brief, this dashboard presents a transparent teaching indicator rather than an official sanitary verdict, reflecting historical monitoring rather than real-time consumption risks. The findings depend on what health agencies chose to test over time, meaning that absence of measurement must never be mistaken for absence of pollutants. Finally, public open data updates are published with a delay and rebuilt manually, running under the resource constraints and sleep cycles of free cloud hosting.
+
 - **A teaching indicator.** The score is our construction: weights, curves and windows are choices. The sensitivity analysis
   and the personal score page show how much they matter, but the score is never a health verdict.
 - **Absence of measurement is not absence of pollutant.** Small networks are tested a few times a year, and many substances
@@ -240,13 +244,30 @@ from 10 to 5 µg/L in 2036 (source 26).
   town with a non-conformity is an upper bound, and towns are not weighted by the people each network serves.
 - **2026 is partial** (January to August) and is always marked as such. The overseas departments are completed progressively
   by the producer.
+- **Data publication lag and manual refresh.** Data is published by the Ministry of Health with an inherent lag (monthly
+  aggregates), and the pipeline (`make data`) is triggered manually; the live app serves the frozen snapshot of 5 October 2026
+  rather than a live streaming feed.
+- **Hosting constraints.** The live app runs on Streamlit Community Cloud (shared environment, ~507 MB RAM footprint, cold starts
+  when waking from dormancy), requiring lightweight Parquet tables and deferred archive generation rather than on-demand full recalculation.
 - **The Mediterranean coast is approximated** by the coastal Mediterranean departments outside mountain areas, because the
   national list of coastal towns could not be downloaded (dead link). The app says so wherever the group appears.
 - **Correlation is not causation.** The maps and correlations say where and how much, never why.
 - **Producer warning.** The producer corrected a publication anomaly, with past years re-published up to 2024. The local files
   are identical to the online versions (size and SHA1 checked on 19 October 2026).
 
-## 6. How to run
+## 6. Perspectives and next steps
+
+- **Bottled water benchmark.** The natural next step is comparing tap water mineral profiles and compliance with bottled
+  mineral and spring waters. Because no comprehensive official open dataset exists for bottled water in France, building one
+  would require collecting parameters from physical bottle labels or curating community databases (such as Open Food Facts)
+  with verified laboratory analyses.
+- **Population-weighted network exposure.** Integrating exact population served per distribution network (UDI) from
+  SISPEA or water authority registries would replace the current upper-bound population estimates with true population-weighted
+  exposure rates.
+- **Automated ingestion pipeline.** Replacing manual `make data` runs with a scheduled workflow (e.g. GitHub Actions or cron)
+  checking the data.gouv.fr API for monthly updates, generating diff alerts when a town's score or status changes.
+
+## 7. How to run
 
 The app reads only `data/processed/`, which is in the repository: no raw data is needed to run it.
 
@@ -280,9 +301,19 @@ Requires Python 3.11 or later (developed and deployed with 3.12). Dependencies a
 draw of a witness town uses the constant `SEED = 42` in `config.py`. Long pipeline steps can run in the background with a log:
 `.\scripts\run_logged.ps1 03_build_aggregates`.
 
-The test suite (`make test`, 271 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
+The test suite (`make test`, 295 tests) covers the parsing rules, the score formulas on synthetic data, the integrity
 of the committed tables, the personal score engine against the published scores, the PDF report in both languages, and
 opens every page in English and in French, with extreme filters (Mayotte with PFAS and 2026 alone, Corse in 2016...).
+
+### Reproducibility checklist
+
+| Item | Location in repository | How to verify |
+|---|---|---|
+| **Pinned dependencies** | `requirements.txt`, `requirements-dev.txt` | All versions pinned with `==`. Verify with `pip check`. |
+| **Clean environment** | Root directory | Clone into a clean directory, create a fresh venv, run `pip install -r requirements.txt` and `pytest`. Runs without raw data. |
+| **Automation scripts** | `Makefile`, `make.ps1` | Run `make setup` (or `.\make.ps1 setup`), `make test`, `make run`, `make data`. |
+| **Data download with cache** | `scripts/01_download.py` | Checks size and SHA1 against data.gouv.fr API before downloading; caches hashes in `data/interim/sha1_cache.json`. |
+| **Deterministic random seed** | `config.py` (`SEED = 42`) | Used in `scripts/05_build_scores.py` (witness town sampling) and `scripts/07_build_explore_tables.py` (sample rows). |
 
 **Performance.** `scripts/perf_audit.py` drives a real browser (Playwright with the installed Chrome, tools in
 `requirements-dev.txt`) and measures every page load and interaction, both the time until the app is usable again and the
@@ -295,7 +326,7 @@ than 3 seconds on the server, or if emptying the town field freezes a real brows
 that changing one redraws one chart: `tests/test_explore.py` fails if any of its controls takes more than 1.5 seconds
 on the server (measured 0.1 to 0.3 s; 0.2 to 0.4 s in Chrome).
 
-## 7. Project structure
+## 8. Project structure
 
 ```
 app.py                  page config, language, menu (order of the story) under the author block, sidebar, footer
@@ -312,15 +343,15 @@ sections/               one page per file, in the order of the story
   explore.py            Explore the data (the three files and their keys, real rows, distributions, Spearman matrix,
                         scatter plot of any two department indicators)
   data_quality.py       Behind the numbers (missing values, checks, official vs recomputed, coverage, biases)
-  about.py              Credits, licences, how it was built
+  about.py              Credits, licences, how it was built, processed data ZIP download
 utils/
-  io.py                 cached loading of data/processed/, DuckDB connections, town search
+  io.py                 cached loading of data/processed/, DuckDB connections, town search, export ZIP builder
   prep.py               parsing macros, thresholds, parameter families
   score.py              score, sub-scores, grade, confidence, rule-based report
   custom_score.py       fast recomputation of the score with the reader's settings
   town_report.py        generated explanation and the PDF report of a town (fpdf2)
   compare_report.py     texts of the comparison and its PDF report (same rules on the page and in the PDF)
-  town_search.py        town search box shared by the pages (server-side matches, see section 6)
+  town_search.py        town search box shared by the pages (server-side matches, see section 7)
   filters.py, metrics.py, viz.py, i18n.py, texts/   sidebar, KPIs, chart style, translation (English and French)
 scripts/                01_download -> 02_build_parquet -> 03_build_aggregates -> 04_referentiels -> 05_build_scores
                         -> 06_build_app_tables -> 07_build_explore_tables; explore/ holds the phase-0 queries behind
@@ -337,7 +368,7 @@ LICENSE                 MIT licence of the code (the data stays under Licence Ou
 DATASET.md              citation and links of the dataset (the raw files are downloaded by make data)
 ```
 
-## 8. Credits
+## 9. Credits
 
 Made by Florian Giraud ([LinkedIn](https://www.linkedin.com/in/florian-giraud-67883a291/)), EFREI Paris, Data & AI track, 2026. Data: French Ministry of Health, Licence Ouverte 2.0 (citation
 above). Health and regulatory sources: WHO, Santé publique France, Anses, the regional health agencies, EUR-Lex and
@@ -350,7 +381,7 @@ is not covered by it: the source dataset and the tables derived from it in `data
 2.0 of their producer, which allows reuse provided the source and the date of update are cited. The fonts in `assets/fonts/`
 keep their SIL Open Font License.
 
-## 9. Tools
+## 10. Tools
 
 This project was built with the help of an AI coding assistant, **Claude Code** (Anthropic). I framed the question, chose
 the dataset, the audience, the hypotheses and every method decision (score formula, windows, treatment of small networks,
