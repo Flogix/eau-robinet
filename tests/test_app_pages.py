@@ -1,3 +1,4 @@
+# Integration smoke tests: validates that every page and filter combination renders cleanly.
 """Smoke tests: every page runs without exception, in English and in French, with default and extreme filters."""
 from pathlib import Path
 
@@ -9,12 +10,14 @@ PAGES = sorted(p.name for p in (ROOT / "sections").glob("*.py") if p.name != "__
 
 
 def run_app(lang: str = "en") -> AppTest:
+    """Initialize and run Streamlit AppTest instance with chosen language."""
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120)
     at.session_state["lang"] = lang
     return at.run()
 
 
 def test_app_entrypoint_runs():
+    """Verify that main app entrypoint initializes without unhandled exceptions."""
     at = run_app()
     assert not at.exception
 
@@ -22,6 +25,7 @@ def test_app_entrypoint_runs():
 @pytest.mark.parametrize("lang", ["en", "fr"])
 @pytest.mark.parametrize("page", PAGES)
 def test_page_runs(page, lang):
+    """Verify that each page renders without errors and contains no illegal em-dashes."""
     at = run_app(lang)
     at.switch_page(f"sections/{page}").run()
     assert not at.exception, at.exception
@@ -40,6 +44,7 @@ COMBOS = [
 
 @pytest.mark.parametrize("region, variable, ctype, years", COMBOS)
 def test_pages_with_extreme_filters(region, variable, ctype, years):
+    """Verify that all pages handle boundary filter combinations cleanly."""
     at = run_app()
     at.switch_page("sections/overview.py").run()   # the map page enables every filter
     at.selectbox(key="f_region_code").set_value(region)
@@ -55,18 +60,21 @@ def test_pages_with_extreme_filters(region, variable, ctype, years):
 
 
 def test_town_search_tells_homonyms_apart():
+    """Verify that homonymous towns are distinguished by department suffix."""
     from utils.town_search import town_matches
     labels = [lab for lab, _ in town_matches("Saint-Denis") if lab.startswith("Saint-Denis (")]
     assert len(labels) > 1   # homonyms shown with their department
 
 
 def test_compare_defaults_to_five_cities():
+    """Verify that town comparison page defaults to 5 example cities."""
     at = run_app()
     at.switch_page("sections/comparer.py").run()
     assert at.multiselect(key="cmp_sel").value == ["75056", "69123", "13055", "33063", "59350"]
 
 
 def test_my_score_changes_and_resets():
+    """Verify that interactive score sliders recompute scores and reset properly."""
     at = run_app()
     at.switch_page("sections/mon_score.py").run()
     assert not at.exception
@@ -87,6 +95,7 @@ def test_my_score_changes_and_resets():
 
 @pytest.mark.parametrize("insee", ["75056", "97411", "01001"])   # Paris, Saint-Denis (Réunion), a small town
 def test_town_page_offers_the_pdf_in_both_languages(insee):
+    """Verify that commune detail page exposes PDF download buttons for EN and FR."""
     at = run_app()
     at.session_state["insee"] = insee            # what the town search box sets when a town is chosen
     at.switch_page("sections/ma_commune.py").run()
@@ -97,6 +106,7 @@ def test_town_page_offers_the_pdf_in_both_languages(insee):
 
 @pytest.mark.parametrize("lang, label", [("en", "What the map shows"), ("fr", "Ce que montre la carte")])
 def test_map_variable_selection_is_in_the_sidebar(lang, label):
+    """Verify that map variable selector appears inside sidebar container."""
     at = run_app(lang)
     at.switch_page("sections/overview.py").run()
     assert not at.exception
@@ -110,12 +120,14 @@ def test_map_variable_selection_is_in_the_sidebar(lang, label):
 
 
 def test_license_file():
+    """Verify that LICENSE file exists and conforms to standard MIT terms."""
     text = (ROOT / "LICENSE").read_text(encoding="utf-8")
     assert text.startswith("MIT License") and "2026 Florian Giraud" in text
 
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_footer_and_about_link_to_linkedin(lang):
+    """Verify that footer and about page contain author LinkedIn profile link."""
     import config
     at = run_app(lang)
     at.switch_page("sections/about.py").run()
@@ -126,6 +138,7 @@ def test_footer_and_about_link_to_linkedin(lang):
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_about_page_has_both_dataset_buttons(lang):
+    """Verify that About page has both data.gouv.fr link and processed ZIP download."""
     import config
     from utils.io import get_processed_data_size_mb
     at = run_app(lang)
@@ -154,6 +167,7 @@ CHANGES = {"f_years": (2020, 2023), "f_region_code": "53", "f_ctype": "rural"}
 
 
 def _signature(at: AppTest) -> str:
+    """Extract element types and order signature for rendered page."""
     parts = ([m.value for m in at.markdown] + [c.value for c in at.caption] + [str(x.proto) for x in at.get("metric")]
              + [str(x.proto) for x in at.get("plotly_chart")])
     return "".join(parts)
@@ -161,6 +175,7 @@ def _signature(at: AppTest) -> str:
 
 @pytest.mark.parametrize("url", list(PAGE_FILES))
 def test_filters_are_drawn_exactly_where_they_act(url):
+    """Verify that filter controls are rendered only on pages where they operate."""
     from utils.filters import PAGE_FILTERS
     page = f"sections/{PAGE_FILES[url]}.py"
     at = run_app()
@@ -187,6 +202,7 @@ def test_filters_are_drawn_exactly_where_they_act(url):
 
 
 def test_filter_values_survive_a_page_without_filters():
+    """Verify that active filter states persist across navigation to filterless pages."""
     at = run_app()
     at.switch_page("sections/overview.py").run()
     at.slider(key="f_years").set_value((2019, 2022))
@@ -201,6 +217,7 @@ def test_filter_values_survive_a_page_without_filters():
 
 
 def test_region_filter_shows_all_of_france_by_default():
+    """Verify that regional filter defaults to all of France without blank state."""
     at = run_app()
     at.switch_page("sections/overview.py").run()
     box = at.selectbox(key="f_region_code")
@@ -213,6 +230,7 @@ def test_region_filter_shows_all_of_france_by_default():
     ("fr", "Data & AI, groupe DAI 2026", "<div>Coordinateur : MATHEW Mano Joseph</div>",
      '<div>Projet proposé par <a href="mailto:mano.mathew@efrei.fr">mano.mathew@efrei.fr</a></div>')])
 def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord, proposed):
+    """Verify that custom sidebar header places author metadata above navigation."""
     import config
     at = run_app(lang)
     first = at.sidebar.markdown[0].value
@@ -247,6 +265,7 @@ def test_sidebar_starts_with_the_author_block_then_the_menu(lang, program, coord
     ]),
 ])
 def test_sidebar_header_lines_order_and_links(lang, expected_lines):
+    """Verify exact ordering of sidebar header metadata and mailto links."""
     at = run_app(lang)
     html = at.sidebar.markdown[0].value
     last_idx = -1
@@ -259,6 +278,7 @@ def test_sidebar_header_lines_order_and_links(lang, expected_lines):
 
 @pytest.mark.parametrize("name", ["efrei-logo-black.png"])
 def test_efrei_logos_are_small_and_transparent(name):
+    """Verify dimensions and file sizes of bundled school logo assets."""
     from PIL import Image
     path = ROOT / "assets" / name
     assert path.stat().st_size < 10_000
@@ -279,6 +299,7 @@ def test_logo_follows_the_theme_in_css():
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_conclusions_come_second_and_link_to_the_evidence(lang):
+    """Verify that conclusions page is second in menu and links to all evidence."""
     at = run_app(lang)
     menu = [link.proto.page for link in at.sidebar.get("page_link")]  # url paths, "" for the home page
     assert menu[:3] == ["", "conclusions", "reading"]

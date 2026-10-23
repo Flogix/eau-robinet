@@ -1,3 +1,4 @@
+# Regression and UX feedback tests: verifies search previews, state persistence, and missing data cues.
 """Fixes after the user test of 20/10/2026: the home search shows a preview instead of leaving the page (2a), the towns
 compared survive navigation (2d), the heatmap of missing values says so when a file has none (2g)."""
 from pathlib import Path
@@ -9,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run_app(lang: str = "en") -> AppTest:
+    """Helper executing AppTest against app entrypoint in given language."""
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["lang"] = lang
     return at.run()
@@ -16,6 +18,7 @@ def run_app(lang: str = "en") -> AppTest:
 
 # --- 2a. Home: a preview, no automatic change of page ----------------------------------------------------------------
 def test_home_search_never_switches_page():
+    """Verify that home search box displays preview without navigating away."""
     source = (ROOT / "sections" / "intro.py").read_text(encoding="utf-8")
     assert "switch_page" not in source
 
@@ -24,6 +27,7 @@ def test_home_search_never_switches_page():
     ("en", "69123", "Lyon (69)", "See the full report"), ("fr", "69123", "Lyon (69)", "Voir le rapport complet"),
     ("en", "07173", "Péreyres (07)", "See the full report")])          # a town without score
 def test_home_shows_a_preview_and_a_link_to_the_town_page(lang, insee, expected, link):
+    """Verify that home preview displays town grade, score, and link to town report."""
     from utils.io import communes
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["lang"] = lang
@@ -44,6 +48,7 @@ def test_home_shows_a_preview_and_a_link_to_the_town_page(lang, insee, expected,
 
 # --- 2d. Town against town: the towns compared survive navigation ---------------------------------------------------
 def test_towns_compared_survive_a_visit_to_other_pages():
+    """Verify that selected towns in comparison view survive navigating across pages."""
     at = run_app()
     at.switch_page("sections/comparer.py").run()
     at.multiselect(key="cmp_sel").set_value(["69123", "13055"]).run()     # two of the options shown
@@ -56,6 +61,7 @@ def test_towns_compared_survive_a_visit_to_other_pages():
 
 
 def test_towns_compared_can_come_from_the_link():
+    """Verify that towns parameter in URL query string pre-populates comparison view."""
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.query_params["towns"] = "13055,59350,zzzzz"                  # an unknown code is ignored
     at.run()
@@ -68,6 +74,7 @@ def test_towns_compared_can_come_from_the_link():
     ("en", "In the COM_UDI files, 0% of the cells are empty", "0% of empty cells in every column"),
     ("fr", "Dans les fichiers COM_UDI, 0 % de cases vides", "0 % de cases vides dans toutes les colonnes")])
 def test_heatmap_of_a_complete_file_says_zero_percent(lang, headline, caption):
+    """Verify that completeness heatmap announces zero percent missing for complete files."""
     import json
     at = run_app(lang)
     at.switch_page("sections/data_quality.py").run()
@@ -85,6 +92,7 @@ def test_heatmap_of_a_complete_file_says_zero_percent(lang, headline, caption):
 
 
 def test_heatmap_of_a_file_with_gaps_names_the_emptiest_column():
+    """Verify that completeness heatmap names the column with the highest missing share."""
     at = run_app()
     at.switch_page("sections/data_quality.py").run()
     at.button_group(key="dq_table").set_value("PLV").run()
@@ -108,8 +116,10 @@ def test_parameter_counts_explained():
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_pages_use_the_same_counts(lang):
+    """Verify that all pages reference identical sample and row counts for data consistency."""
     import re
     def page_text(page):
+        """Helper concatenating all markdown and caption text blocks on a page."""
         at = run_app(lang)
         at.switch_page(f"sections/{page}.py").run()
         assert not at.exception

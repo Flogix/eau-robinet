@@ -1,3 +1,4 @@
+# Integrity and consistency tests for committed processed Parquet tables.
 """Integrity of the committed tables in data/processed/ (runs from a clean clone, no raw data needed)."""
 import json
 
@@ -36,17 +37,20 @@ TABLES_KEYS = {
 
 @pytest.mark.parametrize("name, keys", TABLES_KEYS.items())
 def test_table_exists_with_unique_key(name, keys):
+    """Verify that each processed Parquet table exists and possesses unique primary keys."""
     df = read_processed(name)
     assert len(df) > 0
     assert not df.duplicated(keys).any(), f"{name}: duplicated key {keys}"
 
 
 def test_all_years_present():
+    """Verify that national annual table contains all study years (2016-2026)."""
     ny = read_processed("national_year")
     assert ny["annee"].tolist() == config.YEARS
 
 
 def test_conformity_counts_are_consistent():
+    """Verify arithmetic consistency of national compliance counts."""
     ny = read_processed("national_year")
     assert (ny["n_bact_nc"] <= ny["n_bact"]).all()
     assert (ny["n_chem_nc"] + ny["n_chem_derog"] <= ny["n_chem"]).all()
@@ -54,12 +58,14 @@ def test_conformity_counts_are_consistent():
 
 
 def test_department_totals_match_national():
+    """Verify that departmental sample and non-compliance sums equal national totals."""
     ny = read_processed("national_year").set_index("annee")
     dy = read_processed("dept_year").groupby("annee")[["n_samples", "n_bact_nc", "n_chem_nc"]].sum()
     pd.testing.assert_frame_equal(dy, ny[["n_samples", "n_bact_nc", "n_chem_nc"]], check_dtype=False, check_index_type=False)
 
 
 def test_every_family_known():
+    """Verify that all parameter codes in catalog map to known classification families."""
     cat = read_processed("params_catalog")
     assert set(cat["family"]) <= {"micro", "chem", "comfort", "info"}
     nonrel = cat[cat["code"].isin(config.NON_RELEVANT_METABOLITES)]
@@ -67,12 +73,14 @@ def test_every_family_known():
 
 
 def test_automatic_checks_all_passed():
+    """Verify that all automated data quality assertions in dq_checks passed successfully."""
     dq = read_processed("dq_checks")
     failed = dq[~dq["ok"]]
     assert failed.empty, failed.to_string()
 
 
 def test_processed_size_budget():
+    """Verify that committed data/processed tables stay within overall file size budget."""
     total = sum(f.stat().st_size for f in config.PROCESSED.iterdir()) / 1e6
     assert total < 150
     for f in config.PROCESSED.iterdir():
@@ -80,11 +88,13 @@ def test_processed_size_budget():
 
 
 def test_source_manifest():
+    """Verify structure and metadata integrity of source_manifest.json."""
     m = json.loads((config.PROCESSED / "source_manifest.json").read_text(encoding="utf-8"))
     assert [f["file"] for f in m["files"]] == [f"dis-{y}.zip" for y in config.YEARS]
 
 
 def test_build_processed_zip_valid_and_complete():
+    """Verify that build_processed_zip archive contains all processed tables and valid metadata."""
     import zipfile
     from utils.io import build_processed_zip, generate_data_readme, get_processed_data_size_mb
 

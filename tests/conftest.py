@@ -1,3 +1,4 @@
+# Pytest configuration: configures project root on sys.path for global imports.
 import sys
 from pathlib import Path
 

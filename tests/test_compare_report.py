@@ -1,3 +1,4 @@
+# Unit and integration tests for multi-town comparison report and PDF generation.
 """Comparison report (page "Town against town" and its PDF): rule-based texts shared by the page and the PDF, valid
 PDFs in English and French for 2 to 6 towns, towns without score, overseas towns, file names."""
 from pathlib import Path
@@ -15,6 +16,7 @@ PEREYRES, MAMOUDZOU, ABYMES = "07173", "97611", "97101"     # no score; Mayotte;
 
 
 def selection(insees):
+    """Helper returning communes rows for scored towns matching INSEE codes."""
     c = communes().set_index("insee").reindex(insees).reset_index()
     return c[c["score"].notna()].reset_index(drop=True)
 
@@ -23,20 +25,24 @@ def selection(insees):
 @pytest.mark.parametrize("towns", [[PARIS, VILLEJUIF], [PARIS, LYON, MARSEILLE, BORDEAUX, LILLE, VILLEJUIF],
                                    [PARIS, PEREYRES, ABYMES, MAMOUDZOU]])
 def test_pdf_is_valid_in_both_languages(towns, lang):
+    """Verify comparison PDF structure and non-empty byte size across languages."""
     data = CR.build_pdf(towns, lang)
     assert is_valid_pdf(data) and 20_000 < len(data) < 400_000
 
 
 def test_pdf_with_fewer_than_two_scored_towns_still_works():
+    """Verify graceful degradation when comparison has fewer than 2 scored towns."""
     assert is_valid_pdf(CR.build_pdf([PARIS, PEREYRES], "en"))
 
 
 def test_town_without_score_is_set_aside():
+    """Verify that unscored towns are isolated into unscored subset."""
     d = CR.gather([PARIS, PEREYRES, LYON])
     assert list(d["sel"]["insee"]) == [PARIS, LYON] and list(d["unscored"]["insee"]) == [PEREYRES]
 
 
 def test_texts_come_from_the_data():
+    """Verify comparison headline and position texts match underlying scores."""
     sel = selection([PARIS, VILLEJUIF, LILLE])
     best, worst = sel.loc[sel["score"].idxmax()], sel.loc[sel["score"].idxmin()]
     with forced_lang("en"):
@@ -51,6 +57,7 @@ def test_texts_come_from_the_data():
 
 
 def test_why_text_names_the_causes_in_lower_case():
+    """Verify that parameter causes are rendered in lowercase within explanations."""
     cat = load_table("params_catalog")
     with forced_lang("fr"):
         why = CR.why_text(selection([PARIS, MARSEILLE]), dict(zip(cat["code"], cat["label"])))
@@ -58,6 +65,7 @@ def test_why_text_names_the_causes_in_lower_case():
 
 
 def test_why_text_is_short_and_does_not_repeat_the_scores():
+    """Verify that comparison explanations remain concise and avoid redundant score digits."""
     cat = load_table("params_catalog")
     sel = selection([MARSEILLE, LILLE, PARIS])
     lines = CR.why_lines(sel, dict(zip(cat["code"], cat["label"])))
@@ -69,6 +77,7 @@ def test_why_text_is_short_and_does_not_repeat_the_scores():
 
 
 def test_file_names():
+    """Verify slug generation rules for localized comparison PDF filenames."""
     assert CR.file_name(["Paris", "Villejuif"], "en") == "tap-water-comparison-paris-villejuif-en.pdf"
     assert CR.file_name(["Paris", "Lyon", "Marseille", "Lille"], "fr") == \
         "comparaison-eau-paris-lyon-marseille-et-1-autre-fr.pdf"
@@ -78,6 +87,7 @@ def test_file_names():
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_page_shows_the_same_text_and_offers_both_pdfs(lang):
+    """Verify that comparison UI renders matching explanation text and PDF download buttons."""
     at = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py"), default_timeout=180)
     at.session_state["lang"] = lang
     at.run()

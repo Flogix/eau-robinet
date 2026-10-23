@@ -1,3 +1,4 @@
+# Performance regression guards: verifies option caps, server response times, and browser blocking bounds.
 """Performance guards: they fail if a key interaction becomes slow again.
 
 The freeze fixed on 20/10/2026 came from the browser, not the server: Streamlit's selectbox drew up to 35,000 town
@@ -32,12 +33,14 @@ BROWSER_CHOOSE_S = 4.0       # choosing a town until the page is updated and usa
 
 
 def run_app(lang: str = "en") -> AppTest:
+    """Helper initializing Streamlit AppTest instance with specified language."""
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["lang"] = lang
     return at.run()
 
 
 def timed_run(at: AppTest) -> float:
+    """Measure wall-clock duration of an AppTest execution cycle."""
     t0 = time.perf_counter()
     at.run()
     assert not at.exception, at.exception
@@ -47,6 +50,7 @@ def timed_run(at: AppTest) -> float:
 # --- 1. the cause ----------------------------------------------------------------------------------------------
 @pytest.mark.parametrize("page", sorted(p.name for p in (ROOT / "sections").glob("*.py") if p.name != "__init__.py"))
 def test_no_widget_sends_thousands_of_options(page):
+    """Verify that no UI component passes large option lists to browser."""
     at = run_app()
     at.switch_page(f"sections/{page}").run()
     assert not at.exception
@@ -56,6 +60,7 @@ def test_no_widget_sends_thousands_of_options(page):
 
 # --- 2. the server ----------------------------------------------------------------------------------------------
 def test_town_search_is_fast_and_correct(monkeypatch):
+    """Verify that commune search completes within latency budget and ranks matches correctly."""
     import functools
 
     from utils import io, town_search
@@ -88,6 +93,7 @@ def test_town_options_carry_their_code_not_their_position():
 
 
 def test_choosing_towns_reruns_the_town_page_quickly():
+    """Verify that selecting new towns reruns the town page within server time budget."""
     at = run_app()
     at.switch_page("sections/ma_commune.py").run()
     for insee in ("69123", "13055", "97611", "93066", "07173"):   # Lyon, Marseille, Mamoudzou, Saint-Denis, no score
@@ -96,6 +102,7 @@ def test_choosing_towns_reruns_the_town_page_quickly():
 
 
 def test_personal_score_sliders_rerun_quickly():
+    """Verify that personal score slider updates rerun within server time budget."""
     at = run_app()
     at.switch_page("sections/mon_score.py").run()
     at.select_slider(key="my_sev_pesticides").set_value(3.0)
@@ -107,6 +114,7 @@ def test_personal_score_sliders_rerun_quickly():
 
 
 def test_compare_with_six_towns_reruns_quickly():
+    """Verify that town comparison view with maximum towns reruns within server budget."""
     at = run_app()
     at.switch_page("sections/comparer.py").run()
     at.session_state["_cmp_add"] = "94076"                    # what the "Add a town" box sets (Villejuif)
@@ -120,6 +128,7 @@ CHROME = Path(os.path.expandvars(r"%LOCALAPPDATA%\Google\Chrome\Application\chro
 
 
 def _free_port() -> int:
+    """Helper finding an available local TCP port for background server."""
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         return s.getsockname()[1]
@@ -127,6 +136,7 @@ def _free_port() -> int:
 
 @pytest.fixture(scope="module")
 def live_app():
+    """Fixture launching temporary headless Streamlit server for browser interaction tests."""
     if importlib.util.find_spec("playwright") is None or not CHROME.exists():
         pytest.skip("Playwright or Chrome not installed")
     port = _free_port()
@@ -147,6 +157,7 @@ def live_app():
 
 
 def test_town_field_does_not_freeze_the_browser(live_app):
+    """Playwright test checking that emptying town field does not block main browser thread."""
     spec = importlib.util.spec_from_file_location("perf_audit", ROOT / "scripts" / "perf_audit.py")
     pa = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(pa)

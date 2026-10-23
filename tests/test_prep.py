@@ -1,3 +1,4 @@
+# Unit tests for DuckDB SQL parsing macros and parameter classification heuristics.
 """Parsing macros and parameter families, tested on synthetic values taken from formats seen in the data."""
 import duckdb
 import pytest
@@ -7,12 +8,14 @@ from utils.prep import classify_parameter, register_macros
 
 @pytest.fixture(scope="module")
 def con():
+    """Fixture providing an in-memory DuckDB connection with project macros registered."""
     c = duckdb.connect()
     register_macros(c)
     return c
 
 
 def one(con, sql, *params):
+    """Helper executing SQL expression and returning first column of first row."""
     return con.execute(f"SELECT {sql}", list(params)).fetchone()[0]
 
 
@@ -20,6 +23,7 @@ def one(con, sql, *params):
     ("0,5", 0.5), ("0.5", 0.5), (" 12 ", 12.0), (",71", 0.71), ("11,", 11.0), ("-0,94573", -0.94573), ("abc", None),
 ])
 def test_num_fr(con, text, expected):
+    """Verify French decimal string parsing macro across standard and edge formats."""
     assert one(con, "num_fr(?)", text) == pytest.approx(expected) if expected is not None else one(con, "num_fr(?)", text) is None
 
 
@@ -42,6 +46,7 @@ def test_num_fr(con, text, expected):
     ("?", "N", None, "other", None, None),
 ])
 def test_result_parsing(con, rq, qualit, vt, status, value, lq):
+    """Verify result status, numeric quantification, and LQ extraction macros."""
     assert one(con, "rq_status(?, ?)", rq, qualit) == status
     got = one(con, "rq_value(?, ?, ?)", rq, qualit, vt)
     assert got == pytest.approx(value) if value is not None else got is None
@@ -60,6 +65,7 @@ def test_result_parsing(con, rq, qualit, vt, status, value, lq):
     (None, None, None, None),
 ])
 def test_threshold_parsing(con, text, tmin, tmax, unit):
+    """Verify extraction of minimum, maximum, and unit from regulatory threshold strings."""
     got_min, got_max, got_unit = con.execute("SELECT thr_min(?), thr_max(?), thr_unit(?)", [text] * 3).fetchone()
     assert (got_min is None) if tmin is None else got_min == pytest.approx(tmin)
     assert (got_max is None) if tmax is None else got_max == pytest.approx(tmax)
@@ -70,6 +76,7 @@ def test_threshold_parsing(con, text, tmin, tmax, unit):
     ("mg(Mg)/L", "mg/L"), ("µg(Se)/L", "µg/L"), ("mg(Cl2)/L", "mg/L"), ("n/(100mL)", "n/(100mL)"), ("µg/L", "µg/L"),
 ])
 def test_unit_norm(con, unit, expected):
+    """Verify chemical concentration unit string normalization rules."""
     assert one(con, "unit_norm(?)", unit) == expected
 
 
@@ -91,6 +98,7 @@ def test_unit_norm(con, unit, expected):
     (("CL2LIB", "mg(Cl2)/L", False, False, None, None), ("info", "no_threshold")),
 ])
 def test_classify_parameter(args, expected):
+    """Verify classification of parameter catalog codes into regulatory families."""
     assert classify_parameter(*args) == expected
 
 
@@ -102,6 +110,7 @@ def test_classify_parameter(args, expected):
     (None, False, None, None, None),
 ])
 def test_thr_kind(con, lim_max, nonrel, ref_min, ref_max, expected):
+    """Verify hierarchy rules determining regulatory threshold kind."""
     assert one(con, "thr_kind(?::DOUBLE, ?::BOOLEAN, ?::DOUBLE, ?::DOUBLE)", lim_max, nonrel, ref_min, ref_max) == expected
 
 
@@ -119,6 +128,7 @@ def test_thr_kind(con, lim_max, nonrel, ref_min, ref_max, expected):
     ("not_measured", None, "limit", 0.1, None, False),
 ])
 def test_is_exceed(con, status, value, kind, tmax, tmin, expected):
+    """Verify exceedance boolean logic across upper, lower, and uncountable conditions."""
     assert one(con, "is_exceed(?, ?::DOUBLE, ?, ?::DOUBLE, ?::DOUBLE)", status, value, kind, tmax, tmin) is expected
 
 
@@ -127,10 +137,12 @@ def test_is_exceed(con, status, value, kind, tmax, tmin, expected):
     ("present", 1.0, True), ("not_measured", None, False),
 ])
 def test_is_detected(con, status, value, expected):
+    """Verify detection boolean flag across quantified, above, and present statuses."""
     assert one(con, "is_detected(?, ?::DOUBLE)", status, value) is expected
 
 
 def test_dep_of_network_and_search_normalisation():
+    """Verify network department extraction and commune search string accent normalization."""
     import pandas as pd
 
     from utils.io import dep_of_network, normalize
@@ -152,6 +164,7 @@ def test_translations_complete_and_clean():
 
 
 def test_every_text_key_used_in_code_exists():
+    """Verify that every text dictionary key referenced in source code is defined."""
     import pathlib
     import re
 
@@ -165,6 +178,7 @@ def test_every_text_key_used_in_code_exists():
 
 
 def test_fact_sheets_complete_sourced_and_clean():
+    """Verify completeness and sourcing for all parameter educational fact sheets."""
     from utils.texts.factsheets import FACTS, FIELDS, SOURCES
     assert len(FACTS) >= 20
     for code, sheet in FACTS.items():

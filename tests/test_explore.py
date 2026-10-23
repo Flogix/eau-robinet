@@ -1,3 +1,4 @@
+# Integration and unit tests for dataset exploration tables and interactive UI controls.
 """Page "Explore the data": precomputed tables (consistent with the data dictionary and the other pages, no new raw
 row in the repository) and the page itself (both languages, every control, fast reruns)."""
 import json
@@ -21,12 +22,14 @@ TABLES = ["explore_volume", "explore_fanout", "explore_param_changes", "explore_
 
 @pytest.mark.parametrize("name", TABLES)
 def test_explore_tables_exist_and_are_small(name):
+    """Verify that all explore Parquet tables exist on disk and respect size bounds."""
     path = config.PROCESSED / f"{name}.parquet"
     assert path.exists() and path.stat().st_size < 200_000, name
     assert len(read_processed(name)) > 0
 
 
 def test_volume_matches_the_data_dictionary():
+    """Verify that volume aggregates match totals documented in data_dictionary.md."""
     v = read_processed("explore_volume")
     assert list(v["annee"]) == config.YEARS
     assert v["samples"].sum() == 2_991_181 and v["result_rows"].sum() == 133_474_398   # data_dictionary.md section 3
@@ -34,6 +37,7 @@ def test_volume_matches_the_data_dictionary():
 
 
 def test_spearman_matrix_is_consistent_with_the_other_pages():
+    """Verify correlation matrix properties and consistency with map/conclusions numbers."""
     sp = read_processed("explore_spearman")
     m = sp.pivot(index="x", columns="y", values="rho")
     assert (abs(m.values.diagonal() - 1) < 1e-12).all() and (abs(m - m.T) < 1e-12).all().all()
@@ -58,6 +62,7 @@ def test_examples_add_no_raw_row_to_the_repository():
 
 
 def test_value_bins_add_up():
+    """Verify that measurement histogram bins sum up to total network counts."""
     v = read_processed("explore_values")
     for code, g in v.groupby("code"):
         assert g["n_networks"].sum() == g["n_total"].iloc[0], code
@@ -66,6 +71,7 @@ def test_value_bins_add_up():
 
 # --- the page ----------------------------------------------------------------------------------------------------
 def run_page(lang: str) -> AppTest:
+    """Helper initializing Streamlit AppTest navigated to Explore page."""
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180)
     at.session_state["lang"] = lang
     at.run()
@@ -75,6 +81,7 @@ def run_page(lang: str) -> AppTest:
 
 
 def timed(at: AppTest) -> float:
+    """Helper measuring rerun execution time for active AppTest instance."""
     t0 = time.perf_counter()
     at.run()
     assert not at.exception, at.exception
@@ -83,6 +90,7 @@ def timed(at: AppTest) -> float:
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_every_control_of_the_page_is_fast(lang):
+    """Verify that interactive tab switches and selectbox changes rerun within latency budget."""
     at = run_page(lang)
     times = []
     for table in ("RESULT", "COM_UDI", "udi_year", "PLV"):
@@ -104,6 +112,7 @@ def test_every_control_of_the_page_is_fast(lang):
 
 @pytest.mark.parametrize("lang", ["en", "fr"])
 def test_page_texts_are_computed_and_clean(lang):
+    """Verify that rendered exploration text elements contain computed numbers and clean wording."""
     at = run_page(lang)
     text = " ".join(m.value for m in at.markdown if not m.value.startswith("<style")) + " ".join(
         c.value for c in at.caption)

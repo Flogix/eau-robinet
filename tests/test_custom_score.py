@@ -1,3 +1,4 @@
+# Unit tests for custom scoring engine: checks baseline reproduction and parameter sensitivity.
 """Personal score (page "Build your own score"): the fast engine must give exactly the published scores with the
 official settings, and move in the expected direction when a setting changes."""
 import numpy as np
@@ -12,6 +13,7 @@ from utils.io import read_processed
 
 @pytest.fixture(scope="module")
 def prepared():
+    """Fixture providing Prepared custom scoring data arrays."""
     links = S.commune_links(read_processed("bridge_commune_udi"))
     return C.prepare(read_processed("udi_micro_window"), read_processed("udi_family_window"),
                      read_processed("udi_param_window"), read_processed("udi_param_p95"), links,
@@ -20,10 +22,12 @@ def prepared():
 
 @pytest.fixture(scope="module")
 def official(prepared):
+    """Fixture providing baseline network scores recomputed under official settings."""
     return C.recompute(prepared, C.Personal())
 
 
 def test_official_settings_reproduce_published_network_scores(official):
+    """Verify that custom engine reproduces published network scores under default settings."""
     pub = read_processed("udi_scores").set_index("cdreseau").reindex(official.index)
     for col in ("micro", "chem", "comfort", "score"):
         assert (official[col].isna() == pub[col].isna()).all(), col
@@ -32,6 +36,7 @@ def test_official_settings_reproduce_published_network_scores(official):
 
 
 def test_official_settings_reproduce_published_town_scores(prepared, official):
+    """Verify that custom engine reproduces published commune scores under default settings."""
     towns = C.commune_recompute(prepared, official)
     pub = read_processed("commune_scores").set_index("insee")
     pub = pub[pub["score"].notna()]
@@ -40,6 +45,7 @@ def test_official_settings_reproduce_published_town_scores(prepared, official):
 
 
 def test_official_values_of_thresholds_match_the_data():
+    """Verify that slider official threshold values match data limits exactly."""
     w = read_processed("udi_param_window")
     for code in ("NO3", "PB", "AS", "SPFAS"):
         assert w.loc[w["code"] == code, "threshold"].astype(float).round(4).unique().tolist() == [C.THRESHOLDS[code]["official"]]
@@ -51,6 +57,7 @@ def test_official_values_of_thresholds_match_the_data():
 
 
 def test_is_official():
+    """Verify detection of baseline official parameter configurations."""
     assert C.Personal().is_official
     assert C.Personal(weights=(2, 2, 1)).is_official            # same weights once rescaled
     assert not C.Personal(weights=(1, 1, 1)).is_official
@@ -60,6 +67,7 @@ def test_is_official():
 
 
 def test_stricter_settings_never_raise_a_score(prepared, official):
+    """Verify that tightening thresholds or severities never increases scores."""
     strict = C.recompute(prepared, C.Personal(micro_k=10, severity={g: 2.0 for g in C.SEVERITY_GROUPS},
                                               thresholds={"NO3": 25.0, "PB": 5.0, "AS": 5.0, "PEST": 0.05}))
     for col in ("micro", "chem"):
@@ -105,6 +113,7 @@ def test_severity_multiplies_the_penalty_of_one_group_only():
 
 
 def test_weights_change_global_score_only(prepared, official):
+    """Verify that adjusting family weights alters global score without changing sub-scores."""
     mine = C.recompute(prepared, C.Personal(weights=(1.0, 0.0, 0.0)))
     both = mine.dropna(subset=["micro"])
     assert np.allclose(both["score"], both["micro"])
@@ -112,6 +121,7 @@ def test_weights_change_global_score_only(prepared, official):
 
 
 def test_recompute_is_fast_enough_for_a_slider(prepared):
+    """Verify that array-based recompute completes within slider latency budget."""
     import time
     t0 = time.perf_counter()
     C.recompute(prepared, C.Personal(weights=(0.2, 0.5, 0.3), severity={"metals": 3.0}))
@@ -119,6 +129,7 @@ def test_recompute_is_fast_enough_for_a_slider(prepared):
 
 
 def test_defaults_come_from_config():
+    """Verify that personal score default settings match config.py constants."""
     assert C.Personal().weights == tuple(config.WEIGHTS[k] for k in S.FAMILIES)
     assert C.Personal().micro_k == config.MICRO_K
     assert config.MICRO_K in C.MICRO_K_CHOICES and 1.0 in C.SEVERITY_CHOICES
